@@ -1,0 +1,7 @@
+# node.js
+**/node_modules/
+.git
+
+# database temp files
+*-shm
+*-wal
