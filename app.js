@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
 // set the view engine to ejs
-// app.set("view engine", "ejs");
+app.set("view engine", "ejs");
 
 // process.env.DEPLOYMENT is set by Docker Entrypoint
 if (!process.env.DEPLOYMENT) {
@@ -28,11 +28,11 @@ app.use((request, response, next) => {
   next();
 });
 
-app.get("/", (request, response) => {
-  response.send("Hello World!");
-});
 
 // Your routes here ...
+app.get("/", (request, response) => {           //we willen auto de website redirecten naar de login zodat gebruiker kan inloggen
+  response.render("pages/login/login")
+});
 
 // Middleware for unknown routes
 // Must be last in pipeline

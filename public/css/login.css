@@ -1,0 +1,45 @@
+header{
+    background-color: #FCB6F7;
+    color: white;
+    padding: .5rem 0 0 0;
+    margin: 0px;
+    
+    
+}
+.wrapper{
+      display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem 0;
+}
+.about h1{
+    color: white;
+    font-style: bold;
+    text-align: center;
+}
+.about p{
+    color: white;
+    font-size: 1.2rem;
+    font-style: italic;
+    text-align: center;
+    margin: 0;
+}
+
+h1{
+    color: #FCB6F7;
+    text-align: center;
+}
+.input.box{
+    width: 250px;
+  margin: 0.5rem 0;
+}
+.input.box input {
+  width: 70%;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  box-align: center;
+}
