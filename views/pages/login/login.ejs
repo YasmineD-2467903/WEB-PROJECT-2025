@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="/css/login.css">
         <link rel="stylesheet" href="/css/bootstrap.min.css">
     </head>
+
     <body>
         <header>
             <div class="wrapper">
@@ -15,11 +16,37 @@
             </div>
         </header>
         <h1>Login:</h1>
-        <div class="input box">
-            <input type="text" placeholder="Username" required>
-        </div>
-        <div class="input box">
-            <input type="text" placeholder="Password" required>
-        </div>
+
+        <form id="loginForm">
+
+            <div class="input box">
+
+                <label for="uname"><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" name="uname" required>
+
+            </div>
+
+            <div class="input box">
+
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="psw" required>
+
+            </div>
+
+            <div class="container">
+                
+                <button type="submit">Login</button>
+                
+                <label>
+                    <input type="checkbox" checked="checked" name="remember"> Remember me
+                </label>
+                
+            </div>
+
+        </form>
+        
+        <script src="/js/login.js"></script>
+
     </body>
+
 </html>

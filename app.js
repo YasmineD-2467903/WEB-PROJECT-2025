@@ -1,8 +1,10 @@
 import express from "express";
-import { InitializeDatabase } from "./db.js";
+import { db, InitializeDatabase } from "./db.js";
 
 const app = express();
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
+
+InitializeDatabase();
 
 // set the view engine to ejs
 app.set("view engine", "ejs");
@@ -31,7 +33,28 @@ app.use((request, response, next) => {
 
 // Your routes here ...
 app.get("/", (request, response) => {           //we willen auto de website redirecten naar de login zodat gebruiker kan inloggen
-  response.render("pages/login/login")
+  response.redirect("/login");
+});
+
+app.get("/login", (request, response) => { 
+  response.render("pages/login/login");
+});
+
+// login
+
+app.post("/login", (request, response) => {
+  const { username, password } = request.body;
+
+  // Check user in database
+  const user = db
+    .prepare("SELECT * FROM users WHERE username = ? AND password = ?")
+    .get(username, password);
+
+  if (user) {
+    response.json({ success: true, message: `Welcome, ${user.username}!` });
+  } else {
+    response.status(401).json({ success: false, message: "Invalid credentials" });
+  }
 });
 
 // Middleware for unknown routes
