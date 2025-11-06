@@ -48,6 +48,10 @@ app.get("/fyp", (request, response) => {
   response.render("pages/fyp/fyp");
 });
 
+app.get("/chats", (request, response) => {
+  response.render("pages/chats/chats");
+});
+
 // login
 
 app.post("/login", (request, response) => {
