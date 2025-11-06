@@ -1,16 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
-  const usernameInput = form.querySelector("input[name='uname']");
-  const passwordInput = form.querySelector("input[name='psw']");
-  const rememberCheckbox = form.querySelector("input[name='remember']");
-
-  // autofill username (mss uitbreiden tot auto login?)
-  const rememberedUser = getCookie("rememberedUser");
-  
-  if (rememberedUser) {
-    usernameInput.value = rememberedUser;
-    rememberCheckbox.checked = true;
-  }
+    const form = document.getElementById("registerForm");
+    const usernameInput = form.querySelector("input[name='uname']");
+    const passwordInput = form.querySelector("input[name='psw']");
+    const confirmationInput = form.querySelector("input[name='cpsw']");
+    const rememberCheckbox = form.querySelector("input[name='remember']");
 
   // submit knop listener
   form.addEventListener("submit", async (e) => {
@@ -18,14 +11,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const uname = usernameInput.value;
     const psw = passwordInput.value;
+    const cpsw = confirmationInput.value;
 
     if (!uname || !psw) {
-      alert("Please enter username and password.");
-      return;
+        alert("Please enter username and password.");
+        return;
+    }
+
+    // i want to check here for already existing usernames? and print an alert like "this user already exists"
+
+    if (psw != cpsw) {
+        alert("Passwords do not match!");
+        return;
     }
 
     try {
-      const res = await fetch("/login", {
+      const res = await fetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: uname, password: psw }),

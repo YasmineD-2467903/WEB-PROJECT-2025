@@ -12,23 +12,23 @@ export function InitializeDatabase() {
 
   db.prepare("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT) STRICT").run();
 
-  const exampleUsers = [
-    { username: "Peter", password: "password123" },
-    { username: "Jori", password: "bugger" },
-    { username: "Joris", password: "letmein" },
-    { username: "Mike", password: "yippie" },
-  ];
-  
-  const insertUser = db.prepare("INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)");
-  
-  const transaction = db.transaction((users) => {
-    for (const user of users) insertUser.run(user.username, user.password);
-  });
-  transaction(exampleUsers);
-}
+  const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
 
-/**
- *   exampleUsers.forEach((user) => {
-    insertUser.run(user.name, user.password);
-  });
- */
+  if (userCount === 0) {
+    console.log("Database empty — inserting example users...");
+    const exampleUsers = [
+      { username: "Peter", password: "password123" },
+      { username: "Jori", password: "bugger" },
+      { username: "Joris", password: "letmein" },
+      { username: "Mike", password: "yippie" },
+    ];
+
+    const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    const transaction = db.transaction((users) => {
+      for (const user of users) insertUser.run(user.username, user.password);
+    });
+    transaction(exampleUsers);
+  } else {
+    console.log("Users already present — skipping demo inserts.");
+  }
+}

@@ -40,6 +40,14 @@ app.get("/login", (request, response) => {
   response.render("pages/login/login");
 });
 
+app.get("/register", (request, response) => {
+  response.render("pages/register/register");
+});
+
+app.get("/fyp", (request, response) => {
+  response.render("pages/fyp/fyp");
+});
+
 // login
 
 app.post("/login", (request, response) => {
@@ -54,6 +62,30 @@ app.post("/login", (request, response) => {
     response.json({ success: true, message: `Welcome, ${user.username}!` });
   } else {
     response.status(401).json({ success: false, message: "Invalid credentials" });
+  }
+});
+
+// register
+
+app.post("/register", (request, response) => {
+  const { username, password } = request.body;
+
+  // Check if user already exists
+  try {
+    const user = db
+      .prepare("SELECT * FROM users WHERE username = ?")
+      .get(username)
+
+    if (user) {
+      response.status(409).json({ success: false, message: `User already exists.`});
+    } else {
+      const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+      insertUser.run(username, password)
+      response.json({ success: true, message: `Registration successful. Welcome, ${username}!` });
+    }
+  } catch (err) {
+    console.error("Database error:", err);
+    response.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 

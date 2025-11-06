@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Login-page for template</title>
-        <link rel="stylesheet" href="/css/login.css">
+        <link rel="stylesheet" href="/css/register.css">
         <link rel="stylesheet" href="/css/bootstrap.min.css">
     </head>
 
@@ -15,9 +15,9 @@
                 </div>
             </div>
         </header>
-        <h1>Login:</h1>
+        <h1>Register:</h1>
 
-        <form id="loginForm">
+        <form id="registerForm">
 
             <div class="input box">
 
@@ -33,9 +33,16 @@
 
             </div>
 
+            <div class="input box">
+
+                <label for="cpsw"><b>Confirm Password</b></label>
+                <input type="password" placeholder="Confirm Password" name="cpsw" required>
+
+            </div>
+
             <div class="container">
                 
-                <button type="submit">Login</button>
+                <button type="submit">Register & Login</button>
                 
                 <label>
                     <input type="checkbox" checked="checked" name="remember"> Remember me
@@ -43,19 +50,9 @@
                 
             </div>
 
-            <div class="register-container">
-                
-                <p>Don’t have an account?</p>
-                
-                <button type="button" class="register-btn" onclick="window.location.href='/register'">
-                    Register New Account
-                </button>
-
-            </div>
-
         </form>
         
-        <script src="/js/login.js"></script>
+        <script src="/js/register.js"></script>
 
     </body>
 
