@@ -10,8 +10,66 @@ export function InitializeDatabase() {
   db.pragma("foreign_keys = true;");
   db.pragma("temp_store = memory;");
 
-  db.prepare("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT) STRICT").run();
+  // USERS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password TEXT
+    ) STRICT;
+  `).run();
 
+  // GROUPS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS groups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      description TEXT,
+      invite_code TEXT UNIQUE
+    ) STRICT;
+  `).run();
+
+  // GROUP MEMBERSHIP
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS group_members (
+      user_id INTEGER,
+      group_id INTEGER,
+      role TEXT CHECK(role IN ('admin','member')),
+      PRIMARY KEY (user_id, group_id),
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    ) STRICT;
+  `).run();
+
+  // TRIPS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS trips (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      group_id INTEGER,
+      name TEXT,
+      start_date TEXT,
+      end_date TEXT,
+      country TEXT,
+      cover_photo TEXT,
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    ) STRICT;
+  `).run();
+
+  // STOPS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS stops (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      trip_id INTEGER,
+      title TEXT,
+      description TEXT,
+      date TEXT,
+      maps_link TEXT,
+      tags TEXT,
+      FOREIGN KEY (trip_id) REFERENCES trips(id)
+    ) STRICT;
+  `).run();
+
+  // --- DEMO USERS ---
   const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
 
   if (userCount === 0) {
@@ -21,6 +79,7 @@ export function InitializeDatabase() {
       { username: "Jori", password: "bugger" },
       { username: "Joris", password: "letmein" },
       { username: "Mike", password: "yippie" },
+      { username: "Keti", password: "123" }
     ];
 
     const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
@@ -31,4 +90,74 @@ export function InitializeDatabase() {
   } else {
     console.log("Users already present — skipping demo inserts.");
   }
+
+  // --- DEMO GROUPS ---
+  const groupCount = db.prepare("SELECT COUNT(*) AS count FROM groups").get().count;
+
+  if (groupCount === 0) {
+    console.log("No groups found — inserting demo groups...");
+
+    const exampleGroups = [
+      {
+        name: "UHasselt Adventure Buddies",
+        description: "Exploring Europe one trip at a time!",
+        invite_code: "JOIN-UHASS-123",
+      },
+      {
+        name: "Summer Road Trip 2025",
+        description: "Friends + car + sun = perfect vacation.",
+        invite_code: "SUMMER-ROAD-2025",
+      },
+      {
+        name: "Mountain Lovers",
+        description: "Hiking, camping, and nature photography group.",
+        invite_code: "MOUNTAIN-LOVE",
+      },
+    ];
+
+    const insertGroup = db.prepare(
+      "INSERT INTO groups (name, description, invite_code) VALUES (?, ?, ?)"
+    );
+    const insertGroupsTx = db.transaction((groups) => {
+      for (const group of groups)
+        insertGroup.run(group.name, group.description, group.invite_code);
+    });
+    insertGroupsTx(exampleGroups);
+  } else {
+    console.log("Groups already present — skipping demo inserts.");
+  }
+
+  // --- DEMO MEMBERSHIPS ---
+  const memberCount = db.prepare("SELECT COUNT(*) AS count FROM group_members").get().count;
+
+  if (memberCount === 0) {
+    console.log("No group memberships found — inserting demo memberships...");
+
+    const users = db.prepare("SELECT id, username FROM users").all();
+    const groups = db.prepare("SELECT id, name FROM groups").all();
+
+    const userByName = Object.fromEntries(users.map((u) => [u.username, u.id]));
+    const groupByName = Object.fromEntries(groups.map((g) => [g.name, g.id]));
+
+    const memberships = [
+      { user_id: userByName["Keti"], group_id: groupByName["UHasselt Adventure Buddies"], role: "admin" },
+      { user_id: userByName["Mike"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
+      { user_id: userByName["Keti"], group_id: groupByName["Summer Road Trip 2025"], role: "admin" },
+      { user_id: userByName["Keti"], group_id: groupByName["Mountain Lovers"], role: "admin" },
+    ];
+
+    const insertMember = db.prepare(
+      "INSERT INTO group_members (user_id, group_id, role) VALUES (?, ?, ?)"
+    );
+    const insertMembersTx = db.transaction((members) => {
+      for (const m of members)
+        insertMember.run(m.user_id, m.group_id, m.role);
+    });
+
+    insertMembersTx(memberships);
+  } else {
+    console.log("Group memberships already present — skipping demo inserts.");
+  }
+
+  console.log("Database initialized successfully.");
 }

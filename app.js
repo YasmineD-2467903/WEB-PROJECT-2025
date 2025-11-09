@@ -1,10 +1,21 @@
 import express from "express";
+import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
 
 const app = express();
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
 InitializeDatabase();
+
+app.use(session({
+  secret: "IGyUVFukVUKvKVuukivIUVuyVoF9PGFG86FVI", // super duper secret key
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
+
+// DEBUGGING
+// const CURRENT_USER_ID = 1;
 
 // set the view engine to ejs
 app.set("view engine", "ejs");
@@ -32,7 +43,7 @@ app.use((request, response, next) => {
 
 
 // Your routes here ...
-app.get("/", (request, response) => {           //we willen auto de website redirecten naar de login zodat gebruiker kan inloggen
+app.get("/", (request, response) => {
   response.redirect("/login");
 });
 
@@ -48,9 +59,30 @@ app.get("/fyp", (request, response) => {
   response.render("pages/fyp/fyp");
 });
 
-app.get("/chats", (request, response) => {
-  response.render("pages/chats/chats");
+app.get("/groups", (request, response) => {
+  try {
+    const userId = request.session.user_id;
+    if (!userId) return response.status(401).json({ error: "Not logged in" });
+
+    const groups = db
+      .prepare(
+        `
+        SELECT g.id, g.name, g.description
+        FROM groups g
+        JOIN group_members gm ON gm.group_id = g.id
+        WHERE gm.user_id = ?
+      `
+      )
+      .all(userId);
+
+    response.json(groups);
+  } catch (err) {
+    console.error("Error fetching groups:", err);
+    response.status(500).json({ error: "Failed to load groups" });
+  }
 });
+
+
 
 // login
 
@@ -63,6 +95,7 @@ app.post("/login", (request, response) => {
     .get(username, password);
 
   if (user) {
+    request.session.user_id = user.id;
     response.json({ success: true, message: `Welcome, ${user.username}!` });
   } else {
     response.status(401).json({ success: false, message: "Invalid credentials" });

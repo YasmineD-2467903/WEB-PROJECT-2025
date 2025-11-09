@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>FYP</title>
-        <link rel="stylesheet" href="/css/fyp.css">
+        <title>Main Page</title>
+        <link rel="stylesheet" href="/css/login.css">
         <link rel="stylesheet" href="/css/bootstrap.min.css">
     </head>
 
@@ -15,27 +15,34 @@
                 </div>
             </div>
         </header>
-
-        <form id="FypForm">
-
-            <div class="container">
-                
-                <h2>SOCIAL</h2>
-                <button type="button">Friends List</button>
-                <button type="button">Add Friend</button>
-                <button type="button" data-redirect="/chats">Open DMs</button>
-
-                <h2>GROUPS</h2>
-                <button type="button">Browse Groups</button>
-                <button type="button">Create Group</button>
-                <button type="button">Join Group</button>
-                
+        
+        <main class="container py-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-semibold">Your Groups</h2>
+                <div class="btn-group">
+                    <button
+                            type="button"
+                            class="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#createGroupModal"
+                        >
+                            + Create Group
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#joinGroupModal"
+                        >
+                            Join Group
+                    </button>
+                </div>
             </div>
 
-        </form>
+            <div id="groupList" class="row g-4"> </div>
+            <!--dynamically load groups>--> 
 
-        <script src="/js/fyp.js"></script>
-
+            <script src="/js/fyp.js"></script>
+        </main>
     </body>
-
 </html>
