@@ -34,7 +34,7 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS group_members (
       user_id INTEGER,
       group_id INTEGER,
-      role TEXT CHECK(role IN ('admin','member')),
+      role TEXT CHECK(role IN ('admin','member', 'viewer')),
       PRIMARY KEY (user_id, group_id),
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (group_id) REFERENCES groups(id)
