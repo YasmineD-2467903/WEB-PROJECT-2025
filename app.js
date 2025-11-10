@@ -82,6 +82,34 @@ app.get("/groups", (request, response) => {
   }
 });
 
+// page
+app.get("/group", (req, res) => {
+  const groupId = req.query.id;
+  if (!groupId) return res.status(400).send("Group ID missing");
+  res.render("pages/group/group", { groupId });
+});
+
+// data
+app.get("/group/:id", (req, res) => {
+  try {
+    const groupId = req.params.id;
+
+    console.log(`Fetching data for group ${groupId}`);
+
+    const stmt = db.prepare("SELECT id, name, description FROM groups WHERE id = ?");
+    const group = stmt.get(groupId);
+
+    if (!group) {
+      console.log(`Group ${groupId} not found`);
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    res.json(group);
+  } catch (err) {
+    console.error("Error fetching group:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 // login

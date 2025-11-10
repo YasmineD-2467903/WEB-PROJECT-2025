@@ -1,14 +1,25 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadGroups();});
+  await loadGroups();
+
+  const container = document.getElementById("groupList");
+  container.addEventListener("click", (event) => {
+    if (event.target.classList.contains("open-group")) {
+      const groupId = event.target.dataset.id;
+      window.location.href = `/group?id=${groupId}`;
+      // ` ` interpolates, " " will literally take the string...
+      // this sends the group id as a variable to be used
+    }
+  })
+});
 
 async function loadGroups() {
   const container = document.getElementById("groupList");
   if (!container) return;
 
   try {
-    const res = await fetch("/groups");
-    if (!res.ok) throw new Error("Failed to fetch groups");
-    const groups = await res.json();
+    const response = await fetch("/groups");
+    if (!response.ok) throw new Error("Failed to fetch groups");
+    const groups = await response.json();
 
     container.innerHTML = "";
 
@@ -34,4 +45,8 @@ async function loadGroups() {
     console.error(err);
     container.innerHTML = `<p class="text-danger text-center">Error loading groups.</p>`;
   }
+}
+
+function openGroup(groupId) {
+  window.location.href = `/group?id=${groupId}`;
 }

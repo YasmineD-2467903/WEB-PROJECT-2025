@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Group Overview</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+  </head>
+
+  <body class="p-4">
+    <a href="/fyp" class="btn btn-link mb-3">&larr; Back to groups</a>
+
+    <div class="container">
+      <h2 id="groupName" class="fw-semibold"></h2>
+      <p id="groupDescription" class="text-muted"></p>
+
+      <hr>
+
+      <div id="groupContent">
+        <!-- Group-specific content will be loaded here -->
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const groupId = "<%= groupId %>";
+
+        try {
+          const response = await fetch(`/group/${groupId}`);
+          if (!response.ok) throw new Error("Failed to fetch group data");
+
+          const group = await response.json();
+          document.getElementById("groupName").textContent = group.name;
+          document.getElementById("groupDescription").textContent =
+            group.description || "No description provided.";
+        } catch (err) {
+          console.error(err);
+          document.body.innerHTML =
+            "<p class='text-danger text-center'>Error loading group data.</p>";
+        }
+      });
+    </script>
+  </body>
+</html>
