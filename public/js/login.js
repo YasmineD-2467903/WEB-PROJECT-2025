@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
+  const form = document.getElementById("login_form");
   const usernameInput = form.querySelector("input[name='uname']");
   const passwordInput = form.querySelector("input[name='psw']");
   const rememberCheckbox = form.querySelector("input[name='remember']");

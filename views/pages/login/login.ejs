@@ -8,55 +8,52 @@
 
     <body>
         <header>
-            <div class="wrapper">
+            <div class="container-fluid">
                 <div class="about">
                     <h1>TEMPLATENAME FOR WEBSITE</h1>
                     <p>The newest and cutest travelling blogsite!</p>
                 </div>
             </div>
         </header>
-        <h1>Login:</h1>
 
-        <form id="loginForm">
+        <main class="beginpage">
 
-            <div class="input box">
+            <!--this will be the leftside of the page that contains login-->
+            <div class="login">
+                <h1>Log in:</h1>
 
-                <label for="uname"><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required>
+                <form id="login_form">
+                    <div class="inputbox" id="login_name">
+                        <input type="text" placeholder="Enter Username" name="uname" required>
+                    </div>
 
+                    <div class="inputbox" id="login_pass">
+                        <input type="password" placeholder="Enter Password" name="psw" required>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" checked="checked" name="remember">
+                        <label>Remember me</label>
+                    </div>
+
+                    <button type="submit" id="login_button">Login</button>
+                        
+                </form>
             </div>
 
-            <div class="input box">
+            <!--this will be the rightside of the page that contains registration-->
+            <div class="registration">
+                <h1>Register:</h1>
 
-                <label for="psw"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required>
-
-            </div>
-
-            <div class="container">
-                
-                <button type="submit">Login</button>
-                
-                <label>
-                    <input type="checkbox" checked="checked" name="remember"> Remember me
-                </label>
-                
-            </div>
-
-            <div class="register-container">
-                
-                <p>Don’t have an account?</p>
-                
-                <button type="button" class="register-btn" onclick="window.location.href='/register'">
-                    Register New Account
+                <p>Don’t have an account?<br> Join your friends today and become part of our community!</p>
+                <button type="button" id="registration_button" onclick="window.location.href='/register'">
+                    Register new account!
                 </button>
 
             </div>
 
-        </form>
-        
-        <script src="/js/login.js"></script>
+        </main>
 
     </body>
-
+    <script src="/js/login.js"></script>
 </html>

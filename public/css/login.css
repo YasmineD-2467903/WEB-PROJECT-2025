@@ -1,45 +1,180 @@
+/*---------header---------*/
 header{
-    background-color: #FCB6F7;
-    color: white;
-    padding: .5rem 0 0 0;
-    margin: 0px;
-    
-    
-}
-.wrapper{
-      display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 2rem 0;
+  background-color: #FCB6F7;
+  border-bottom: 10px solid black;  /*solid moet voor stijl, border-bottom = 3!*/
+  padding: 40px;
+  margin-bottom: 50px;
+  text-align: center;
 }
 .about h1{
     color: white;
     font-style: bold;
-    text-align: center;
 }
 .about p{
     color: white;
-    font-size: 1.2rem;
+    font-size: 20px;
     font-style: italic;
-    text-align: center;
     margin: 0;
 }
 
-h1{
-    color: #FCB6F7;
-    text-align: center;
+
+/*---------base settings---------*/
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: solid white;
+  margin: 0; /*beide op 0 zodat de header heel de breedte van uw scherm inneemt*/
+  padding: 0;
 }
-.input.box{
-    width: 250px;
-  margin: 0.5rem 0;
+
+.beginpage{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  min-height: 60vh;
 }
-.input.box input {
-  width: 70%;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+
+/*zorgt voor scheidingslijn tussen login en registration*/
+.beginpage::before {
+  content: '';
+  position: absolute;
+  background: #ccc;
+  width: 1px;
+  height: 80%;
+  top: 10%;
+  left: 50%;
+}
+
+.login, .registration{
+  flex: 1;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login h1, .registration h1 {
+  margin-top: 50px;
+  margin-bottom: 25px;
+  
+  color: #FCB6F7;
+  font-size: 30px;  
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+
+/*---------login side----------*/
+.inputbox {
+  margin-bottom: 15px;
+}
+.inputbox input {
+  width: 50%;
+  padding: 12px;
+  border: 2px solid rgb(177, 175, 175);
   border-radius: 5px;
-  box-sizing: border-box;
-  box-align: center;
+  transition: 0.15s ease-in-out;
+  cursor:text;
+
+  font-size: medium;
+}
+.inputbox input:hover {
+  border-color: rgb(94, 93, 93);
+}
+
+
+#login_button {
+  background-color: white;
+  color: rgb(56, 56, 56);
+  font-size: 20px;
+  font-weight: 650;
+
+  padding: 12px;
+  border-radius: 5px;
+  border: 2px solid rgb(194, 189, 189);
+  width: 56%; /*voor een of andere redene kan de width niet heetzeelfde zijn als die van inputbox, dit lijkt eveengroot tho*/
+  line-height: 100%;
+
+  margin-top: 20px;
+  text-align: center;
+
+  transition: 0.15s ease-in-out;
+  cursor: pointer;
+}
+#login_button:hover {
+  border-color: rgb(139, 137, 137);
+}
+
+
+.form-check{
+  display: flex;
+  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze op 1 lijn zijn*/
+}
+.form-check label  {
+  margin-bottom: 5px;
+  font-weight: 200;
+}
+.form-check-input{
+  margin-left: 22%; /*heb het forced naar rechts verplaatst omdat het anders heel  fel links stond */
+  margin-right: 10px;  /*extra ruimte ttussen checkbox   en label*/
+  margin-bottom: 10px;
+  border: 2px solid rgb(194, 189, 189);
+  cursor: pointer;
+
+  /*browsers default checkbox hiden*/
+  appearance: none;
+
+  /*nu bepalen we onze eigen grootte van box*/
+  width:25px;
+  height: 25px;
+  border-radius: 5px;
+}
+.form-check-input:hover {
+  transition: 0.15s ease-in-out;
+  border-color: rgb(139, 137, 137);
+}
+.form-check-input:checked::before { /*dit zijn alle settings die we willen als  het al checked is,  en omdat ded checkbox direct eerstt gechecked wordt, moet dit bij ::before staan*/
+  content: '✓';
+  color: black;
+  font-size: 15px;
+  font-weight: bold;
+
+  /*vinkje in midden krijgen van checkbox*/
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.form-check-input:checked::after {
+  content:  "";
+}
+
+
+/*---------register side----------*/
+.registration p {
+  margin-bottom: 20px;
+  margin-left: 15%;
+  margin-right: 15%;
+
+  font-size: 25px;
+}
+
+#registration_button {
+  background-color: rgba(235, 182, 103, 0.664);
+  color: rgb(255, 255, 255);
+  font-size: 20px;
+  font-weight: 650;
+
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  width: 50%;
+  line-height: 100%;
+
+  margin-top: 10px;
+  text-align: center;
+
+  cursor: pointer;
+  transition: 0.15s ease-in-out;
+}
+#registration_button:hover {
+  background-color: rgba(153, 117, 62, 0.664);
 }
