@@ -2,33 +2,48 @@
 <html>
   <head>
     <title>Group Overview</title>
+    <link rel="stylesheet" href="/css/group.css">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
   </head>
 
   <body class="p-4">
     <a href="/fyp" class="btn btn-link mb-3">&larr; Back to groups</a>
 
-    <div class="container">
-      <h2 id="groupName" class="fw-semibold"></h2>
-      <p id="groupDescription" class="text-muted"></p>
+    <h1 id="groupName" class="fw-semibold"></h1>
+    <p id="groupDescription" class="text-muted"></p>
 
-      <hr>
+    <hr>
 
-      <div id="groupContent">
-        <!-- Group-specific content will be loaded here -->
-        <!--
-          1. Member list [Username, Role]
-          2.
-        -->
+    <div class="container" id="groupContent">
+      <div class="menu">
+        
+        <div class="menu">
+          <button class="btn btn-outline-primary" data-section="members">Members</button>
+        </div>
+
+        <div class="menu">
+          <button class="btn btn-outline-primary" data-section="settings">Settings</button>
+        </div>
+
+        <div class="menu">
+          <button class="btn btn-outline-primary" data-section="chat">Chat</button>
+        </div>
+
+        <div class="menu">
+          <button class="btn btn-outline-primary" data-section="map">Map Overview</button>
+        </div>
+
+        <div class="menu">
+          <button class="btn btn-outline-primary" data-section="polls">Polls</button>
+        </div>
+      
       </div>
+      <div class="content" id="dynamicContent"></div> <!-- content here :D -->
     </div>
 
-    <div id="map" style="width:100%;height:400px"></div>
-
     <script>
+      const groupId = "<%= groupId %>";
       document.addEventListener("DOMContentLoaded", async () => {
-        const groupId = "<%= groupId %>";
-
         try {
           const response = await fetch(`/group/${groupId}`);
           if (!response.ok) throw new Error("Failed to fetch group data");
@@ -43,23 +58,50 @@
             "<p class='text-danger text-center'>Error loading group data.</p>";
         }
       });
-    </script>
 
-    <script>
-      function myMap() {
-        const mapOptions = {
-          center: { lat: 50.925093085784084, lng: 5.353779743653817 },
-          zoom: 15,
-        };
-        new google.maps.Map(document.getElementById("map"), mapOptions);
+      const buttons = document.querySelectorAll(".menu button");
+      const contentDiv = document.getElementById("dynamicContent");
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const section = btn.getAttribute("data-section");
+          loadSection(section);
+        });
+      });
+
+      async function loadSection(section) {
+        try {
+          const res = await fetch(`/group/${groupId}/section/${section}`);
+          if (!res.ok) throw new Error("Failed to load section");
+
+          const html = await res.text();
+          contentDiv.innerHTML = html;
+
+          // If members section, fetch members and populate
+          if (section === "members") {
+            const membersRes = await fetch(`/group/${groupId}/members`);
+            const members = await membersRes.json();
+
+            const admins = members.filter(m => m.role === "admin");
+            const regulars = members.filter(m => m.role === "member");
+            const viewers = members.filter(m => m.role === "viewer");
+
+            const createList = (list, users) => {
+              list.innerHTML = users.length
+                ? users.map(u => `<li class="list-group-item">${u.username}</li>`).join("")
+                : `<li class="list-group-item text-muted">None</li>`;
+            };
+
+            createList(document.getElementById("adminList"), admins);
+            createList(document.getElementById("memberList"), regulars);
+            createList(document.getElementById("viewerList"), viewers);
+          }
+        } catch (err) {
+          console.error(err);
+          contentDiv.innerHTML = `<p class="text-danger">Error loading section.</p>`;
+        }
       }
+
     </script>
-
-    <script 
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDf8c_RldjfbjhoyNzxzEYMXt3v8rAVToQ&callback=myMap"
-      async
-      defer
-    ></script>
-
   </body>
 </html>

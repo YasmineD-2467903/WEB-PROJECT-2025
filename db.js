@@ -80,7 +80,7 @@ export function InitializeDatabase() {
       contents TEXT,
       attachment TEXT  -- URL or NULL
     );
-`).run();
+  `).run();
 
   // --- DEMO USERS ---
   const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;

@@ -111,6 +111,31 @@ app.get("/group/:id", (req, res) => {
   }
 });
 
+// member list
+app.get("/group/:id/members", (req, res) => {
+  try {
+    const groupId = req.params.id;
+
+    const members = db.prepare(`
+      SELECT u.username, gm.role
+      FROM group_members gm
+      JOIN users u ON u.id = gm.user_id
+      WHERE gm.group_id = ?
+    `).all(groupId);
+
+    res.json(members);
+  } catch (err) {
+    console.error("Error fetching group members:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/group/:id/section/:section", (req, res) => {
+  const { id, section } = req.params;
+  const validSections = ["members", "settings", "chat", "map", "polls"];
+  if (!validSections.includes(section)) return res.status(404).send("Invalid section");
+  res.render(`partials/group-${section}.ejs`, { groupId: id });
+});
 
 // login
 
