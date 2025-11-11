@@ -63,7 +63,8 @@ export function InitializeDatabase() {
       title TEXT,
       description TEXT,
       date TEXT,
-      maps_link TEXT,
+      coordinates_lat REAL,
+      coordinates_lng REAL,
       tags TEXT,
       FOREIGN KEY (trip_id) REFERENCES trips(id)
     ) STRICT;
