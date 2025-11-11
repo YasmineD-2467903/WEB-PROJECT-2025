@@ -63,17 +63,30 @@ export function InitializeDatabase() {
       title TEXT,
       description TEXT,
       date TEXT,
-      maps_link TEXT,
+      coordinates_lat REAL,
+      coordinates_lng REAL,
       tags TEXT,
       FOREIGN KEY (trip_id) REFERENCES trips(id)
     ) STRICT;
   `).run();
 
+  // GROUP CHAT MESSAGES
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS group_messages (
+      message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      group_id INTEGER REFERENCES groups(id),
+      sender_id INTEGER REFERENCES users(id),
+      contents TEXT,
+      attachment TEXT  -- URL or NULL
+    );
+`).run();
+
   // --- DEMO USERS ---
   const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
 
   if (userCount === 0) {
-    console.log("Database empty — inserting example users...");
+    console.log("Database empty: inserting example users...");
     const exampleUsers = [
       { username: "Peter", password: "password123" },
       { username: "Jori", password: "bugger" },
@@ -88,7 +101,7 @@ export function InitializeDatabase() {
     });
     transaction(exampleUsers);
   } else {
-    console.log("Users already present — skipping demo inserts.");
+    console.log("Users already present: skipping demo inserts.");
   }
 
   // --- DEMO GROUPS ---
@@ -160,4 +173,52 @@ export function InitializeDatabase() {
   }
 
   console.log("Database initialized successfully.");
+
+  // --- DEMO GROUP CHAT MESSAGES ---
+  const messageCount = db.prepare("SELECT COUNT(*) AS count FROM group_messages").get().count;
+
+  if (messageCount === 0) {
+    console.log("Database empty: inserting example messages...");
+    const exampleMessages = [
+      {
+        sender_id: 5,
+        timestamp: "2025-09-27 18:00:00.000",
+        group_id: 1,
+        contents: "Testing testing hello"
+      },
+      {
+        sender_id: 4,
+        timestamp: "2025-09-27 18:02:00.000",
+        group_id: 1,
+        contents: "Testing received"
+      },
+      {
+        sender_id: 5,
+        timestamp: "2025-09-27 18:03:00.000",
+        group_id: 1,
+        contents: "can you see the messages?"
+      },
+      {
+        sender_id: 5,
+        timestamp: "2025-09-27 18:09:00.000",
+        group_id: 1,
+        contents: "hello?"
+      },
+      {
+        sender_id: 4,
+        timestamp: "2025-09-27 18:10:00.000",
+        group_id: 1,
+        contents: "yep"
+      }
+    ];
+
+    const insertGroupMsgs = db.prepare("INSERT INTO group_messages (sender_id, timestamp, group_id, contents) VALUES (?, ?, ?, ?)");
+    const transaction = db.transaction((groupMessages) => {
+      for (const message of groupMessages) insertGroupMsgs.run(message.sender_id, message.timestamp, message.group_id, message.contents);
+    });
+    transaction(exampleMessages);
+  } else {
+    console.log("Testing messages already present: skipping demo inserts.");
+  }
 }
+
