@@ -88,11 +88,12 @@ export function InitializeDatabase() {
   if (userCount === 0) {
     console.log("Database empty: inserting example users...");
     const exampleUsers = [
-      { username: "Peter", password: "password123" },
-      { username: "Jori", password: "bugger" },
+      { username: "Peter", password: "pass" },
+      { username: "Jori", password: "bug" },
       { username: "Joris", password: "letmein" },
-      { username: "Mike", password: "yippie" },
-      { username: "Keti", password: "123" }
+      { username: "Mike", password: "yip" },
+      { username: "Keti", password: "123" },
+      { username: "Pew", password: "000" }
     ];
 
     const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
@@ -155,6 +156,10 @@ export function InitializeDatabase() {
     const memberships = [
       { user_id: userByName["Keti"], group_id: groupByName["UHasselt Adventure Buddies"], role: "admin" },
       { user_id: userByName["Mike"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
+      { user_id: userByName["Jori"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
+      { user_id: userByName["Joris"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
+      { user_id: userByName["Pew"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
+      { user_id: userByName["Peter"], group_id: groupByName["UHasselt Adventure Buddies"], role: "viewer" },
       { user_id: userByName["Keti"], group_id: groupByName["Summer Road Trip 2025"], role: "admin" },
       { user_id: userByName["Keti"], group_id: groupByName["Mountain Lovers"], role: "admin" },
     ];

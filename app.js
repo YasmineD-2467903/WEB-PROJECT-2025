@@ -83,16 +83,16 @@ app.get("/groups", (request, response) => {
 });
 
 // page
-app.get("/group", (req, res) => {
-  const groupId = req.query.id;
-  if (!groupId) return res.status(400).send("Group ID missing");
-  res.render("pages/group/group", { groupId });
+app.get("/group", (request, response) => {
+  const groupId = request.query.id;
+  if (!groupId) return response.status(400).send("Group ID missing");
+  response.render("pages/group/group", { groupId });
 });
 
 // data
-app.get("/group/:id", (req, res) => {
+app.get("/group/:id", (request, response) => {
   try {
-    const groupId = req.params.id;
+    const groupId = request.params.id;
 
     console.log(`Fetching data for group ${groupId}`);
 
@@ -101,20 +101,20 @@ app.get("/group/:id", (req, res) => {
 
     if (!group) {
       console.log(`Group ${groupId} not found`);
-      return res.status(404).json({ error: "Group not found" });
+      return response.status(404).json({ error: "Group not found" });
     }
 
-    res.json(group);
+    response.json(group);
   } catch (err) {
     console.error("Error fetching group:", err);
-    res.status(500).json({ error: "Internal server error" });
+    response.status(500).json({ error: "Internal server error" });
   }
 });
 
 // member list
-app.get("/group/:id/members", (req, res) => {
+app.get("/group/:id/members", (request, response) => {
   try {
-    const groupId = req.params.id;
+    const groupId = request.params.id;
 
     const members = db.prepare(`
       SELECT u.username, gm.role
@@ -123,18 +123,18 @@ app.get("/group/:id/members", (req, res) => {
       WHERE gm.group_id = ?
     `).all(groupId);
 
-    res.json(members);
+    response.json(members);
   } catch (err) {
     console.error("Error fetching group members:", err);
-    res.status(500).json({ error: "Internal server error" });
+    response.status(500).json({ error: "Internal server error" });
   }
 });
 
-app.get("/group/:id/section/:section", (req, res) => {
-  const { id, section } = req.params;
+app.get("/group/:id/section/:section", (request, response) => {
+  const { id, section } = request.params;
   const validSections = ["members", "settings", "chat", "map", "polls"];
-  if (!validSections.includes(section)) return res.status(404).send("Invalid section");
-  res.render(`partials/group-${section}.ejs`, { groupId: id });
+  if (!validSections.includes(section)) return response.status(404).send("Invalid section");
+  response.render(`partials/group-${section}.ejs`, { groupId: id });
 });
 
 // login
