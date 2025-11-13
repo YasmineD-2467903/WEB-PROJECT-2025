@@ -32,7 +32,7 @@ async function loadGroups() {
       const div = document.createElement("div");
       div.className = "col-md-4";
       div.innerHTML = `
-        <div class="card shadow-sm h-100 border-0">
+        <div class="card h-100 border-0">
           <div class="card-body text-center">
             <h5 class="card-title">${group.name}</h5>
             <p class="text-muted">${group.description || "No description."}</p>
