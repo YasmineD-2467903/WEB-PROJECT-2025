@@ -1,9 +1,9 @@
 /*---------base settings---------*/
 header{
-  background-color: #FCB6F7;
-  border-bottom: 10px solid black;  /*solid moet voor stijl, border-bottom = 3!*/
+  background-color: #E6BB58;
+  border-bottom: 10px solid #875D0E ;
   padding: 40px;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   text-align: center;
 }
 .about h1{
@@ -23,14 +23,14 @@ body{
   padding: 0;
 }
 
-
 /*-----------Your Groups-----------*/
 .container.py-5 {
     margin-left: 20%;
 }
 .d-flex.justify-content-between.align-items-center.mb-4 {
     border-bottom: 2px solid #ccc;;
-    width: fit-content; /*maakt het zodat de border enkel rond contentt is en niet rest vd breedte van pagina*/
+    flex-direction: column;
+    width: 80%; /*maakt het zodat de border enkel 80% van scherm iinneemt rond de content*/
     padding-bottom: 10px; /*breathing room tussen knoppen en scheidingslijn*/
 }
 .fw-semibold {
@@ -38,16 +38,17 @@ body{
     margin-bottom: 4px;
 }
 
-
 /*-----------Groepen-----------*/ 
 #groupList {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 300px is of 1 fraction (25% v available space)*/
-    max-width: 75%;
-    gap: 15px; /*gap tussen de groepen*/
+    max-width: 80%; /*enkel 80% van scherm lateeen gebruikeen omdat we het al forceed naar rechtt hebben beewogen, 20% van scherm is daarmee verloren*/
+    margin-left: 0px;
+    gap: 10px; /*gap tussen de groepen*/
 }
 #groupList > div {
     margin-top: 20px;
+    width: 100%;
     border: 2px solid #ccc;
     border-radius: 15px;
 }
@@ -55,15 +56,14 @@ body{
     padding: 10px;
 }
 #groupList .card-title {
-    font-size: 17px;
-    margin-bottom: -5px;
+    font-size: 25px;
+    margin-bottom: 5px;
 }
 #groupList .text-muted {
-    font-size: 12px;
+    font-size: 15px;
 }
 
 /*-----------Buttons-----------*/
-/*MEDIA FOR BUTTONS AND YOUR GROUPS*/
 .btn.btn-success,
 .btn.btn-outline-primary {
     background-color: rgba(209, 160, 87, 0.664);
@@ -87,14 +87,25 @@ body{
   background-color: rgba(173, 132, 70, 0.664);
 }
 
+
+/*---------PHONE CHANGES---------*/
 @media (max-width: 500px) {
-    header {
-        margin-bottom: 0px;
+    /*---------base settings---------*/
+    header{
+        background-color: #E6BB58;
+        border: none;
+        margin-bottom: -15px;
+        padding: 20px;
+        text-align: center;
+    }
+    .about p{
+        display: none;
     }
 
     /*-----------Your Groups-----------*/
     .d-flex.justify-content-between.align-items-center.mb-4 {
         margin-left: -25px; /*verplaatsen naar links zodat hett lijkt alsof het in midden staat*/
+        width: fit-content;
         flex-direction: column;
     }
     .fw-semibold {
@@ -117,20 +128,9 @@ body{
     /*-----------Buttons-----------*/
     .btn.btn-success,
     .btn.btn-outline-primary {
-        background-color: rgba(209, 160, 87, 0.664);
-        color: rgb(56, 56, 56);
         font-size: 15px;
-        font-weight: 600;
-
-        padding: 12px;
         border-radius: 5px !important; /*moet !important anders gaat bootstrap settings de helft van de border-radius overwriten lol*/
-        border: none;
-        line-height: 100%;
-
-        margin-top: 2px;
-        text-align: center;
     }
-
     .btn-group {
         gap: 10px;
     }
