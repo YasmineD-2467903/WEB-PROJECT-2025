@@ -21,3 +21,37 @@
 .container div.content {
   grid-area: content;
 }
+
+/*----------- Sidebar -----------*/
+/*https://www.youtube.com/watch%3Fv%3DLjs9cktoubc&ved=2ahUKEwiHvq_p3fuQAxVMU6QEHWezDFYQwqsBegQIGRAB&usg=AOvVaw3PBNLwXLLxPxd4YPb9y3PP*/
+.sidebar {
+  width: 280px;
+  flex-direction: column;
+}
+
+/*----------- Buttons -----------*/
+.btn.btn-outline-primary {
+    background-color: rgba(209, 160, 87, 0.664);
+    color: rgb(56, 56, 56);
+    font-size: 15px;
+    font-weight: 600;
+
+    width: 80% !important; /*kut bootstrap maakt da automatisch fit-content, wij willen dat noppen evengroot is dus !important voor de width*/
+    padding: 12px;
+    border-radius: 5px;
+    border: none;
+    line-height: 100%;
+
+    margin-top: 2px;
+    text-align: center;
+
+    transition: 0.15s ease-in-out;
+    cursor: pointer;
+}
+.btn.btn-outline-primary:hover {
+  background-color: rgba(173, 132, 70, 0.664);
+  color: rgb(56, 56, 56);
+}
+.btn.btn-outline-primary:active { /*toevoegen bij fyp!!*/
+  background-color: rgba(173, 132, 70, 0.664) !important;
+}
