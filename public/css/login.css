@@ -14,7 +14,6 @@ header{
     color: white;
     font-size: 20px;
     font-style: italic;
-    margin: 0;
 }
 
 
@@ -22,8 +21,6 @@ header{
 body{
   font-family: Arial, Helvetica, sans-serif;
   background-color: solid white;
-  margin: 0; /*beide op 0 zodat de header heel de breedte van uw scherm inneemt*/
-  padding: 0;
 }
 
 .beginpage{
@@ -49,6 +46,7 @@ body{
   flex: 1;
   max-width: 400px;
   text-align: center;
+  margin: 0 auto;
 }
 .login h1, .registration h1 {
   margin-top: 50px;
@@ -114,16 +112,17 @@ body{
 
 .form-check{
   display: flex;
-  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze op 1 lijn zijn*/
+  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze horizontatal gecentreerrd zijn (wantt flex op een row)*/
 }
 .form-check-label  {
+  margin-top: 3px;
   margin-bottom: 5px;
   margin-left: 8px;
   font-size: 110%;
   font-weight: 400;
 }
 .form-check-input{
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   border-color: rgb(194, 189, 189) !important;
   cursor: pointer;
 
@@ -131,8 +130,8 @@ body{
   appearance: none;
 
   /*nu bepalen we onze eigen grootte van box*/
-  width: 20px !important; /*!important zodat het bootstrap setttings overruled*/
-  height: 20px !important;
+  width: 23px !important; /*!important zodat het bootstrap setttings overruled*/
+  height: 23px !important;
   border-radius: 5px !important;
 
   /*tenslotte positie, zodatt hett niet op de verkeerde plek staat*/
@@ -176,6 +175,7 @@ body{
   line-height: 100%;
 
   margin-top: 10px;
+  margin-bottom: 6%; /*dit is vooral bij gsm zodat het niet geplekt zit tegen rand van gsm*/
   text-align: center;
 
   cursor: pointer;
@@ -183,4 +183,59 @@ body{
 }
 #registration_button:hover {
   background-color: rgba(173, 132, 70, 0.664);
+}
+
+
+
+/*---------PHONE CHANGES---------*/
+@media (max-width: 500px) {
+    /*--------- base settings ---------*/
+    .beginpage{
+      position: relative;
+      display: flex;
+      flex-direction: column; /*maken hett kolom, dan gaatt het gecentreert in kolom komen!*/
+      justify-content: center;
+      gap: 50px;
+      min-height: 60vh;
+    }
+
+    /*zorgt voor scheidingslijn tussen login en registration (gestolen van braxx login)*/
+    .beginpage::before {
+      content: '';
+      position: absolute;
+      background: #ccc;
+      width: 80%; /*moet breed zijn en*/
+      height: 1px; /*moet niet lang zijn, wantt horizontale lijn!*/
+      top: 50%; /*moet in helft van dee scherm staan, rekent van boven naar onder*/
+      left: 10%; /*bij 50% left zal het  juist vanaf de helft beginnen, daarvan 10%*/
+    }
+
+    .login h1, .registration h1 {
+      margin-top: 2%;
+      margin-bottom: 5%;
+    }
+    header {
+      border: none;
+    }
+    .about p{
+      display: none;
+    }
+
+    /*--------- login side ---------*/
+    .login h1{
+      margin-bottom: 10%; /*forced erbij gezett, for some reason ging het juist dichtter naar login voor bottom:5%*/
+    }
+    .inputbox input {
+      width: 100%;
+    }
+    #login_button {
+      width: 100%;
+    }
+
+
+    /*--------- register side ---------*/
+    .registration p {
+      font-size: 130%;
+    }
+
 }
