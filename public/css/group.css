@@ -23,6 +23,20 @@
   grid-area: sidebar;
 }
 
+/*----------- Content: members -----------*/
+.title-header {
+  font-weight: 600;
+}
+.admin-header,
+.member-header,
+.viewer-header {
+  font-weight: 530;
+  color: red;
+}
+.list-group {
+  background-color: blue;
+}
+
 /*----------- Buttons -----------*/
 .btn.btn-outline-primary {
     background-color: rgba(209, 160, 87, 0.664);
