@@ -2,6 +2,8 @@ import express from "express";
 import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
 
+// this is a test
+
 const app = express();
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
