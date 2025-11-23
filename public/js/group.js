@@ -55,8 +55,20 @@
 
         // If settings section, dependent on user role show specific settings
         if (section === "settings") {
-           const user_role = document.body.getAttribute('data-current-role');
+           const userRoleRes = await fetch(`/group/${groupId}/settings`);
+           const userRole = userRoleRes.json();
+            
+           if (userRole === "admin") {
 
+           }
+
+           if (userRole === "member") {
+
+           }
+
+           if (userRole === "viewer") {
+            
+           }
         }
 
         if (section === "map") {
