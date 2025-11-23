@@ -17,7 +17,7 @@
 .sidebar {
   width: 280px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /*zet iteems onder elkaar*/
   gap: 10px;
 
   grid-area: sidebar;
@@ -26,16 +26,28 @@
 /*----------- Content: members -----------*/
 .title-header {
   font-weight: 600;
+  margin-bottom: 20px;
 }
 .admin-header,
 .member-header,
 .viewer-header {
   font-weight: 530;
-  color: red;
+  color: rgb(56, 56, 56);
 }
 .list-group {
-  background-color: blue;
+  flex-wrap: wrap;  /*als geen plaats, jump naar volgende lijn*/
+  /*display: fleex niett nodig want list-grorup heefttt da al (zie  bootstrap)*/
+
+  border: 2px solid #cdd0d4;
+  width: 80%;
+  margin-bottom: 2%;
 }
+.list-group-item {
+  border: none !important;
+  font-weight: 450;
+}
+
+/*----------- Content: settings -----------*/
 
 /*----------- Buttons -----------*/
 .btn.btn-outline-primary {
