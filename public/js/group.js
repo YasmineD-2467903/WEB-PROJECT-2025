@@ -53,6 +53,12 @@
             createList(document.getElementById("viewerList"), viewers);
         }
 
+        // If settings section, dependent on user role show specific settings
+        if (section === "settings") {
+           const user_role = document.body.getAttribute('data-current-role');
+
+        }
+
         if (section === "map") {
             contentDiv.innerHTML = `
                 <div id="map" style="width: 100%; height: 400px;"></div>
