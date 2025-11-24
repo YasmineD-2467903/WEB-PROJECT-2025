@@ -132,6 +132,7 @@ app.get("/group/:id/members", (request, response) => {
   }
 });
 
+// group page
 app.get("/group/:id/section/:section", (request, response) => {
   const { id, section } = request.params;
   const validSections = ["members", "settings", "chat", "map", "polls"];
