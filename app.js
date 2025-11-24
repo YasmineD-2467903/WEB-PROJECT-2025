@@ -2,6 +2,8 @@ import express from "express";
 import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
 
+// final test
+
 const app = express();
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
@@ -130,6 +132,7 @@ app.get("/group/:id/members", (request, response) => {
   }
 });
 
+// group page
 app.get("/group/:id/section/:section", (request, response) => {
   const { id, section } = request.params;
   const validSections = ["members", "settings", "chat", "map", "polls"];
