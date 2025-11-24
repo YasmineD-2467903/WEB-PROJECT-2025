@@ -48,6 +48,26 @@
 }
 
 /*----------- Content: settings -----------*/
+.settings-section {
+  display: grid;
+  background-color: red;
+}
+.admin-settings {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  align-items: start;
+}
+#adminSetting {
+  grid-column: 1/-1;
+}
+.btn-group {
+  grid-column: 1 !important; /*locatie in grid, willen dat dittt onder header is en links vaan de grid*/
+
+  display: flex;
+  flex-direction: column;
+}
 
 /*----------- Buttons -----------*/
 .btn.btn-outline-primary {

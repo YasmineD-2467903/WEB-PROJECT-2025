@@ -56,18 +56,24 @@
         // If settings section, dependent on user role show specific settings
         if (section === "settings") {
            const userRoleRes = await fetch(`/group/${groupId}/settings`);
-           const userRole = userRoleRes.json();
+           const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
             
-           if (userRole === "admin") {
+           const adminSec = document.getElementById("adminSetting");
+           const memberSec = document.getElementById("memberSetting");
+           const viewerSec = document.getElementById("viewerSetting");
 
+           if (userRole === "admin") {
+            viewerSec.style.display = 'none';
            }
 
            if (userRole === "member") {
-
+            adminSec.style.display = 'none';
+            viewerSec.style.display = 'none';
            }
 
            if (userRole === "viewer") {
-            
+            adminSec.style.display = 'none';
+            memberSec.style.display = 'none';
            }
         }
 
