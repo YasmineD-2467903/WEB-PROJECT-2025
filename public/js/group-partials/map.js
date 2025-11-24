@@ -1,21 +1,40 @@
-export async function initMap() {
-    if (!window.googleMapsLoaded) {
-        window.googleMapsLoaded = true;
+// map.js
 
-        const mapsApi = document.createElement("script");
-        mapsApi.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDf8c_RldjfbjhoyNzxzEYMXt3v8rAVToQ&callback=initMap";
-        mapsApi.async = true;
-        mapsApi.defer = true;
-        document.body.appendChild(mapsApi);
+async function initMap() {
+    //  Request the needed libraries.
+    const [{ Map }, { AdvancedMarkerElement }] = await Promise.all([
+        google.maps.importLibrary("maps"),
+        google.maps.importLibrary("marker"),
+        google.maps.importLibrary("core"),
+        google.maps.importLibrary("places"),
+    ]);
+    // Get the gmp-map element.
+    const mapElement = document.querySelector("gmp-map");
+    // Get the inner map.
+    const innerMap = mapElement.innerMap;
+    // Set map options.
+    innerMap.setOptions({
+        mapTypeControl: false,
+    });
 
-        window.initMap = () => {
-            const mapOptions = {
-                center: { lat: 50, lng: 5 },
-                zoom: 15
-            };
-            new google.maps.Map(document.getElementById("map"), mapOptions);
-        };
-    } else {
-        window.initMap();
-    }
+    const marker = new AdvancedMarkerElement({
+        map: innerMap,
+        position: mapElement.center,
+        title: "something",
+        gmpClickable: true,
+    });
+    mapElement.append(marker);
+
+    // this following part doesnt work
+    // the infoWindow isn't recognised? I'm missing a lib?
+    // but idk which one cause google has horrible documentation
+
+    marker.addListener('click', ({ domEvent, latLng }) => {
+    const { target } = domEvent;
+    infoWindow.close();
+    infoWindow.setContent(marker.title);
+    infoWindow.open(marker.map, marker);
+});
 }
+
+initMap();
