@@ -58,15 +58,28 @@
   grid-template-rows: auto auto;
   gap: 1rem;
   align-items: start;
+
+  border: 1px solid #cdd0d4;
+  border-radius: 8px;
 }
-#adminSetting {
-  grid-column: 1/-1;
+#AS-header {
+  grid-column: 1/-1; /*basically zorgt ervoor dat dit in 1 kolom is*/
+  text-align: center;
 }
 .btn-group {
-  grid-column: 1 !important; /*locatie in grid, willen dat dittt onder header is en links vaan de grid*/
+  grid-column: 1; /*locatie in grid, willen dat dittt onder header is en links vaan de grid (dus kolom 1 en row 2)*/
+  grid-row: 2;
 
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /*as usual, gwn zodat de knoppen mooi onder elkaaar staaan*/
+}
+.form-check  {
+  grid-column: 2;
+  grid-row: 2;
+}
+#inv-btn {
+  width: 60% !important;
+  margin: 10px;
 }
 
 /*----------- Buttons -----------*/
@@ -91,5 +104,6 @@
   color: rgb(56, 56, 56);
 }
 .btn.btn-outline-primary:active { /*toevoegen bij fyp!!*/
+  color: white;
   background-color: rgba(173, 132, 70, 0.664) !important;
 }

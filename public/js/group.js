@@ -58,9 +58,9 @@
            const userRoleRes = await fetch(`/group/${groupId}/settings`);
            const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
             
-           const adminSec = document.getElementById("adminSetting");
-           const memberSec = document.getElementById("memberSetting");
-           const viewerSec = document.getElementById("viewerSetting");
+           const adminSec = document.getElementById("admin");
+           const memberSec = document.getElementById("member");
+           const viewerSec = document.getElementById("viewer");
 
            if (userRole === "admin") {
             viewerSec.style.display = 'none';
