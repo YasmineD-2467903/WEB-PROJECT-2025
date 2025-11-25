@@ -52,34 +52,50 @@
   display: grid;
   background-color: red;
 }
-.admin-settings {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 1rem;
-  align-items: start;
+.admin-settings, .member-settings, .viewer-settings {
+  width: 60%;
+  margin: 10px;
 
   border: 1px solid #cdd0d4;
   border-radius: 8px;
 }
-#AS-header {
-  grid-column: 1/-1; /*basically zorgt ervoor dat dit in 1 kolom is*/
+#AS-header, #MS-header, #VS-header {
   text-align: center;
+  margin-bottom: -5px; /*wat dichter bij de iteems zetten!*/
 }
-.btn-group {
-  grid-column: 1; /*locatie in grid, willen dat dittt onder header is en links vaan de grid (dus kolom 1 en row 2)*/
-  grid-row: 2;
 
-  display: flex;
-  flex-direction: column; /*as usual, gwn zodat de knoppen mooi onder elkaaar staaan*/
-}
-.form-check  {
-  grid-column: 2;
-  grid-row: 2;
-}
+  /*----------- Admin-settings -----------*/
+    .container-fluid { /*contaainer maakt hier 100% gebruikt van de 60% breeedte in admin-settings!*/
+      display: flex;
+      align-items: center;
+    }
+    .form-check  {
+      margin-left: 10%;
+    }
+    .form-check-input {
+      border-color: rgb(194, 189, 189);
+      margin-top: 5px; /*positie beetje naar  onder  (heel  weinig)*/
+
+      transition: 0.15s ease-in-out !important; /*bootstrap :DDDDDD*/
+      cursor: pointer;
+    }
+    .form-check-input:hover {
+      color: #E6BB58;
+      border-color: #E6BB58;
+    }
+    .form-check-input:checked {
+      background-color: #E6BB58;
+      border-color: #E6BB58
+    }
+    .form-check-input:focus {
+      border-color: #E6BB58;
+      box-shadow: none;
+    }
+
+    /*----------- Member-settings -----------*/
+
 #inv-btn {
-  width: 60% !important;
-  margin: 10px;
+  width: 40% !important; /*knop moet kleiner zijn dan de 80% die bij de rest gebruikt wordt*/
 }
 
 /*----------- Buttons -----------*/
