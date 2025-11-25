@@ -1,3 +1,4 @@
+//section codeeeeee -> basically loads in a sectttion dependent on which button u click
     const groupId = window.groupId;
     document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -24,6 +25,44 @@
         loadSection(section);
     });
     });
+
+    // popup code, fully inspireed by an awesome video:  https://www.youtube.com/watch?v=MBaw_6cPmAw
+    const openPopupButtons =  document.querySelectorAll("[data-popup-target]");
+    const closePopupButtons =  document.querySelectorAll("[data-close-button]");
+    const overlay = document.getElementById("overlay");
+
+    openPopupButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const popup = document.querySelector("button.dataset.modelTarget"); //apparently leest JS  dit in  camelcasee??   want zo  is hett in     onze html en de  video zei dat dit prima  was xdd
+            openPopup(popup);
+        })
+    })
+
+    overlay.addEventListener("click", () => {
+        const popups = document.querySelectorAll(".modal.active") //select all   activee popups
+        popups.forEach(popup => {
+            closePopup(popup)
+        })
+    })
+
+    closePopupButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const popup = button.closest(".popup");   //looks for closest parent with class popup!
+            closePopup(popup);
+        })
+    })
+
+    function openPopup(popup) {
+        if (popup == null) return;
+        popup.classList.add("active");
+        overlay.classList.add("active");
+    }
+
+    function closePopup(popup) {
+        if (popup == null) return;
+        popup.classList.remove("active");
+        overlay.classList.remove("active");
+    }
 
     async function loadSection(section) {
     try {

@@ -4,7 +4,30 @@
     <div class="admin-settings" id="admin">
         <h2 class="admin-header" id="AS-header">Admin</h2>
         <div class="container-fluid">
-            <button class="btn btn-outline-primary" id="inv-btn">Invite person</button>
+            <button class="btn btn-outline-primary" data-popup-target="#popup" id="inv-btn">Invite person</button>
+
+            <div class="popup" id="popup">
+                <div class="popup-header">
+                    <div class="title">Invite person as what role?</div>
+                    <button data-close-button class="close-btn">&times;</button>
+                </div>
+                <div class="popup-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="adminRole">
+                        <label class="form-check-label" for="adminRole">Invite as admin</label>               
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="memberRole">
+                        <label class="form-check-label" for="memberRole">Invite as member</label>               
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="viewerRole">
+                        <label class="form-check-label" for="viewerRole">Invite as viewer</label>               
+                    </div>
+                </div>
+            </div>
+            <div id="overlay"></div>
+
             <div class="form-check form-switch"> <!-- online van de bootstrap checkbox page gestolen lol -->
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to invite others?</label>
