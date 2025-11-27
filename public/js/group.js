@@ -8,6 +8,8 @@
         document.getElementById("groupName").textContent = group.name;
         document.getElementById("groupDescription").textContent =
         group.description || "No description provided.";
+        document.getElementById("startEnd").textContent =
+            `${toDDMMYYYY(group.startDate)} - ${toDDMMYYYY(group.endDate)}`;
     } catch (err) {
         console.error(err);
         document.body.innerHTML =
@@ -24,6 +26,11 @@
         loadSection(section);
     });
     });
+
+function toDDMMYYYY(dateStr) {
+    const [month, day, year] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+}
 
     async function loadSection(section) {
     try {

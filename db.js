@@ -19,15 +19,27 @@ export function InitializeDatabase() {
     ) STRICT;
   `).run();
 
-  // GROUPS
+  // GROUPS - DATES AS STRINGS: "MM-DD-YYYY"
   db.prepare(`
     CREATE TABLE IF NOT EXISTS groups (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT,
       description TEXT,
-      invite_code TEXT UNIQUE
+      startDate TEXT, 
+      endDate TEXT
     ) STRICT;
   `).run();
+
+  // INVITES - underdeveloped
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS invites (
+      group_id INTEGER,
+      uses INTEGER,
+      key TEXT,
+      PRIMARY KEY (key),
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    ) STRICT;
+  `)
 
   // GROUP MEMBERSHIP
   db.prepare(`
@@ -115,26 +127,29 @@ export function InitializeDatabase() {
       {
         name: "UHasselt Adventure Buddies",
         description: "Exploring Europe one trip at a time!",
-        invite_code: "JOIN-UHASS-123",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
       {
         name: "Summer Road Trip 2025",
         description: "Friends + car + sun = perfect vacation.",
-        invite_code: "SUMMER-ROAD-2025",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
       {
         name: "Mountain Lovers",
         description: "Hiking, camping, and nature photography group.",
-        invite_code: "MOUNTAIN-LOVE",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
     ];
 
     const insertGroup = db.prepare(
-      "INSERT INTO groups (name, description, invite_code) VALUES (?, ?, ?)"
+      "INSERT INTO groups (name, description, startDate, endDate) VALUES (?, ?, ?, ?)"
     );
     const insertGroupsTx = db.transaction((groups) => {
       for (const group of groups)
-        insertGroup.run(group.name, group.description, group.invite_code);
+        insertGroup.run(group.name, group.description, group.startDate, group.endDate);
     });
     insertGroupsTx(exampleGroups);
   } else {
