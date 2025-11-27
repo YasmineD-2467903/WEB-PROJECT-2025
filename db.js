@@ -37,7 +37,7 @@ export function InitializeDatabase() {
       uses INTEGER,
       key TEXT,
       PRIMARY KEY (key),
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `)
 
@@ -48,8 +48,8 @@ export function InitializeDatabase() {
       group_id INTEGER,
       role TEXT CHECK(role IN ('admin','member', 'viewer')),
       PRIMARY KEY (user_id, group_id),
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -63,7 +63,7 @@ export function InitializeDatabase() {
       end_date TEXT,
       country TEXT,
       cover_photo TEXT,
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -78,7 +78,7 @@ export function InitializeDatabase() {
       coordinates_lat REAL,
       coordinates_lng REAL,
       tags TEXT,
-      FOREIGN KEY (trip_id) REFERENCES trips(id)
+      FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -87,7 +87,7 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS group_messages (
       message_id INTEGER PRIMARY KEY AUTOINCREMENT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-      group_id INTEGER REFERENCES groups(id),
+      group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
       sender_id INTEGER REFERENCES users(id),
       contents TEXT,
       attachment TEXT  -- URL or NULL
@@ -203,31 +203,31 @@ export function InitializeDatabase() {
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:00:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing testing hello"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:02:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing received"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:03:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "can you see the messages?"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:09:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "hello?"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:10:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "yep"
       }
     ];

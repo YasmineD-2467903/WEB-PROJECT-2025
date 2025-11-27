@@ -182,6 +182,8 @@ app.post("/register", (request, response) => {
   }
 });
 
+// create group
+
 app.post("/createGroup", (request, response) => {
   const { name, description, startDate, endDate } = request.body;
   const userId = request.session.user_id;
@@ -196,7 +198,7 @@ app.post("/createGroup", (request, response) => {
       insertMember.run(userId, groupId, "admin");
 
       response.json({ success: true, message: `Greated created & Owner added succesfully!` });
-      // reload page? go directly to group page?
+
     } else {
       response.status(422).json({ success: false, message: `Start date cannot be after end date.`});
     }
@@ -204,6 +206,32 @@ app.post("/createGroup", (request, response) => {
   } catch (err) {
     console.error("Database error:", err);
     response.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
+// delete group
+
+app.post("/deleteGroup", (request, response) => {
+  const userId = request.session.user_id;
+  const { groupId } = request.body;
+
+  const isOwner = db.prepare(`
+    SELECT 1 FROM group_members
+    WHERE user_id = ? AND group_id = ? AND role = 'admin'
+  `).get(userId, groupId);
+
+  if (!isOwner) {
+    // alert("You must be the owner to delete this group!"); - fix later this doesnt matter
+    return response.status(403).json({ error: "You are not the group owner." });
+  }
+
+  try {
+    db.prepare("DELETE FROM groups WHERE id = ?").run(groupId);
+    //db.prepare("DELETE FROM group_members WHERE group_id = ?").run(groupId);
+    return response.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return response.status(500).json({ error: "Failed to delete group." });
   }
 });
 

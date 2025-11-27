@@ -44,7 +44,6 @@ function handleGroupCreate() {
     })
     .then(res => res.json())
     .then(data => {
-        // Update DOM
         loadGroups();
     });
 
@@ -74,7 +73,8 @@ async function loadGroups() {
       const div = document.createElement("div");
       div.className = "col-md-4";
       div.innerHTML = `
-        <div class="card h-100 border-0">
+        <div class="card h-100 border-0 position-relative">
+          <button class="btn-close position-absolute top-0 end-0 m-2" onclick="handleGroupDelete(${group.id})"></button>
           <div class="card-body text-center">
             <h5 class="card-title">${group.name}</h5>
             <p class="text-muted">${group.description || "No description."}</p>
@@ -91,4 +91,22 @@ async function loadGroups() {
 
 function openGroup(groupId) {
   window.location.href = `/group?id=${groupId}`;
+}
+
+function handleGroupDelete(groupId) {
+  
+  if (!confirm("Are you sure you want to delete this group?")) return;
+  if (!confirm("Really delete it? This cannot be undone!")) return;
+
+  console.log("Deleting group:", groupId);
+
+    fetch("/deleteGroup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ groupId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        loadGroups();
+    });
 }
