@@ -85,6 +85,7 @@ app.get("/groups", (request, response) => {
 });
 
 // page
+
 app.get("/group", (request, response) => {
   const groupId = request.query.id;
   if (!groupId) return response.status(400).send("Group ID missing");
@@ -92,6 +93,7 @@ app.get("/group", (request, response) => {
 });
 
 // data
+
 app.get("/group/:id", (request, response) => {
   try {
     const groupId = request.params.id;
@@ -114,9 +116,11 @@ app.get("/group/:id", (request, response) => {
 });
 
 // member list
+
 app.get("/group/:id/members", (request, response) => {
   try {
     const groupId = request.params.id;
+    const userId = request.session.user_id;
 
     const members = db.prepare(`
       SELECT u.username, gm.role
@@ -125,14 +129,87 @@ app.get("/group/:id/members", (request, response) => {
       WHERE gm.group_id = ?
     `).all(groupId);
 
-    response.json(members);
+    const checkRole = db
+      .prepare("SELECT role FROM group_members WHERE user_id = ? AND group_id = ?")
+      .get(userId, groupId);
+
+    const userRole = checkRole.role;
+
+    response.json({ members, userRole });
   } catch (err) {
     console.error("Error fetching group members:", err);
     response.status(500).json({ error: "Internal server error" });
   }
 });
 
+// change member role
+app.post("/group/:id/change-role", (req, res) => {
+    try {
+        const groupId = req.params.id;
+        const { username, newRole } = req.body;
+
+        // Validate role
+        if (!["admin", "member", "viewer"].includes(newRole)) {
+            return res.json({ success: false, error: "Invalid role" });
+        }
+
+        // Get user ID by username
+        const user = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
+        if (!user) return res.json({ success: false, error: "User not found" });
+
+        // Update role in group_members
+        const stmt = db.prepare(`
+            UPDATE group_members 
+            SET role = ? 
+            WHERE user_id = ? AND group_id = ?
+        `);
+        const info = stmt.run(newRole, user.id, groupId);
+
+        if (info.changes === 0) {
+            return res.json({ success: false, error: "Member not found in this group" });
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+
+// remove member(s) from group
+app.post("/group/:id/remove-members", (req, res) => {
+    try {
+        const groupId = req.params.id;
+        const { usernames } = req.body;
+
+        if (!Array.isArray(usernames) || usernames.length === 0) {
+            return res.json({ success: false, error: "No members selected" });
+        }
+
+        const users = db.prepare(`
+            SELECT id FROM users WHERE username IN (${usernames.map(() => "?").join(",")})
+        `).all(...usernames);
+
+        if (users.length === 0) {
+            return res.json({ success: false, error: "Users not found" });
+        }
+
+        const stmt = db.prepare(`
+            DELETE FROM group_members 
+            WHERE group_id = ? AND user_id IN (${users.map(() => "?").join(",")})
+        `);
+        stmt.run(groupId, ...users.map(u => u.id));
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+
+
 // group page
+
 app.get("/group/:id/section/:section", (request, response) => {
   const { id, section } = request.params;
   const validSections = ["members", "settings", "chat", "map", "polls"];
