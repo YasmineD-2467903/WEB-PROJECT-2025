@@ -98,7 +98,7 @@ app.get("/group/:id", (request, response) => {
 
     console.log(`Fetching data for group ${groupId}`);
 
-    const stmt = db.prepare("SELECT id, name, description FROM groups WHERE id = ?");
+    const stmt = db.prepare("SELECT id, name, description, startDate, endDate FROM groups WHERE id = ?");
     const group = stmt.get(groupId);
 
     if (!group) {
@@ -182,6 +182,31 @@ app.post("/register", (request, response) => {
   }
 });
 
+app.post("/createGroup", (request, response) => {
+  const { name, description, startDate, endDate } = request.body;
+  const userId = request.session.user_id;
+
+  try {
+    if (name && description && (startDate <= endDate)) {
+      const insertGroup = db.prepare("INSERT INTO groups (name, description, startDate, endDate) VALUES (?, ?, ?, ?)");
+      const result = insertGroup.run(name, description, startDate, endDate);
+      const groupId = result.lastInsertRowid;
+
+      const insertMember = db.prepare("INSERT INTO group_members (user_id, group_id, role) VALUES (?, ?, ?)");
+      insertMember.run(userId, groupId, "admin");
+
+      response.json({ success: true, message: `Greated created & Owner added succesfully!` });
+      // reload page? go directly to group page?
+    } else {
+      response.status(422).json({ success: false, message: `Start date cannot be after end date.`});
+    }
+
+  } catch (err) {
+    console.error("Database error:", err);
+    response.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
 // Middleware for unknown routes
 // Must be last in pipeline
 app.use((request, response, next) => {
@@ -200,3 +225,4 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
+ 

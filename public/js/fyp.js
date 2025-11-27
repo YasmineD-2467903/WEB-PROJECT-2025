@@ -12,6 +12,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   })
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const createBtn = document.querySelector("#createGroupModal .btn-success");
+
+    createBtn.addEventListener("click", handleGroupCreate);
+});
+
+function handleGroupCreate() {
+
+    const modal = document.getElementById("createGroupModal");
+    const inputs = modal.querySelectorAll("input");
+
+    const groupName = inputs[0].value.trim();
+    const description = inputs[1].value.trim();
+    const startDate = inputs[2].value;
+    const endDate = inputs[3].value;
+
+    const groupData = {
+        name: groupName,
+        description: description,
+        startDate: startDate,
+        endDate: endDate
+    };
+
+    console.log("Creating group:", groupData);
+
+    fetch("/createGroup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(groupData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Update DOM
+        loadGroups();
+    });
+
+    const bsModal = bootstrap.Modal.getInstance(modal);
+    bsModal.hide();
+
+    inputs.forEach(i => (i.value = ""));
+}
+
 async function loadGroups() {
   const container = document.getElementById("groupList");
   if (!container) return;

@@ -1,11 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-GB">
     <head>
         <title>Main Page</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/css/bootstrap.css">
         <link rel="stylesheet" href="/css/fyp.css">
     </head>
+
+    <!-- create Group Modal -->
+    <div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create a Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="Group name">
+                    <input type="text" class="form-control" placeholder="Description">
+                    <input type="date" class="form-control" placeholder="Start Date">
+                    <input type="date" class="form-control" placeholder="End Date">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- join Group Modal -->
+    <div class="modal fade" id="joinGroupModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Join a Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="Group code">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary">Join</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <body>
         <header>
@@ -44,6 +90,7 @@
             <!--dynamically load groups-->
 
             <script src="/js/fyp.js"></script>
+            <script src="/js/bootstrap.bundle.js"></script>
         </main>
     </body>
 </html>
