@@ -150,9 +150,11 @@ app.post("/group/:id/change-role", (req, res) => {
     try {
         const groupId = req.params.id;
         const { username, newRole } = req.body;
-
-        const sessionUser = req.session.user?.username; 
-        if (!sessionUser) return res.json({ success: false, error: "Not logged in" });
+    
+        const sessionUserId = req.session.user_id;
+        const sessionUser = db.prepare(`
+            SELECT username FROM users WHERE id = ?
+          `).get(sessionUserId);
 
         // validate role
         if (!["admin", "member", "viewer"].includes(newRole)) {
@@ -163,12 +165,6 @@ app.post("/group/:id/change-role", (req, res) => {
         const user = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
         if (!user) return res.json({ success: false, error: "User not found" });
 
-        const adminCount = db.prepare(`
-            SELECT COUNT(*) AS cnt 
-            FROM group_members 
-            WHERE group_id = ? AND role = 'admin'
-        `).get(groupId).cnt;
-
         const isTargetAdmin = db.prepare(`
             SELECT role FROM group_members
             WHERE user_id = ? AND group_id = ?
@@ -176,8 +172,8 @@ app.post("/group/:id/change-role", (req, res) => {
 
         const wasAdmin = isTargetAdmin.role === "admin";
 
-        if (username === sessionUser && wasAdmin && newRole !== "admin" && adminCount === 1) {
-            return res.json({ success: false, error: "You cannot remove your own admin role, you are the last admin." });
+        if (username === sessionUser.username && wasAdmin && newRole !== "admin") {
+            return res.json({ success: false, error: "You cannot remove your own admin role." });
         }
 
         // update role in group_members
@@ -205,8 +201,23 @@ app.post("/group/:id/remove-members", (req, res) => {
         const groupId = req.params.id;
         const { usernames } = req.body;
 
-        const sessionUser = req.session.user?.username;
-        if (!sessionUser) return res.json({ success: false, error: "Not logged in" });
+        const sessionUserId = req.session.user_id;
+        const sessionUser = db.prepare(`
+          SELECT username FROM users WHERE id = ?
+        `).get(sessionUserId);
+
+        const memberCount = db.prepare(`
+          SELECT COUNT(*) AS cnt
+          FROM group_members
+          WHERE group_id = ?
+        `).get(groupId).cnt;
+
+        const adminCount = db.prepare(`
+          SELECT COUNT(*) AS cnt
+          FROM group_members
+          WHERE group_id = ? AND role = 'admin'
+        `).get(groupId).cnt;
+
 
         if (!Array.isArray(usernames) || usernames.length === 0) {
             return res.json({ success: false, error: "No members selected" });
