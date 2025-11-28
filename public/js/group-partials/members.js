@@ -75,7 +75,7 @@ function setupManageRolesModal(members, groupId) {
 
     // --- Save Role Changes ---
     const saveBtn = modalEl.querySelector(".btn-success");
-    saveBtn.addEventListener("click", async () => {
+    saveBtn.onclick = async () => {
         const username = memberSelect.value;
         const newRole = roleSelect.value;
 
@@ -96,9 +96,13 @@ function setupManageRolesModal(members, groupId) {
             console.error(err);
             alert("Error changing role");
         }
-    });
+    };
 
-    document.getElementById("manageRoles").addEventListener("click", () => modal.show());
+    document.getElementById("manageRoles").onclick = () => {
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        modal.show();
+    };
+
 }
 
 // --- Manage Members Modal ---
@@ -128,9 +132,9 @@ function setupManageMembersModal(members, groupId) {
     modalBody.appendChild(selectEl);
 
     const removeBtn = modalEl.querySelector(".btn-primary");
-    removeBtn.addEventListener("click", async () => {
+    removeBtn.onclick = async () => {
         const selected = Array.from(selectEl.selectedOptions).map(opt => opt.value);
-        if (!selected.length) return alert("Select at least one member");
+        // if (!selected.length) return alert("Select at least one member");
 
         try {
             const res = await fetch(`/group/${groupId}/remove-members`, {
@@ -149,7 +153,17 @@ function setupManageMembersModal(members, groupId) {
             console.error(err);
             alert("Error removing members");
         }
-    });
+    };
 
-    document.getElementById("manageMembers").addEventListener("click", () => modal.show());
+    document.getElementById("manageMembers").onclick = () => {
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        modal.show();
+    };
 }
+
+// it sometimes doesnt close properly??? this is just an extra precaution cause im tired of it
+window.addEventListener("hidden.bs.modal", () => {
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+});
