@@ -66,18 +66,21 @@ app.get("/groups", (request, response) => {
     const userId = request.session.user_id;
     if (!userId) return response.status(401).json({ error: "Not logged in" });
 
-    const groups = db
-      .prepare(
-        `
-        SELECT g.id, g.name, g.description
-        FROM groups g
-        JOIN group_members gm ON gm.group_id = g.id
-        WHERE gm.user_id = ?
-      `
-      )
-      .all(userId);
+    const groups = db.prepare(`
+      SELECT g.id, g.name, g.description, gm.role
+      FROM groups g
+      JOIN group_members gm ON gm.group_id = g.id
+      WHERE gm.user_id = ?
+    `).all(userId);
 
-    response.json(groups);
+    const roles = {};
+    for (const g of groups) {
+      roles[g.id] = g.role;
+      delete g.role;
+    }
+
+    response.json({ groups, roles });
+
   } catch (err) {
     console.error("Error fetching groups:", err);
     response.status(500).json({ error: "Failed to load groups" });
@@ -148,16 +151,36 @@ app.post("/group/:id/change-role", (req, res) => {
         const groupId = req.params.id;
         const { username, newRole } = req.body;
 
-        // Validate role
+        const sessionUser = req.session.user?.username; 
+        if (!sessionUser) return res.json({ success: false, error: "Not logged in" });
+
+        // validate role
         if (!["admin", "member", "viewer"].includes(newRole)) {
             return res.json({ success: false, error: "Invalid role" });
         }
 
-        // Get user ID by username
+        // this should NEVER show up, but it did reveal issues before
         const user = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
         if (!user) return res.json({ success: false, error: "User not found" });
 
-        // Update role in group_members
+        const adminCount = db.prepare(`
+            SELECT COUNT(*) AS cnt 
+            FROM group_members 
+            WHERE group_id = ? AND role = 'admin'
+        `).get(groupId).cnt;
+
+        const isTargetAdmin = db.prepare(`
+            SELECT role FROM group_members
+            WHERE user_id = ? AND group_id = ?
+        `).get(user.id, groupId);
+
+        const wasAdmin = isTargetAdmin.role === "admin";
+
+        if (username === sessionUser && wasAdmin && newRole !== "admin" && adminCount === 1) {
+            return res.json({ success: false, error: "You cannot remove your own admin role, you are the last admin." });
+        }
+
+        // update role in group_members
         const stmt = db.prepare(`
             UPDATE group_members 
             SET role = ? 
@@ -182,8 +205,33 @@ app.post("/group/:id/remove-members", (req, res) => {
         const groupId = req.params.id;
         const { usernames } = req.body;
 
+        const sessionUser = req.session.user?.username;
+        if (!sessionUser) return res.json({ success: false, error: "Not logged in" });
+
         if (!Array.isArray(usernames) || usernames.length === 0) {
             return res.json({ success: false, error: "No members selected" });
+        }
+
+        // dont remove yourself, stupid, i will add a "quit group" option elsewhere
+        if (usernames.includes(sessionUser)) {
+            return res.json({ success: false, error: "You cannot remove yourself from the group." });
+        }
+
+        // cant remove EVERYONE (should never happen actually?)
+        if (usernames.length >= memberCount) {
+            return res.json({ success: false, error: "Cannot remove all members from the group." });
+        }
+
+        const adminsBeingRemoved = db.prepare(`
+            SELECT username
+            FROM group_members gm
+            JOIN users u ON gm.user_id = u.id
+            WHERE gm.group_id = ? AND gm.role = 'admin' AND u.username IN (${usernames.map(() => "?").join(",")})
+        `).all(groupId, ...usernames);
+
+        // dont remove last admin
+        if (adminsBeingRemoved.length >= adminCount) {
+            return res.json({ success: false, error: "Cannot remove the last admin from the group." });
         }
 
         const users = db.prepare(`
@@ -298,13 +346,22 @@ app.post("/deleteGroup", (request, response) => {
   `).get(userId, groupId);
 
   if (!isOwner) {
-    // alert("You must be the owner to delete this group!"); - fix later this doesnt matter
-    return response.status(403).json({ error: "You are not the group owner." });
+
+    try {
+      db.prepare("DELETE FROM group_members WHERE user_id = ? AND group_id = ?").run(userId, groupId);
+      return response.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      return response.status(500).json({ error: "Failed to delete group." });
+    }
   }
+
+
+
+  console.log("Deleting group:", groupId);
 
   try {
     db.prepare("DELETE FROM groups WHERE id = ?").run(groupId);
-    //db.prepare("DELETE FROM group_members WHERE group_id = ?").run(groupId);
     return response.json({ success: true });
   } catch (err) {
     console.error(err);

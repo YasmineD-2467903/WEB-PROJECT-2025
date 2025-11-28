@@ -60,7 +60,10 @@ async function loadGroups() {
   try {
     const response = await fetch("/groups");
     if (!response.ok) throw new Error("Failed to fetch groups");
-    const groups = await response.json();
+
+    const data = await response.json();
+    const groups = data.groups;
+    const roles = data.roles; // { groupId: role }
 
     container.innerHTML = "";
 
@@ -70,11 +73,17 @@ async function loadGroups() {
     }
 
     for (const group of groups) {
+      const userRole = roles[group.id];
+
       const div = document.createElement("div");
       div.className = "col-md-4";
       div.innerHTML = `
         <div class="card h-100 border-0 position-relative">
-          <button class="btn-close position-absolute top-0 end-0 m-2" onclick="handleGroupDelete(${group.id})"></button>
+          <button 
+            class="btn-close position-absolute top-0 end-0 m-2"
+            onclick="handleGroupDelete(${group.id}, '${userRole}')">
+          </button>
+
           <div class="card-body text-center">
             <h5 class="card-title">${group.name}</h5>
             <p class="text-muted">${group.description || "No description."}</p>
@@ -83,6 +92,7 @@ async function loadGroups() {
         </div>`;
       container.appendChild(div);
     }
+
   } catch (err) {
     console.error(err);
     container.innerHTML = `<p class="text-danger text-center">Error loading groups.</p>`;
@@ -93,20 +103,21 @@ function openGroup(groupId) {
   window.location.href = `/group?id=${groupId}`;
 }
 
-function handleGroupDelete(groupId) {
-  
-  if (!confirm("Are you sure you want to delete this group?")) return;
-  if (!confirm("Really delete it? This cannot be undone!")) return;
+function handleGroupDelete(groupId, userRole) {
 
-  console.log("Deleting group:", groupId);
+  if (userRole === "admin") {
+    const confirmDelete = confirm("You are an admin. Do you want to DELETE this group?");
+    if (!confirmDelete) return;
+  } else {
+    const confirmLeave = confirm("You are not an admin. Do you want to LEAVE this group?");
+    if (!confirmLeave) return;
+  }
 
-    fetch("/deleteGroup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ groupId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        loadGroups();
-    });
+  fetch("/deleteGroup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ groupId })
+  })
+  .then(res => res.json())
+  .then(() => loadGroups());
 }
