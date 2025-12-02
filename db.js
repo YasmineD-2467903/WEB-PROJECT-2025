@@ -15,7 +15,11 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE,
-      password TEXT
+      password TEXT,
+      display_name TEXT,
+      bio TEXT,
+      bannerColor TEXT DEFAULT '#cccccc',
+      profilePicture TEXT
     ) STRICT;
   `).run();
 
@@ -37,7 +41,7 @@ export function InitializeDatabase() {
       uses INTEGER,
       key TEXT,
       PRIMARY KEY (key),
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `)
 
@@ -48,8 +52,8 @@ export function InitializeDatabase() {
       group_id INTEGER,
       role TEXT CHECK(role IN ('admin','member', 'viewer')),
       PRIMARY KEY (user_id, group_id),
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -63,7 +67,7 @@ export function InitializeDatabase() {
       end_date TEXT,
       country TEXT,
       cover_photo TEXT,
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -78,7 +82,7 @@ export function InitializeDatabase() {
       coordinates_lat REAL,
       coordinates_lng REAL,
       tags TEXT,
-      FOREIGN KEY (trip_id) REFERENCES trips(id)
+      FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -87,7 +91,7 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS group_messages (
       message_id INTEGER PRIMARY KEY AUTOINCREMENT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-      group_id INTEGER REFERENCES groups(id),
+      group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
       sender_id INTEGER REFERENCES users(id),
       contents TEXT,
       attachment TEXT  -- URL or NULL
@@ -100,17 +104,72 @@ export function InitializeDatabase() {
   if (userCount === 0) {
     console.log("Database empty: inserting example users...");
     const exampleUsers = [
-      { username: "Peter", password: "pass" },
-      { username: "Jori", password: "bug" },
-      { username: "Joris", password: "letmein" },
-      { username: "Mike", password: "yip" },
-      { username: "Keti", password: "123" },
-      { username: "Pew", password: "000" }
+      {
+        username: "Peter",
+        password: "pass",
+        display_name: "Peter Parker",
+        bio: "Friendly neighborhood explorer.",
+        bannerColor: "#1e90ff",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Jori",
+        password: "bug",
+        display_name: "Jori Smith",
+        bio: "Love traveling and coffee.",
+        bannerColor: "#ff6347",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Joris",
+        password: "letmein",
+        display_name: "Joris Van Dam",
+        bio: "Hiking enthusiast.",
+        bannerColor: "#32cd32",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Mike",
+        password: "yip",
+        display_name: "Mike Johnson",
+        bio: "Adventure seeker.",
+        bannerColor: "#ff1493",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Keti",
+        password: "123",
+        display_name: "Keti V.",
+        bio: "Travel blogger and chocolate lover.",
+        bannerColor: "#ffa500",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Pew",
+        password: "000",
+        display_name: "Pew Pew",
+        bio: "Just here for the fun.",
+        bannerColor: "#8a2be2",
+        profilePicture: "default.png"
+      }
     ];
 
-    const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    const insertUser = db.prepare(`
+      INSERT INTO users (username, password, display_name, bio, bannerColor, profilePicture)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
     const transaction = db.transaction((users) => {
-      for (const user of users) insertUser.run(user.username, user.password);
+      for (const user of users) {
+        insertUser.run(
+          user.username,
+          user.password,
+          user.display_name,
+          user.bio,
+          user.bannerColor,
+          user.profilePicture
+        );
+      }
     });
     transaction(exampleUsers);
   } else {
@@ -203,31 +262,31 @@ export function InitializeDatabase() {
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:00:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing testing hello"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:02:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing received"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:03:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "can you see the messages?"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:09:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "hello?"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:10:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "yep"
       }
     ];
