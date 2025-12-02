@@ -31,22 +31,19 @@
         </div>
     </div>
 
-    <!-- join Group Modal -->
-    <div class="modal fade" id="joinGroupModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- group Invites Modal -->
+    <div class="modal fade" id="groupInvitesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Join a Group</h5>
+                    <h5 class="modal-title">Group Invites</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <input type="text" class="form-control" placeholder="Group code">
-                </div>
-
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-success">Join</button>
+                    <ul id="groupInviteList" class="list-group mt-2">
+                        <!-- dynamic js fill again  -->
+                    </ul>
                 </div>
             </div>
         </div>
@@ -242,9 +239,9 @@
                             type="button"
                             class="btn btn-outline-primary"
                             data-bs-toggle="modal"
-                            data-bs-target="#joinGroupModal"
+                            data-bs-target="#groupInvitesModal"
                         >
-                            Join Group
+                            Group Invites
                     </button>
                 </div>
             </div>

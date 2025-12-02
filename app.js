@@ -504,25 +504,25 @@ app.get("/user/profile/:id", async (req, res) => {
     }
 });
 
-app.post("/user/profile", (req, res) => {
-  const userId = req.session.user_id;
-  if (!userId) return res.status(401).json({ error: "Not logged in" });
+app.get("/groups/invites", (req, res) => {
+    const userId = req.session.user_id;
 
-  const { displayName, bio, bannerColor } = req.body;
+    try {
+        const invites = db.prepare(`
+            SELECT i.id, g.name AS group_name, u.username AS inviter_name, i.role
+            FROM invites i
+            JOIN groups g ON g.id = i.group_id
+            JOIN users u ON u.id = i.inviter_id
+            WHERE i.invited_id = ?
+        `).all(userId);
 
-  try {
-    db.prepare(`
-      UPDATE users 
-      SET display_name = ?, bio = ?, bannerColor = ?
-      WHERE id = ?
-    `).run(displayName, bio, bannerColor, userId);
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, error: "Database error" });
-  }
+        res.json({ invites });
+    } catch (err) {
+        console.error("ERROR in /groups/invites:", err);
+        res.status(500).json({ error: "Server failed to load invites" });
+    }
 });
+
 
 // friend code thing
 
@@ -573,8 +573,115 @@ app.post("/user/add-friend", (req, res) => {
   }
 });
 
+// edit profile
 
+app.post("/user/profile", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
 
+  const { displayName, bio, bannerColor } = req.body;
+
+  try {
+    db.prepare(`
+      UPDATE users 
+      SET display_name = ?, bio = ?, bannerColor = ?
+      WHERE id = ?
+    `).run(displayName, bio, bannerColor, userId);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Database error" });
+  }
+});
+
+// send invite
+
+app.post("/user/invite-to-group", (req, res) => {
+    const inviterId = req.session.user_id;
+    const { friendId, groupId, role } = req.body;
+
+    if (!inviterId)
+        return res.status(401).json({ error: "Not logged in" });
+
+    // later on groups will have the setting that can allow members to invite others (only as member or viewer), i will implement that later, when I actually do the settings
+    const membership = db.prepare(`
+        SELECT role FROM group_members
+        WHERE user_id = ? AND group_id = ?
+    `).get(inviterId, groupId);
+
+    if (!membership || membership.role !== "admin") {
+        return res.status(403).json({ error: "Only admins can invite." });
+    }
+
+    // dont invite someone who is alr in the group
+    const alreadyMember = db.prepare(`
+        SELECT 1 FROM group_members
+        WHERE user_id = ? AND group_id = ?
+    `).get(friendId, groupId);
+
+    if (alreadyMember) {
+        return res.json({ error: "This user is already a member of the group." });
+    }
+
+    try {
+        db.prepare(`
+            INSERT INTO invites (group_id, inviter_id, invited_id, role)
+            VALUES (?, ?, ?, ?)
+        `).run(groupId, inviterId, friendId, role);
+
+        res.json({ success: true, message: "Invite sent!" });
+
+    } catch (err) {
+        if (err.message.includes("UNIQUE")) {
+            return res.json({ error: "This user already has a pending invite." });
+        }
+
+        console.error(err);
+        res.status(500).json({ error: "Database error sending invite." });
+    }
+});
+
+// accept / decline invites
+
+app.post("/groups/accept-invite/:inviteId", (req, res) => {
+    const inviteId = req.params.inviteId;
+    const userId = req.session.user_id;
+
+    const invite = db.prepare(
+        "SELECT group_id, invited_id, role FROM invites WHERE id = ?"
+    ).get(inviteId);
+
+    if (!invite) return res.status(404).json({ error: "Invite not found" });
+    if (invite.invited_id !== userId)
+        return res.status(403).json({ error: "Not your invite" });
+
+    // Add user to group
+    db.prepare(
+        `INSERT INTO group_members (user_id, group_id, role)
+         VALUES (?, ?, ?)`
+    ).run(userId, invite.group_id, invite.role);
+
+    // Delete invite
+    db.prepare("DELETE FROM invites WHERE id = ?").run(inviteId);
+
+    res.json({ success: true });
+});
+
+app.post("/groups/decline-invite/:inviteId", (req, res) => {
+    const inviteId = req.params.inviteId;
+    const userId = req.session.user_id;
+
+    const invite = db.prepare("SELECT invited_id FROM invites WHERE id = ?").get(inviteId);
+
+    if (!invite) return res.status(404).json({ error: "Invite not found" });
+    if (invite.invited_id !== userId)
+        return res.status(403).json({ error: "Not your invite" });
+
+    db.prepare("DELETE FROM invites WHERE id = ?").run(inviteId);
+
+    res.json({ success: true });
+});
 
 // Middleware for unknown routes
 // Must be last in pipeline

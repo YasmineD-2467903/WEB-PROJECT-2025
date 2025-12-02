@@ -298,3 +298,164 @@ function copyFriendCode() {
     document.execCommand("copy");
     alert("Friend code copied!");
 }
+
+async function loadGroupInvites() {
+    const list = document.getElementById("groupInviteList");
+    list.innerHTML = "<p class='text-muted'>Loading...</p>";
+
+    const res = await fetch("/groups/invites");
+    const data = await res.json();
+
+    list.innerHTML = "";
+
+    if (!data.invites.length) {
+        list.innerHTML = "<p class='text-muted text-center'>No invites.</p>";
+        return;
+    }
+
+    data.invites.forEach(inv => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+            <div>
+                <strong>${inv.group_name}</strong><br>
+                Invited by: ${inv.inviter_name}<br>
+                Role: <span class="text-capitalize">${inv.role}</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success btn-sm" onclick="acceptInvite(${inv.id})">Accept</button>
+                <button class="btn btn-danger btn-sm" onclick="declineInvite(${inv.id})">Decline</button>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+document.getElementById("groupInvitesModal")
+    .addEventListener("show.bs.modal", loadGroupInvites);
+
+async function acceptInvite(id) {
+    await fetch(`/groups/accept-invite/${id}`, { method: "POST" });
+    loadGroupInvites();
+    loadGroups();
+}
+
+async function declineInvite(id) {
+    await fetch(`/groups/decline-invite/${id}`, { method: "POST" });
+    loadGroupInvites();
+}
+
+document.getElementById("inviteFriendModal").addEventListener("show.bs.modal", loadInviteModal);
+
+async function loadInviteModal() {
+    loadInviteFriends();
+    loadInviteGroups();
+    loadInviteRoles();
+}
+
+async function loadInviteFriends() {
+    const select = document.getElementById("inviteFriendSelect");
+    select.innerHTML = "";
+
+    const res = await fetch("/user/friends");
+    const data = await res.json();
+
+    if (!data.friends || data.friends.length === 0) {
+        select.innerHTML = `<option disabled>No friends available</option>`;
+        return;
+    }
+
+    data.friends.forEach(friend => {
+        const opt = document.createElement("option");
+        opt.value = friend.id;
+        opt.textContent = friend.username;
+        select.appendChild(opt);
+    });
+}
+
+async function loadInviteGroups() {
+    const select = document.getElementById("inviteGroupSelect");
+    select.innerHTML = "";
+
+    const res = await fetch("/groups");
+    const data = await res.json();
+
+    select.innerHTML = "";
+
+    if (!data.groups || data.groups.length === 0) {
+        select.innerHTML = `<option disabled>No groups available</option>`;
+        return;
+    }
+
+    data.groups.forEach(group => {
+        const role = data.roles[group.id]; // ← use your backend role map
+
+        if (role === "admin") {
+            const opt = document.createElement("option");
+            opt.value = group.id;
+            opt.textContent = group.name;
+            select.appendChild(opt);
+        }
+    });
+}
+
+function loadInviteRoles() {
+    const select = document.getElementById("inviteRoleSelect");
+    select.innerHTML = `
+        <option value="viewer">Viewer</option>
+        <option value="member">Member</option>
+        <option value="admin">Admin</option>
+    `;
+}
+
+async function inviteFriend() {
+    const friendId = document.getElementById("inviteFriendSelect").value;
+    const groupId = document.getElementById("inviteGroupSelect").value;
+    const role = document.getElementById("inviteRoleSelect").value;
+
+    if (!friendId || !groupId || !role) {
+        alert("Please select a friend, group, and role.");
+        return;
+    }
+
+    const res = await fetch("/user/invite-to-group", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ friendId, groupId, role })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+        alert("Error: " + data.error);
+        return;
+    }
+
+    alert("Invite sent!");
+}
+
+async function confirmInviteFriend() {
+    const friendId = document.getElementById("inviteFriendSelect").value;
+    const groupId = document.getElementById("inviteGroupSelect").value;
+    const role = document.getElementById("inviteRoleSelect").value;
+
+    if (!friendId || !groupId || !role) {
+        alert("Please select friend, group, and role.");
+        return;
+    }
+
+    const res = await fetch("/user/invite-to-group", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ friendId, groupId, role })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+        alert("Error: " + data.error);
+        return;
+    }
+
+    alert("Invite sent!");
+}

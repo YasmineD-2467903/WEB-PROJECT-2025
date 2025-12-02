@@ -46,16 +46,20 @@ export function InitializeDatabase() {
     ) STRICT;
   `).run();
 
-  // INVITES - underdeveloped
+  // INVITES
   db.prepare(`
     CREATE TABLE IF NOT EXISTS invites (
-      group_id INTEGER,
-      uses INTEGER,
-      key TEXT,
-      PRIMARY KEY (key),
-      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id INTEGER,
+        inviter_id INTEGER,
+        invited_id INTEGER,
+        role TEXT CHECK(role IN ('admin','member','viewer')) NOT NULL,
+        FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+        FOREIGN KEY (inviter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (invited_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(group_id, invited_id)
     ) STRICT;
-  `)
+  `).run();
 
   // GROUP MEMBERSHIP
   db.prepare(`
