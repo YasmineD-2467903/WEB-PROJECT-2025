@@ -175,6 +175,47 @@ app.get("/user/me", (req, res) => {
   res.json(user);
 });
 
+// friend page
+
+app.get("/user/friend-code", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+  const user = db.prepare("SELECT friend_code FROM users WHERE id = ?").get(userId);
+  res.json({ friend_code: user.friend_code });
+});
+
+app.get("/user/friends", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+  const friends = db.prepare(`
+    SELECT u.id, u.username, u.display_name, u.friend_code
+    FROM users u
+    WHERE u.id IN (
+      SELECT r1.requested_id
+      FROM friend_requests r1
+      JOIN friend_requests r2
+        ON r1.requester_id = r2.requested_id AND r1.requested_id = r2.requester_id
+      WHERE r1.requester_id = ?
+    )
+  `).all(userId);
+
+  res.json({ friends });
+});
+
+
+app.get("/user/friend-requests", (req, res) => {
+  const userId = req.session.user_id;
+  const requests = db.prepare(`
+    SELECT u.username, u.display_name
+    FROM friend_requests fr
+    JOIN users u ON fr.requester_id = u.id
+    WHERE fr.requested_id = ?
+  `).all(userId);
+
+  res.json({ requests });
+});
 
 // change member role
 app.post("/group/:id/change-role", (req, res) => {
@@ -332,8 +373,9 @@ app.post("/register", (request, response) => {
     if (user) {
       response.status(409).json({ success: false, message: `User already exists.`});
     } else {
-      const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-      insertUser.run(username, password)
+      const friendCode = createUniqueFriendCode();
+      const insertUser = db.prepare("INSERT INTO users (username, password, friend_code) VALUES (?, ?, ?)");
+      insertUser.run(username, password, friendCode)
       response.json({ success: true, message: `Registration successful. Welcome, ${username}!` });
     }
   } catch (err) {
@@ -391,8 +433,6 @@ app.post("/deleteGroup", (request, response) => {
     }
   }
 
-
-
   console.log("Deleting group:", groupId);
 
   try {
@@ -443,6 +483,27 @@ app.post("/user/profile-picture", upload.single("profilePicture"), (req, res) =>
   }
 });
 
+// profile (your own or a friends profile)
+
+app.get("/user/profile/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = db.prepare(`
+            SELECT id, username, display_name, bio, bannerColor, profilePicture
+            FROM users
+            WHERE id = ?
+        `).get(userId);
+
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        res.json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 app.post("/user/profile", (req, res) => {
   const userId = req.session.user_id;
   if (!userId) return res.status(401).json({ error: "Not logged in" });
@@ -462,6 +523,57 @@ app.post("/user/profile", (req, res) => {
     res.status(500).json({ success: false, error: "Database error" });
   }
 });
+
+// friend code thing
+
+function generateFriendCode() {
+  const segment = () =>
+    Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${segment()}-${segment()}-${segment()}`;
+}
+
+function createUniqueFriendCode() {
+  let code;
+  let exists;
+
+  do {
+    code = generateFriendCode();
+    exists = db.prepare("SELECT id FROM users WHERE friend_code = ?").get(code);
+  } while (exists);
+
+  return code;
+}
+
+// add friend
+
+app.post("/user/add-friend", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+  const { username, friend_code } = req.body;
+
+  const user = db.prepare("SELECT id, friend_code FROM users WHERE username = ?").get(username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  if (user.friend_code !== friend_code) return res.status(400).json({ error: "Friend code incorrect" });
+  if (user.id === userId) return res.status(400).json({ error: "Cannot add yourself" });
+
+  // check if request already exists
+  const exists = db.prepare("SELECT 1 FROM friend_requests WHERE requester_id = ? AND requested_id = ?").get(userId, user.id);
+  if (exists) return res.status(400).json({ error: "Friend request already sent" });
+
+  db.prepare("INSERT INTO friend_requests (requester_id, requested_id) VALUES (?, ?)").run(userId, user.id);
+
+  // check if reciprocal request exists -> mutual friendship
+  const reciprocal = db.prepare("SELECT 1 FROM friend_requests WHERE requester_id = ? AND requested_id = ?").get(user.id, userId);
+  if (reciprocal) {
+    res.json({ success: true, message: `Friendship confirmed with ${username}!` });
+  } else {
+    res.json({ success: true, message: `Friend request sent to ${username}.` });
+  }
+});
+
+
 
 
 // Middleware for unknown routes

@@ -19,7 +19,19 @@ export function InitializeDatabase() {
       display_name TEXT,
       bio TEXT,
       bannerColor TEXT DEFAULT '#cccccc',
-      profilePicture TEXT
+      profilePicture TEXT,
+      friend_code TEXT UNIQUE
+    ) STRICT;
+  `).run();
+
+  // FRIENDS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS friend_requests (
+        requester_id INTEGER,
+        requested_id INTEGER,
+        PRIMARY KEY (requester_id, requested_id),
+        FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (requested_id) REFERENCES users(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -107,6 +119,7 @@ export function InitializeDatabase() {
       {
         username: "Peter",
         password: "pass",
+        friend_code: "ABCD-ABCD-ABCD-EEEE",
         display_name: "Peter Parker",
         bio: "Friendly neighborhood explorer.",
         bannerColor: "#1e90ff",
@@ -115,6 +128,7 @@ export function InitializeDatabase() {
       {
         username: "Jori",
         password: "bug",
+        friend_code: "ABCD-ABCD-DDDD",
         display_name: "Jori Smith",
         bio: "Love traveling and coffee.",
         bannerColor: "#ff6347",
@@ -123,6 +137,7 @@ export function InitializeDatabase() {
       {
         username: "Joris",
         password: "letmein",
+        friend_code: "ABCD-ABCD-CCCC",
         display_name: "Joris Van Dam",
         bio: "Hiking enthusiast.",
         bannerColor: "#32cd32",
@@ -131,6 +146,7 @@ export function InitializeDatabase() {
       {
         username: "Mike",
         password: "yip",
+        friend_code: "ABCD-ABCD-BBBB",
         display_name: "Mike Johnson",
         bio: "Adventure seeker.",
         bannerColor: "#ff1493",
@@ -139,6 +155,7 @@ export function InitializeDatabase() {
       {
         username: "Keti",
         password: "123",
+        friend_code: "ABCD-ABCD-AAAA",
         display_name: "Keti V.",
         bio: "Travel blogger and chocolate lover.",
         bannerColor: "#ffa500",
@@ -147,6 +164,7 @@ export function InitializeDatabase() {
       {
         username: "Pew",
         password: "000",
+        friend_code: "ABCD-ABCD-ABCD",
         display_name: "Pew Pew",
         bio: "Just here for the fun.",
         bannerColor: "#8a2be2",
@@ -155,8 +173,8 @@ export function InitializeDatabase() {
     ];
 
     const insertUser = db.prepare(`
-      INSERT INTO users (username, password, display_name, bio, bannerColor, profilePicture)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (username, password, friend_code, display_name, bio, bannerColor, profilePicture)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     const transaction = db.transaction((users) => {
@@ -164,6 +182,7 @@ export function InitializeDatabase() {
         insertUser.run(
           user.username,
           user.password,
+          user.friend_code,
           user.display_name,
           user.bio,
           user.bannerColor,
@@ -299,5 +318,41 @@ export function InitializeDatabase() {
   } else {
     console.log("Testing messages already present: skipping demo inserts.");
   }
-}
 
+  // --- DEMO FRIENDSHIPS ---
+  const friendshipCount = db.prepare("SELECT COUNT(*) AS count FROM friend_requests").get().count;
+
+  if (friendshipCount === 0) {
+    console.log("No friend requests found — inserting demo friendships...");
+
+    const users = db.prepare("SELECT id, username FROM users").all();
+    const userByName = Object.fromEntries(users.map((u) => [u.username, u.id]));
+
+    const friendships = [
+      { requester_id: userByName["Keti"], requested_id: userByName["Mike"] },
+      { requester_id: userByName["Mike"], requested_id: userByName["Keti"] },
+
+      { requester_id: userByName["Keti"], requested_id: userByName["Jori"] },
+      { requester_id: userByName["Jori"], requested_id: userByName["Keti"] },
+
+      { requester_id: userByName["Peter"], requested_id: userByName["Joris"] },
+      { requester_id: userByName["Joris"], requested_id: userByName["Peter"] },
+
+      { requester_id: userByName["Pew"], requested_id: userByName["Keti"] },
+      { requester_id: userByName["Keti"], requested_id: userByName["Pew"] },
+    ];
+
+    const insertFriendship = db.prepare(
+      "INSERT INTO friend_requests (requester_id, requested_id) VALUES (?, ?)"
+    );
+
+    const insertFriendshipsTx = db.transaction((requests) => {
+      for (const fr of requests) insertFriendship.run(fr.requester_id, fr.requested_id);
+    });
+
+    insertFriendshipsTx(friendships);
+  } else {
+    console.log("Friendships already present — skipping demo inserts.");
+  }
+
+}

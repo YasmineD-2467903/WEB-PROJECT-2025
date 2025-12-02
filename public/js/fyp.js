@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   await loadGroups();
+  await loadFriends();
 
   const container = document.getElementById("groupList");
   container.addEventListener("click", (event) => {
@@ -138,14 +139,12 @@ async function saveProfileChanges() {
     const color = document.getElementById("editBannerColor").value;
     const pic = document.getElementById("editProfilePic").files[0];
 
-    // Update text + color first
     await fetch("/user/profile", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ displayName: name, bio, bannerColor: color })
     });
 
-    // Upload image if chosen
     if (pic) {
         const formData = new FormData();
         formData.append("profilePicture", pic);
@@ -156,16 +155,13 @@ async function saveProfileChanges() {
         });
     }
 
-    // Reload modal data
     loadProfileModal();
 }
 
-// Load user data when modal opens
 async function loadProfileModal() {
     const res = await fetch("/user/me");
     const user = await res.json();
 
-    // View mode
     document.getElementById("displayName").innerText = user.display_name || user.username;
     document.getElementById("username").innerText = "@" + user.username;
     document.getElementById("bio").innerText = user.bio || "";
@@ -174,14 +170,131 @@ async function loadProfileModal() {
     if (user.profilePicture)
         document.getElementById("profilePicture").src = "/uploads/" + user.profilePicture;
 
-    // Edit mode fields
     document.getElementById("editDisplayName").value = user.display_name || "";
     document.getElementById("editBio").value = user.bio || "";
     document.getElementById("editBannerColor").value = user.bannerColor || "#cccccc";
 
-    // Reset edit mode view
     cancelProfileEdit();
 }
 
-// Attach event listener to modal
 document.getElementById("profilePageModal").addEventListener("show.bs.modal", loadProfileModal);
+
+async function loadFriends() {
+  await loadFriendCode();
+  await loadConfirmedFriends();
+}
+
+async function loadFriendCode() {
+  try {
+    const res = await fetch("/user/friend-code");
+    const data = await res.json();
+    document.getElementById("userFriendCode").value = data.friend_code || "XXXX-XXXX-XXXX";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("userFriendCode").value = "XXXX-XXXX-XXXX";
+  }
+}
+
+async function loadConfirmedFriends() {
+    const container = document.getElementById("friendsList");
+    container.innerHTML = "<p class='text-muted'>Loading friends...</p>";
+
+    try {
+        const res = await fetch("/user/friends");
+        const data = await res.json();
+        container.innerHTML = "";
+
+        if (!data.friends || data.friends.length === 0) {
+            container.innerHTML = "<p class='text-center text-muted'>No friends yet.</p>";
+            return;
+        }
+
+        data.friends.forEach(f => {
+            const div = document.createElement("div");
+            div.className = "friend-item";
+            div.textContent = f.display_name || f.username;
+            div.style.cursor = "pointer";
+
+            div.addEventListener("click", () => {
+                const friendsModalEl = document.getElementById("friendsPageModal");
+                const friendsModal = bootstrap.Modal.getInstance(friendsModalEl);
+                if (friendsModal) friendsModal.hide();  // close friends modal
+
+                loadOtherProfile(f.id); // open friend profile
+            });
+
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p class='text-danger text-center'>Error loading friends.</p>";
+    }
+}
+
+async function loadOtherProfile(userId) {
+    try {
+        const res = await fetch(`/user/profile/${userId}`);
+        if (!res.ok) throw new Error("User not found");
+        const user = await res.json();
+
+        const modalEl = document.getElementById("profilePageModal");
+        // temp remove your own show.bs.modal listener
+        modalEl.removeEventListener("show.bs.modal", loadProfileModal);
+
+        document.getElementById("displayName").innerText = user.display_name || user.username;
+        document.getElementById("username").innerText = "@" + user.username;
+        document.getElementById("bio").innerText = user.bio || "";
+        document.getElementById("profileBanner").style.background = user.bannerColor || "#cccccc";
+
+        document.getElementById("profilePicture").src = user.profilePicture ? "/uploads/" + user.profilePicture : "/uploads/default.png";
+
+        document.getElementById("profileEditMode").classList.add("d-none");
+        document.getElementById("profileViewMode").classList.remove("d-none");
+
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+
+        // restore the original listener 
+        setTimeout(() => {
+            modalEl.addEventListener("show.bs.modal", loadProfileModal);
+        }, 100);
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load user profile.");
+    }
+}
+
+async function handleAddFriend() {
+    const usernameInput = document.getElementById("addFriendUsername").value.trim();
+    const codeInput = document.getElementById("addFriendCode").value.trim();
+
+    if (!usernameInput || !codeInput) return alert("Enter both username and friend code.");
+
+    try {
+        const res = await fetch("/user/add-friend", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ username: usernameInput, friend_code: codeInput })
+        });
+        const data = await res.json();
+
+        alert(data.message || "Friend request sent!");
+        await loadFriends();
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to send friend request.");
+    }
+
+    document.getElementById("addFriendUsername").value = "";
+    document.getElementById("addFriendCode").value = "";
+}
+
+function copyFriendCode() {
+    const input = document.getElementById("userFriendCode");
+    input.select();
+    input.setSelectionRange(0, 99999); // for mobile
+    document.execCommand("copy");
+    alert("Friend code copied!");
+}

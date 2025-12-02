@@ -46,7 +46,7 @@
 
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary">Join</button>
+                    <button class="btn btn-success">Join</button>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                         <p id="username" class="text-muted">@username</p>
                         <p id="bio">This is the user bio.</p>
 
-                        <button class="btn btn-primary w-100 mt-4" onclick="enableProfileEdit()">
+                        <button class="btn btn-success w-100 mt-4" onclick="enableProfileEdit()">
                             EDIT PROFILE
                         </button>
                     </div>
@@ -105,22 +105,112 @@
         </div>
     </div>
 
-
     <!-- friends Page Modal -->
     <div class="modal fade" id="friendsPageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
+
                 <div class="modal-header">
                     <h5 class="modal-title">Friends</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    
+
+                    <!-- Friend Code -->
+                    <div class="mb-4">
+                        <label class="fw-semibold">Your Friend Code</label>
+                        <div class="d-flex align-items-center">
+                            <input id="userFriendCode" type="text" class="form-control me-2" readonly>
+                            <button onclick="copyFriendCode()" class="btn btn-outline-secondary">Copy</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 mb-4">
+                        <button class="btn btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#addFriendModal">
+                            Add Friend
+                        </button>
+                        <button class="btn btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#inviteFriendModal">
+                            Invite Friend
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <!-- Friends List -->
+                    <h6 class="fw-bold">Your Friends</h6>
+                    <ul id="friendsList" class="list-group mt-2">
+                        <!-- dynamic js fill again  -->
+                    </ul>
+
                 </div>
 
-                <div class="modal-footer">
-                    
+            </div>
+        </div>
+    </div>
+
+    <!-- add Friend Modal -->
+    <div class="modal fade" id="addFriendModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Friend</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="fw-semibold">Username</label>
+                    <input id="addFriendUsername" type="text" class="form-control mb-3">
+
+                    <label class="fw-semibold">Friend Code</label>
+                    <input id="addFriendCode" type="text" class="form-control mb-4" placeholder="XXXX-XXXX-XXXX">
+
+                    <p class="text-muted small mb-4">
+                        Make sure your friend does the same!
+                    </p>
+
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-success flex-fill" onclick="handleAddFriend()">Confirm</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- invite Friend Modal -->
+    <div class="modal fade" id="inviteFriendModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Invite Friend to Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="fw-semibold">Select Friend</label>
+                    <select id="inviteFriendSelect" class="form-select mb-3">
+                    </select>
+
+                    <label class="fw-semibold">Select Group</label>
+                    <select id="inviteGroupSelect" class="form-select mb-3">
+                    </select>
+
+                    <label class="fw-semibold">Assign Role</label>
+                    <select id="inviteRoleSelect" class="form-select mb-4">
+                    </select>
+
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-success flex-fill" onclick="confirmInviteFriend()">Invite</button>
+                    </div>
+
                 </div>
             </div>
         </div>
