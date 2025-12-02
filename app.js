@@ -255,14 +255,12 @@ app.post("/group/:id/remove-members", (req, res) => {
         }
 
         // dont remove yourself, stupid, i will add a "quit group" option elsewhere
-        if (usernames.includes(sessionUser)) {
+        if (usernames.includes(sessionUser.username)) {
             return res.json({ success: false, error: "You cannot remove yourself from the group." });
         }
 
-        // cant remove EVERYONE (should never happen actually?)
-        if (usernames.length >= memberCount) {
-            return res.json({ success: false, error: "Cannot remove all members from the group." });
-        }
+        // since you cannot remove yourself, it is unnecessary to add a check to not remove everyone from the group (since you cannot remove yourself), 
+        // or a check to not remove the last admin (since that should always be you)
 
         const adminsBeingRemoved = db.prepare(`
             SELECT username
@@ -270,11 +268,6 @@ app.post("/group/:id/remove-members", (req, res) => {
             JOIN users u ON gm.user_id = u.id
             WHERE gm.group_id = ? AND gm.role = 'admin' AND u.username IN (${usernames.map(() => "?").join(",")})
         `).all(groupId, ...usernames);
-
-        // dont remove last admin
-        if (adminsBeingRemoved.length >= adminCount) {
-            return res.json({ success: false, error: "Cannot remove the last admin from the group." });
-        }
 
         const users = db.prepare(`
             SELECT id FROM users WHERE username IN (${usernames.map(() => "?").join(",")})
