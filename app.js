@@ -483,7 +483,7 @@ app.post("/user/profile-picture", upload.single("profilePicture"), (req, res) =>
   }
 });
 
-// profile (your own or a friends profile)
+// other persons profile
 
 app.get("/user/profile/:id", async (req, res) => {
     const userId = req.params.id;
@@ -572,6 +572,30 @@ app.post("/user/add-friend", (req, res) => {
     res.json({ success: true, message: `Friend request sent to ${username}.` });
   }
 });
+
+// remove friend
+
+app.post("/user/unfriend", (req, res) => {
+    const userId = req.session.user_id;
+    if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+    const { friendId } = req.body;
+    if (!friendId) return res.status(400).json({ error: "Missing friendId" });
+
+    try {
+        db.prepare(`
+            DELETE FROM friend_requests
+            WHERE (requester_id = ? AND requested_id = ?)
+               OR (requester_id = ? AND requested_id = ?)
+        `).run(userId, friendId, friendId, userId);
+
+        res.json({ success: true, message: "Friendship removed." });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to unfriend." });
+    }
+});
+
 
 // edit profile
 

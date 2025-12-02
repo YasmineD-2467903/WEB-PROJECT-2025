@@ -239,7 +239,6 @@ async function loadOtherProfile(userId) {
         const user = await res.json();
 
         const modalEl = document.getElementById("profilePageModal");
-        // temp remove your own show.bs.modal listener
         modalEl.removeEventListener("show.bs.modal", loadProfileModal);
 
         document.getElementById("displayName").innerText = user.display_name || user.username;
@@ -252,10 +251,47 @@ async function loadOtherProfile(userId) {
         document.getElementById("profileEditMode").classList.add("d-none");
         document.getElementById("profileViewMode").classList.remove("d-none");
 
+        // check if friend
+        const friendsRes = await fetch("/user/friends");
+        const friendsData = await friendsRes.json();
+        const isFriend = friendsData.friends.some(f => f.id === user.id);
+
+        const friendBtnContainer = document.getElementById("friendActionContainer");
+        friendBtnContainer.innerHTML = ""; // reset
+
+        if (isFriend) {
+            const unfriendBtn = document.createElement("button");
+            unfriendBtn.className = "btn btn-danger";
+            unfriendBtn.textContent = "UNFRIEND";
+            unfriendBtn.onclick = async () => {
+                const confirmUnfriend = confirm(`Are you sure you want to unfriend ${user.display_name || user.username}?`);
+                if (!confirmUnfriend) return;
+
+                try {
+                    const res = await fetch("/user/unfriend", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ friendId: user.id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert("Friendship removed.");
+                        friendBtnContainer.innerHTML = ""; // remove button
+                        await loadFriends(); // reload friends list
+                    } else {
+                        alert("Error: " + (data.error || "Failed to unfriend."));
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to unfriend.");
+                }
+            };
+            friendBtnContainer.appendChild(unfriendBtn);
+        }
+
         const bsModal = new bootstrap.Modal(modalEl);
         bsModal.show();
 
-        // restore the original listener 
         setTimeout(() => {
             modalEl.addEventListener("show.bs.modal", loadProfileModal);
         }, 100);
@@ -264,6 +300,7 @@ async function loadOtherProfile(userId) {
         alert("Failed to load user profile.");
     }
 }
+
 
 async function handleAddFriend() {
     const usernameInput = document.getElementById("addFriendUsername").value.trim();
