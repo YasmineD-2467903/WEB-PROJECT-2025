@@ -121,3 +121,67 @@ function handleGroupDelete(groupId, userRole) {
   .then(res => res.json())
   .then(() => loadGroups());
 }
+
+function enableProfileEdit() {
+    document.getElementById("profileViewMode").classList.add("d-none");
+    document.getElementById("profileEditMode").classList.remove("d-none");
+}
+
+function cancelProfileEdit() {
+    document.getElementById("profileEditMode").classList.add("d-none");
+    document.getElementById("profileViewMode").classList.remove("d-none");
+}
+
+async function saveProfileChanges() {
+    const name = document.getElementById("editDisplayName").value;
+    const bio = document.getElementById("editBio").value;
+    const color = document.getElementById("editBannerColor").value;
+    const pic = document.getElementById("editProfilePic").files[0];
+
+    // Update text + color first
+    await fetch("/user/profile", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ displayName: name, bio, bannerColor: color })
+    });
+
+    // Upload image if chosen
+    if (pic) {
+        const formData = new FormData();
+        formData.append("profilePicture", pic);
+
+        await fetch("/user/profile-picture", {
+            method: "POST",
+            body: formData
+        });
+    }
+
+    // Reload modal data
+    loadProfileModal();
+}
+
+// Load user data when modal opens
+async function loadProfileModal() {
+    const res = await fetch("/user/me");
+    const user = await res.json();
+
+    // View mode
+    document.getElementById("displayName").innerText = user.display_name || user.username;
+    document.getElementById("username").innerText = "@" + user.username;
+    document.getElementById("bio").innerText = user.bio || "";
+    document.getElementById("profileBanner").style.background = user.bannerColor || "#cccccc";
+
+    if (user.profilePicture)
+        document.getElementById("profilePicture").src = "/uploads/" + user.profilePicture;
+
+    // Edit mode fields
+    document.getElementById("editDisplayName").value = user.display_name || "";
+    document.getElementById("editBio").value = user.bio || "";
+    document.getElementById("editBannerColor").value = user.bannerColor || "#cccccc";
+
+    // Reset edit mode view
+    cancelProfileEdit();
+}
+
+// Attach event listener to modal
+document.getElementById("profilePageModal").addEventListener("show.bs.modal", loadProfileModal);

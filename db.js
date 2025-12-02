@@ -15,7 +15,11 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE,
-      password TEXT
+      password TEXT,
+      display_name TEXT,
+      bio TEXT,
+      bannerColor TEXT DEFAULT '#cccccc',
+      profilePicture TEXT
     ) STRICT;
   `).run();
 
@@ -100,17 +104,72 @@ export function InitializeDatabase() {
   if (userCount === 0) {
     console.log("Database empty: inserting example users...");
     const exampleUsers = [
-      { username: "Peter", password: "pass" },
-      { username: "Jori", password: "bug" },
-      { username: "Joris", password: "letmein" },
-      { username: "Mike", password: "yip" },
-      { username: "Keti", password: "123" },
-      { username: "Pew", password: "000" }
+      {
+        username: "Peter",
+        password: "pass",
+        display_name: "Peter Parker",
+        bio: "Friendly neighborhood explorer.",
+        bannerColor: "#1e90ff",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Jori",
+        password: "bug",
+        display_name: "Jori Smith",
+        bio: "Love traveling and coffee.",
+        bannerColor: "#ff6347",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Joris",
+        password: "letmein",
+        display_name: "Joris Van Dam",
+        bio: "Hiking enthusiast.",
+        bannerColor: "#32cd32",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Mike",
+        password: "yip",
+        display_name: "Mike Johnson",
+        bio: "Adventure seeker.",
+        bannerColor: "#ff1493",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Keti",
+        password: "123",
+        display_name: "Keti V.",
+        bio: "Travel blogger and chocolate lover.",
+        bannerColor: "#ffa500",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Pew",
+        password: "000",
+        display_name: "Pew Pew",
+        bio: "Just here for the fun.",
+        bannerColor: "#8a2be2",
+        profilePicture: "default.png"
+      }
     ];
 
-    const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    const insertUser = db.prepare(`
+      INSERT INTO users (username, password, display_name, bio, bannerColor, profilePicture)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
     const transaction = db.transaction((users) => {
-      for (const user of users) insertUser.run(user.username, user.password);
+      for (const user of users) {
+        insertUser.run(
+          user.username,
+          user.password,
+          user.display_name,
+          user.bio,
+          user.bannerColor,
+          user.profilePicture
+        );
+      }
     });
     transaction(exampleUsers);
   } else {

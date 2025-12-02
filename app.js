@@ -1,6 +1,21 @@
 import express from "express";
 import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
+import multer from "multer";
+import path from "path";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/"); // Create this folder
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `user_${req.session.user_id}${ext}`);
+  }
+});
+
+const upload = multer({ storage });
+
 
 // final test
 
@@ -144,6 +159,22 @@ app.get("/group/:id/members", (request, response) => {
     response.status(500).json({ error: "Internal server error" });
   }
 });
+
+// profile page
+
+app.get("/user/me", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+  const user = db.prepare(`
+    SELECT username, display_name, bio, bannerColor, profilePicture
+    FROM users
+    WHERE id = ?
+  `).get(userId);
+
+  res.json(user);
+});
+
 
 // change member role
 app.post("/group/:id/change-role", (req, res) => {
@@ -379,6 +410,66 @@ app.post("/deleteGroup", (request, response) => {
     return response.status(500).json({ error: "Failed to delete group." });
   }
 });
+
+// profile banner
+
+app.post("/user/banner-color", (req, res) => {
+  const userId = req.session.user_id;
+  const { color } = req.body;
+
+  try {
+    db.prepare("UPDATE users SET bannerColor = ? WHERE id = ?")
+      .run(color, userId);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// profile picture
+
+app.post("/user/profile-picture", upload.single("profilePicture"), (req, res) => {
+  const userId = req.session.user_id;
+
+  if (!req.file) {
+    return res.status(400).json({ error: "No image uploaded" });
+  }
+
+  const filename = req.file.filename;
+
+  try {
+    db.prepare("UPDATE users SET profilePicture = ? WHERE id = ?")
+      .run(filename, userId);
+
+    res.json({ success: true, filename });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.post("/user/profile", (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+  const { displayName, bio, bannerColor } = req.body;
+
+  try {
+    db.prepare(`
+      UPDATE users 
+      SET display_name = ?, bio = ?, bannerColor = ?
+      WHERE id = ?
+    `).run(displayName, bio, bannerColor, userId);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Database error" });
+  }
+});
+
 
 // Middleware for unknown routes
 // Must be last in pipeline
