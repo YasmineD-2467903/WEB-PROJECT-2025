@@ -25,6 +25,8 @@ function initInvitePopup() {
         document.getElementById("groupName").textContent = group.name;
         document.getElementById("groupDescription").textContent =
         group.description || "No description provided.";
+        document.getElementById("startEnd").textContent =
+            `${toDDMMYYYY(group.startDate)} - ${toDDMMYYYY(group.endDate)}`;
     } catch (err) {
         console.error(err);
         document.body.innerHTML =
@@ -43,6 +45,11 @@ function initInvitePopup() {
     });
 
 // load section code ->  basically loads in each section   with whateever theey need
+function toDDMMYYYY(dateStr) {
+    const [month, day, year] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+}
+
     async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
@@ -56,22 +63,12 @@ function initInvitePopup() {
 
         // If members section, fetch members and populate
         if (section === "members") {
-            const membersRes = await fetch(`/group/${groupId}/members`);
-            const members = await membersRes.json();
-
-            const admins = members.filter(m => m.role === "admin");
-            const regulars = members.filter(m => m.role === "member");
-            const viewers = members.filter(m => m.role === "viewer");
-
-            const createList = (list, users) => {
-                list.innerHTML = users.length
-                ? users.map(u => `<li class="list-group-item">${u.username}</li>`).join("")
-                : `<li class="list-group-item text-muted">None</li>`;
-            };
-
-            createList(document.getElementById("adminList"), admins);
-            createList(document.getElementById("memberList"), regulars);
-            createList(document.getElementById("viewerList"), viewers);
+            try {
+                const module = await import("/js/group-partials/members.js");
+                await module.loadMembers(groupId);
+            } catch (err) {
+                console.error("Failed to load members.js", err);
+            }
         }
 
         // If settings section, dependent on user role show specific settings
@@ -99,28 +96,11 @@ function initInvitePopup() {
         }
 
         if (section === "map") {
-            contentDiv.innerHTML = `
-                <div id="map" style="width: 100%; height: 400px;"></div>
-            `;
-
-            if (!window.googleMapsLoaded) {
-                window.googleMapsLoaded = true;
-
-                const mapsApi = document.createElement("script");
-                mapsApi.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDf8c_RldjfbjhoyNzxzEYMXt3v8rAVToQ&callback=initMap";
-                mapsApi.async = true;
-                mapsApi.defer = true;
-                document.body.appendChild(mapsApi);
-
-                window.initMap = () => {
-                    const mapOptions = {
-                        center: { lat: 50, lng: 5 },
-                        zoom: 15
-                    };
-                    new google.maps.Map(document.getElementById("map"), mapOptions);
-                };
-            } else {
-                window.initMap();
+            try {
+                const module = await import("/js/group-partials/map.js");
+                await module.initMap();
+            } catch (err) {
+                console.error("Failed to load map.js", err);
             }
         }
 

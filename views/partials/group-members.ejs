@@ -1,8 +1,62 @@
 <div class="members-section">
     <h3 class="title-header">Group Members</h3>
 
-    <h5 class="admin-header">Admins</h5>
-    <ul class="list-group" id="adminList"></ul>
+    <!-- manageRoles Modal -->
+    <div class="modal fade" id="manageRolesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Roles</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!--dropdown list of all members, you cannot select multiple: when you select one, 
+                    a field will be filled with the role they currently have, and a dropdown menu will 
+                    show up showing the options for roles you can assign them (admin,member,viewer)\{currentRole}-->
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- manageMembers Modal -->
+    <div class="modal fade" id="manageMembersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remove Members</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!--dropdown list of all members, you can select multiple, you can kick them out of the group-->
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="manageBtns" hidden>
+    <button type="button" id="manageRoles">
+        Change Roles
+    </button>
+
+    <button type="button" id="manageMembers">
+        Manage Members
+    </button>
+</div>
+
+<h5>Admins</h5>
+<ul class="list-group mb-3" id="adminList"></ul>
 
     <h5 class="member-header">Members</h5>
     <ul class="list-group" id="memberList"></ul>
