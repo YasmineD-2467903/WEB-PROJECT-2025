@@ -167,27 +167,53 @@ app.get("/group/:id/polls", (request, response) => {
     const groupId = request.params.id;
     const userId = request.session.user_id;
 
-    const polls = db.prepare(`
-      SELECT poll_id, creator_id, title
+    const pollsRaw = db.prepare(`
+      SELECT poll_id, creator_id, title, allow_multiple, end_time
       FROM group_polls
       WHERE group_id = ?
     `).all(groupId);
+
+    const polls = pollsRaw.map(poll => {
+      const creator = db
+        .prepare("SELECT display_name FROM users WHERE id = ?")
+        .get(poll.creator_id);
+      return {
+        ...poll,
+        creator_name: creator ? creator.display_name : "Unknown"
+      };
+    });
 
     const checkRole = db
       .prepare("SELECT role FROM group_members WHERE user_id = ? AND group_id = ?")
       .get(userId, groupId);
 
-    const userRole = checkRole.role;
+    const userRole = checkRole ? checkRole.role : "viewer";
 
-    const checkName = db
-      .prepare("SELECT display_name FROM users WHERE id = ?")
-      .get(userId);
+    const modalData = {};
+    for (const poll of polls) {
+      const pollId = poll.poll_id;
 
-    const creatorName = checkName.display_name;
+      const pollOptions = db
+        .prepare("SELECT option_id, contents, vote_count FROM poll_options WHERE poll_id = ?")
+        .all(pollId);
 
-    response.json({ polls, userRole, creatorName });
+      const userVotesRows = db
+        .prepare("SELECT option_id FROM poll_votes WHERE poll_id = ? AND voter_id = ?")
+        .all(pollId, userId);
+      const userVotes = userVotesRows.map(v => v.option_id);
+
+      modalData[pollId] = {
+        pollData: pollOptions,
+        allow_multiple: poll.allow_multiple,
+        title: poll.title,
+        userVotes,
+        end_time: poll.end_time
+      };
+    }
+
+    response.json({ polls, userRole, modalData });
   } catch (err) {
-    console.error("Error fetching group members:", err);
+    console.error("Error fetching group polls:", err);
     response.status(500).json({ error: "Internal server error" });
   }
 });
@@ -248,6 +274,77 @@ app.get("/user/friend-requests", (req, res) => {
 
   res.json({ requests });
 });
+
+// confirm a vote
+app.post("/poll/:id/confirmVote", (req, res) => {
+    try {
+        const pollId = Number(req.params.id);
+        const voterId = req.session.user_id;
+        const { vote } = req.body;
+        const optionId = Number(vote);
+
+        if (!voterId) return res.status(401).json({ success: false, error: "Not logged in" });
+        if (vote === undefined) return res.status(400).json({ success: false, error: "No vote provided" });
+
+        const poll = db.prepare("SELECT allow_multiple FROM group_polls WHERE poll_id = ?").get(pollId);
+        if (!poll) return res.status(404).json({ success: false, error: "Poll not found" });
+
+        const option = db.prepare("SELECT option_id FROM poll_options WHERE poll_id = ? AND option_id = ?")
+                         .get(pollId, optionId);
+        if (!option) return res.status(404).json({ success: false, error: "Option not found" });
+
+        const existingVote = db.prepare("SELECT 1 FROM poll_votes WHERE poll_id = ? AND option_id = ? AND voter_id = ?")
+                               .get(pollId, optionId, voterId);
+        if (existingVote) return res.json({ success: false, message: "Already voted for this option" });
+
+        if (poll.allow_multiple === 0) {
+            const otherVotes = db.prepare("SELECT option_id FROM poll_votes WHERE poll_id = ? AND voter_id = ?")
+                                 .all(pollId, voterId);
+            for (const v of otherVotes) {
+                db.prepare("DELETE FROM poll_votes WHERE poll_id = ? AND option_id = ? AND voter_id = ?")
+                  .run(pollId, v.option_id, voterId);
+                db.prepare("UPDATE poll_options SET vote_count = vote_count - 1 WHERE option_id = ? AND vote_count > 0")
+                  .run(v.option_id);
+            }
+        }
+
+        db.prepare("INSERT INTO poll_votes (poll_id, option_id, voter_id) VALUES (?, ?, ?)")
+          .run(pollId, optionId, voterId);
+        db.prepare("UPDATE poll_options SET vote_count = vote_count + 1 WHERE option_id = ?")
+          .run(optionId);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+
+// remove a vote
+app.post("/poll/:id/removeVote", (req, res) => {
+    try {
+        const pollId = Number(req.params.id);
+        const voterId = req.session.user_id;
+        const { vote } = req.body; // option id to remove
+
+        if (!voterId) return res.status(401).json({ success: false, error: "Not logged in" });
+        if (vote === undefined) return res.status(400).json({ success: false, error: "No vote provided" });
+
+        const optionId = Number(vote);
+
+        db.prepare("DELETE FROM poll_votes WHERE poll_id = ? AND option_id = ? AND voter_id = ?")
+          .run(pollId, optionId, voterId);
+
+        db.prepare("UPDATE poll_options SET vote_count = vote_count - 1 WHERE option_id = ? AND vote_count > 0")
+          .run(optionId);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+
 
 // change member role
 app.post("/group/:id/change-role", (req, res) => {

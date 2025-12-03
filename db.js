@@ -117,11 +117,12 @@ export function InitializeDatabase() {
   // GROUP POLLS - integer 0/1 false/true
   db.prepare(`
     CREATE TABLE IF NOT EXISTS group_polls (
-      poll_id INTEGER PRIMARY KEY,  
+      poll_id INTEGER PRIMARY KEY AUTOINCREMENT,  
       group_id INTEGER,
       title TEXT,
       creator_id INTEGER,
       allow_multiple INTEGER,
+      end_time TEXT,
       FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     )
@@ -130,11 +131,24 @@ export function InitializeDatabase() {
   // POLL OPTIONS
   db.prepare(`
     CREATE TABLE IF NOT EXISTS poll_options (
+      option_id INTEGER PRIMARY KEY AUTOINCREMENT,
       poll_id INTEGER,
-      vote_amounts INTEGER,
       contents TEXT,
+      vote_count INTEGER DEFAULT 0,
       FOREIGN KEY (poll_id) REFERENCES group_polls(poll_id) ON DELETE CASCADE
     )
+  `).run();
+
+  // VOTES
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS poll_votes (
+      poll_id INTEGER,
+      option_id INTEGER,
+      voter_id INTEGER,
+      FOREIGN KEY (option_id) REFERENCES poll_options(option_id) ON DELETE CASCADE,
+      FOREIGN KEY (poll_id) REFERENCES group_polls(poll_id) ON DELETE CASCADE,
+      FOREIGN KEY (voter_id) REFERENCES users(id) ON DELETE CASCADE
+    )  
   `).run();
 
   // --- DEMO USERS ---
@@ -394,32 +408,26 @@ export function InitializeDatabase() {
     const groupByName = Object.fromEntries(groups.map(g => [g.name, g.id]));
     const userByName = Object.fromEntries(users.map(u => [u.username, u.id]));
 
+    const now = new Date();
+
     const examplePolls = [
       {
         poll_id: 1,
         group_id: groupByName["UHasselt Adventure Buddies"],
         title: "Where should our next trip be?",
         creator_id: userByName["Keti"],
-        allow_multiple: 0,
-        options: [
-          "Paris",
-          "Rome",
-          "Barcelona",
-          "Berlin"
-        ]
+        allow_multiple: 1,
+        end_time: new Date(now.getTime() + 7*24*60*60*1000).toISOString(), // 7 days from now
+        options: ["Paris", "Rome", "Barcelona", "Berlin"]
       },
       {
         poll_id: 2,
         group_id: groupByName["UHasselt Adventure Buddies"],
         title: "Preferred hiking difficulty?",
         creator_id: userByName["Jori"],
-        allow_multiple: 1,
-        options: [
-          "Beginner",
-          "Intermediate",
-          "Advanced",
-          "Extreme"
-        ]
+        allow_multiple: 0,
+        end_time: new Date(now.getTime() - 24*60*60*1000).toISOString(), // ended yesterday
+        options: ["Beginner", "Intermediate", "Advanced", "Extreme"]
       },
       {
         poll_id: 3,
@@ -427,37 +435,28 @@ export function InitializeDatabase() {
         title: "Which snacks should we bring?",
         creator_id: userByName["Mike"],
         allow_multiple: 1,
-        options: [
-          "Chips",
-          "Chocolate",
-          "Fruit",
-          "Nuts",
-          "Energy Bars"
-        ]
+        end_time: new Date(now.getTime() + 3*24*60*60*1000).toISOString(), // 3 days from now
+        options: ["Chips", "Chocolate", "Fruit", "Nuts", "Energy Bars"]
       },
       {
         poll_id: 4,
         group_id: groupByName["Mountain Lovers"],
         title: "Best time to start hiking?",
         creator_id: userByName["Joris"],
-        allow_multiple: 0,
-        options: [
-          "6:00 AM",
-          "7:00 AM",
-          "8:00 AM",
-          "9:00 AM"
-        ]
+        allow_multiple: 1,
+        end_time: new Date(now.getTime() + 1*24*60*60*1000).toISOString(), // 1 day from now
+        options: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM"]
       }
     ];
 
     const insertPoll = db.prepare(`
-      INSERT INTO group_polls (poll_id, group_id, title, creator_id, allow_multiple)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO group_polls (poll_id, group_id, title, creator_id, allow_multiple, end_time)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
 
     const insertOption = db.prepare(`
-      INSERT INTO poll_options (poll_id, vote_amounts, contents)
-      VALUES (?, ?, ?)
+      INSERT INTO poll_options (poll_id, contents)
+      VALUES (?, ?)
     `);
 
     const pollTx = db.transaction((polls) => {
@@ -467,11 +466,12 @@ export function InitializeDatabase() {
           poll.group_id,
           poll.title,
           poll.creator_id,
-          poll.allow_multiple
+          poll.allow_multiple,
+          poll.end_time
         );
 
         for (const opt of poll.options) {
-          insertOption.run(poll.poll_id, 0, opt);
+          insertOption.run(poll.poll_id, opt);
         }
       }
     });
@@ -482,7 +482,6 @@ export function InitializeDatabase() {
   } else {
     console.log("Polls already present — skipping demo inserts.");
   }
-
 
 }
 
