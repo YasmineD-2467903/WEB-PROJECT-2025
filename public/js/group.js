@@ -59,6 +59,15 @@ function toDDMMYYYY(dateStr) {
             }
         }
 
+        if (section === "polls") {
+            try {
+                const module = await import("/js/group-partials/polls.js");
+                await module.loadPolls();
+            } catch (err) {
+                console.error("Failed to load polls.js", err);
+            }
+        }
+
     } catch (err) {
         console.error(err);
         contentDiv.innerHTML = `<p class="text-danger">Error loading section.</p>`;

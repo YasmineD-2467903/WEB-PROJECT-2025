@@ -114,6 +114,27 @@ export function InitializeDatabase() {
     );
   `).run();
 
+  // GROUP POLLS - integer 0/1 false/true
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS group_polls (
+      poll_id INTEGER PRIMARY KEY,
+      title TEXT,
+      creator_id INTEGER,
+      allow_multiple INTEGER,
+      FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `)
+
+  // POLL OPTIONS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS poll_options (
+      poll_id INTEGER,
+      vote_amounts INTEGER,
+      contents TEXT,
+      FOREIGN KEY (poll_id) REFERENCES group_polls(poll_id) ON DELETE CASCADE
+    )
+  `)
+
   // --- DEMO USERS ---
   const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
 
