@@ -1,0 +1,47 @@
+<div class="settings-section">
+    <h1 class="settings-header">Settings</h1>
+
+    <div class="admin-settings" id="admin">
+        <h2 class="admin-header" id="AS-header">Admin</h2>
+        
+        <div class="container-fluid">
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    onclick="initInvitePopup()" 
+                    id="inv-btn">Invite person
+            </button>
+            <div class="form-check form-switch"> <!-- online van de bootstrap checkbox page gestolen lol -->
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to invite others?</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="member-settings" id="member">
+        <h2 class="member-header" id="MS-header">Member</h2>
+    </div>
+
+    <div class="settings-section" id="viewer">
+        <h2 class="viewer-header" id="VS-header">You can't acces this!</h2>
+        <p class="text-muted">Ask the admin to invite you.</p>
+    </div>
+
+    <!-- popup voor invite-->
+    <div class="modal fade" id="invitePopup" tabindex="-1" aria-hidden="true" aria-labelledby="invitePopupLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invitePopupLabel">Invite Person</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>dit is een test voor de popup heeheeheehaaaaaaaaaaa</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="sendInviteBtn">Send Invite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

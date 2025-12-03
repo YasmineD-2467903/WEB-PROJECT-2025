@@ -1,23 +1,173 @@
 .container {
   display: grid;
-  grid-template-areas:
-    "header header"
-    "menu content";
-  grid-template-columns: 1fr 3fr;
-  gap: 1px;
-  padding: 1px;
+  grid-template-areas: "sidebar content";
+  grid-template-columns: 280px 1fr;
 }
 .container div {
   background-color: white;
   padding: 10px;
 }
-.container div.header {
-  grid-area: header;
-  text-align: center;
-}
-.container div.menu {
-  grid-area: menu;
-}
-.container div.content {
+
+.content {
   grid-area: content;
+}
+
+/*----------- Sidebar -----------*/
+/*https://www.youtube.com/watch%3Fv%3DLjs9cktoubc&ved=2ahUKEwiHvq_p3fuQAxVMU6QEHWezDFYQwqsBegQIGRAB&usg=AOvVaw3PBNLwXLLxPxd4YPb9y3PP*/
+.sidebar {
+  width: 280px;
+  display: flex;
+  flex-direction: column; /*zet iteems onder elkaar*/
+  gap: 10px;
+
+  grid-area: sidebar;
+}
+
+/*----------- Content: members -----------*/
+.title-header {
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.admin-header,
+.member-header,
+.viewer-header {
+  font-weight: 530;
+  color: rgb(56, 56, 56);
+}
+.list-group {
+  flex-wrap: wrap;  /*als geen plaats, jump naar volgende lijn*/
+  /*display: fleex niett nodig want list-grorup heefttt da al (zie  bootstrap)*/
+
+  border: 2px solid #cdd0d4;
+  width: 80%;
+  margin-bottom: 2%;
+}
+.list-group-item {
+  border: none !important;
+  font-weight: 450;
+}
+
+/*----------- Content: settings -----------*/
+.settings-section {
+  display: grid;
+  background-color: red;
+}
+.admin-settings, .member-settings, .viewer-settings {
+  width: 60%;
+  margin: 10px;
+
+  border: 1px solid #cdd0d4;
+  border-radius: 8px;
+}
+#AS-header, #MS-header, #VS-header {
+  text-align: center;
+  margin-bottom: -5px; /*wat dichter bij de iteems zetten!*/
+}
+
+  /*----------- Admin-settings -----------*/
+    .container-fluid { /*contaainer maakt hier 100% gebruikt van de 60% breeedte in admin-settings!*/
+      display: flex;
+      align-items: center;
+    }
+    .form-check  {
+      margin-left: 10%;
+    }
+    .form-check-input {
+      border-color: rgb(194, 189, 189);
+      margin-top: 5px; /*positie beetje naar  onder  (heel  weinig)*/
+
+      transition: 0.15s ease-in-out !important; /*bootstrap :DDDDDD*/
+      cursor: pointer;
+    }
+    .form-check-input:hover {
+      color: #E6BB58;
+      border-color: #E6BB58;
+    }
+    .form-check-input:checked {
+      background-color: #E6BB58;
+      border-color: #E6BB58
+    }
+    .form-check-input:focus {
+      border-color: #E6BB58;
+      box-shadow: none;
+    }
+
+        /*----------- popup styling -----------*/
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .popup-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+        }
+
+    /*----------- Member-settings -----------*/
+
+#inv-btn {
+  width: 40% !important; /*knop moet kleiner zijn dan de 80% die bij de rest gebruikt wordt*/
+}
+
+/*----------- Buttons -----------*/
+.btn.btn-outline-primary {
+    background-color: rgba(209, 160, 87, 0.664);
+    color: rgb(56, 56, 56);
+    font-size: 15px;
+    font-weight: 600;
+
+    width: 80% !important; /*kut bootstrap maakt da automatisch fit-content, wij willen dat noppen evengroot is dus !important voor de width*/
+    padding: 12px;
+    border-radius: 5px;
+    border: none;
+    line-height: 100%;
+    text-align: center;
+
+    transition: 0.15s ease-in-out;
+    cursor: pointer;
+}
+.btn.btn-outline-primary:hover {
+  background-color: rgba(173, 132, 70, 0.664);
+  color: rgb(56, 56, 56);
+}
+.btn.btn-outline-primary:active { /*toevoegen bij fyp!!*/
+  color: white;
+  background-color: rgba(173, 132, 70, 0.664) !important;
 }

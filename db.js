@@ -15,17 +15,49 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE,
-      password TEXT
+      password TEXT,
+      display_name TEXT,
+      bio TEXT,
+      bannerColor TEXT DEFAULT '#cccccc',
+      profilePicture TEXT,
+      friend_code TEXT UNIQUE
     ) STRICT;
   `).run();
 
-  // GROUPS
+  // FRIENDS
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS friend_requests (
+        requester_id INTEGER,
+        requested_id INTEGER,
+        PRIMARY KEY (requester_id, requested_id),
+        FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (requested_id) REFERENCES users(id) ON DELETE CASCADE
+    ) STRICT;
+  `).run();
+
+  // GROUPS - DATES AS STRINGS: "MM-DD-YYYY"
   db.prepare(`
     CREATE TABLE IF NOT EXISTS groups (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT,
       description TEXT,
-      invite_code TEXT UNIQUE
+      startDate TEXT, 
+      endDate TEXT
+    ) STRICT;
+  `).run();
+
+  // INVITES
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS invites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id INTEGER,
+        inviter_id INTEGER,
+        invited_id INTEGER,
+        role TEXT CHECK(role IN ('admin','member','viewer')) NOT NULL,
+        FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+        FOREIGN KEY (inviter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (invited_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(group_id, invited_id)
     ) STRICT;
   `).run();
 
@@ -36,8 +68,8 @@ export function InitializeDatabase() {
       group_id INTEGER,
       role TEXT CHECK(role IN ('admin','member', 'viewer')),
       PRIMARY KEY (user_id, group_id),
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -51,7 +83,7 @@ export function InitializeDatabase() {
       end_date TEXT,
       country TEXT,
       cover_photo TEXT,
-      FOREIGN KEY (group_id) REFERENCES groups(id)
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -66,7 +98,7 @@ export function InitializeDatabase() {
       coordinates_lat REAL,
       coordinates_lng REAL,
       tags TEXT,
-      FOREIGN KEY (trip_id) REFERENCES trips(id)
+      FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
     ) STRICT;
   `).run();
 
@@ -75,7 +107,7 @@ export function InitializeDatabase() {
     CREATE TABLE IF NOT EXISTS group_messages (
       message_id INTEGER PRIMARY KEY AUTOINCREMENT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-      group_id INTEGER REFERENCES groups(id),
+      group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
       sender_id INTEGER REFERENCES users(id),
       contents TEXT,
       attachment TEXT  -- URL or NULL
@@ -88,17 +120,79 @@ export function InitializeDatabase() {
   if (userCount === 0) {
     console.log("Database empty: inserting example users...");
     const exampleUsers = [
-      { username: "Peter", password: "pass" },
-      { username: "Jori", password: "bug" },
-      { username: "Joris", password: "letmein" },
-      { username: "Mike", password: "yip" },
-      { username: "Keti", password: "123" },
-      { username: "Pew", password: "000" }
+      {
+        username: "Peter",
+        password: "pass",
+        friend_code: "ABCD-ABCD-ABCD-EEEE",
+        display_name: "Peter Parker",
+        bio: "Friendly neighborhood explorer.",
+        bannerColor: "#1e90ff",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Jori",
+        password: "bug",
+        friend_code: "ABCD-ABCD-DDDD",
+        display_name: "Jori Smith",
+        bio: "Love traveling and coffee.",
+        bannerColor: "#ff6347",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Joris",
+        password: "letmein",
+        friend_code: "ABCD-ABCD-CCCC",
+        display_name: "Joris Van Dam",
+        bio: "Hiking enthusiast.",
+        bannerColor: "#32cd32",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Mike",
+        password: "yip",
+        friend_code: "ABCD-ABCD-BBBB",
+        display_name: "Mike Johnson",
+        bio: "Adventure seeker.",
+        bannerColor: "#ff1493",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Keti",
+        password: "123",
+        friend_code: "ABCD-ABCD-AAAA",
+        display_name: "Keti V.",
+        bio: "Travel blogger and chocolate lover.",
+        bannerColor: "#ffa500",
+        profilePicture: "default.png"
+      },
+      {
+        username: "Pew",
+        password: "000",
+        friend_code: "ABCD-ABCD-ABCD",
+        display_name: "Pew Pew",
+        bio: "Just here for the fun.",
+        bannerColor: "#8a2be2",
+        profilePicture: "default.png"
+      }
     ];
 
-    const insertUser = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    const insertUser = db.prepare(`
+      INSERT INTO users (username, password, friend_code, display_name, bio, bannerColor, profilePicture)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
     const transaction = db.transaction((users) => {
-      for (const user of users) insertUser.run(user.username, user.password);
+      for (const user of users) {
+        insertUser.run(
+          user.username,
+          user.password,
+          user.friend_code,
+          user.display_name,
+          user.bio,
+          user.bannerColor,
+          user.profilePicture
+        );
+      }
     });
     transaction(exampleUsers);
   } else {
@@ -115,26 +209,29 @@ export function InitializeDatabase() {
       {
         name: "UHasselt Adventure Buddies",
         description: "Exploring Europe one trip at a time!",
-        invite_code: "JOIN-UHASS-123",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
       {
         name: "Summer Road Trip 2025",
         description: "Friends + car + sun = perfect vacation.",
-        invite_code: "SUMMER-ROAD-2025",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
       {
         name: "Mountain Lovers",
         description: "Hiking, camping, and nature photography group.",
-        invite_code: "MOUNTAIN-LOVE",
+        startDate: "10-10-2025",
+        endDate: "10-20-2025"
       },
     ];
 
     const insertGroup = db.prepare(
-      "INSERT INTO groups (name, description, invite_code) VALUES (?, ?, ?)"
+      "INSERT INTO groups (name, description, startDate, endDate) VALUES (?, ?, ?, ?)"
     );
     const insertGroupsTx = db.transaction((groups) => {
       for (const group of groups)
-        insertGroup.run(group.name, group.description, group.invite_code);
+        insertGroup.run(group.name, group.description, group.startDate, group.endDate);
     });
     insertGroupsTx(exampleGroups);
   } else {
@@ -188,31 +285,31 @@ export function InitializeDatabase() {
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:00:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing testing hello"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:02:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "Testing received"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:03:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "can you see the messages?"
       },
       {
         sender_id: 5,
         timestamp: "2025-09-27 18:09:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "hello?"
       },
       {
         sender_id: 4,
         timestamp: "2025-09-27 18:10:00.000",
-        group_id: 1,
+        group_id: 2,
         contents: "yep"
       }
     ];
@@ -225,5 +322,41 @@ export function InitializeDatabase() {
   } else {
     console.log("Testing messages already present: skipping demo inserts.");
   }
-}
 
+  // --- DEMO FRIENDSHIPS ---
+  const friendshipCount = db.prepare("SELECT COUNT(*) AS count FROM friend_requests").get().count;
+
+  if (friendshipCount === 0) {
+    console.log("No friend requests found — inserting demo friendships...");
+
+    const users = db.prepare("SELECT id, username FROM users").all();
+    const userByName = Object.fromEntries(users.map((u) => [u.username, u.id]));
+
+    const friendships = [
+      { requester_id: userByName["Keti"], requested_id: userByName["Mike"] },
+      { requester_id: userByName["Mike"], requested_id: userByName["Keti"] },
+
+      { requester_id: userByName["Keti"], requested_id: userByName["Jori"] },
+      { requester_id: userByName["Jori"], requested_id: userByName["Keti"] },
+
+      { requester_id: userByName["Peter"], requested_id: userByName["Joris"] },
+      { requester_id: userByName["Joris"], requested_id: userByName["Peter"] },
+
+      { requester_id: userByName["Pew"], requested_id: userByName["Keti"] },
+      { requester_id: userByName["Keti"], requested_id: userByName["Pew"] },
+    ];
+
+    const insertFriendship = db.prepare(
+      "INSERT INTO friend_requests (requester_id, requested_id) VALUES (?, ?)"
+    );
+
+    const insertFriendshipsTx = db.transaction((requests) => {
+      for (const fr of requests) insertFriendship.run(fr.requester_id, fr.requested_id);
+    });
+
+    insertFriendshipsTx(friendships);
+  } else {
+    console.log("Friendships already present — skipping demo inserts.");
+  }
+
+}

@@ -1,3 +1,20 @@
+//function for popup when inviting person in settings secttion
+//neeeds tto be  here, idk why. any other places it doesnt work and i wasted 7 dayas already xd
+function initInvitePopup() {
+    const btn = document.getElementById("inv-btn");
+    const popupHTML = document.getElementById("invitePopup");
+
+    if (!btn || !popupHTML) 
+        return;
+
+    btn.addEventListener("click", () => {
+        const popup = new bootstrap.Modal(popupHTML);
+        popup.show();
+    })
+}
+
+
+//section codeeeeee -> basically loads in a sectttion dependent on which button u click
     const groupId = window.groupId;
     document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -8,6 +25,8 @@
         document.getElementById("groupName").textContent = group.name;
         document.getElementById("groupDescription").textContent =
         group.description || "No description provided.";
+        document.getElementById("startEnd").textContent =
+            `${toDDMMYYYY(group.startDate)} - ${toDDMMYYYY(group.endDate)}`;
     } catch (err) {
         console.error(err);
         document.body.innerHTML =
@@ -25,6 +44,12 @@
     });
     });
 
+// load section code ->  basically loads in each section   with whateever theey need
+function toDDMMYYYY(dateStr) {
+    const [month, day, year] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+}
+
     async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
@@ -33,49 +58,49 @@
         const html = await res.text();
         contentDiv.innerHTML = html;
 
+        //INVITE POPUP MOET NA SECTION-HTML INGELADEN WORDEN
+        initInvitePopup();
+
         // If members section, fetch members and populate
         if (section === "members") {
-            const membersRes = await fetch(`/group/${groupId}/members`);
-            const members = await membersRes.json();
+            try {
+                const module = await import("/js/group-partials/members.js");
+                await module.loadMembers(groupId);
+            } catch (err) {
+                console.error("Failed to load members.js", err);
+            }
+        }
 
-            const admins = members.filter(m => m.role === "admin");
-            const regulars = members.filter(m => m.role === "member");
-            const viewers = members.filter(m => m.role === "viewer");
+        // If settings section, dependent on user role show specific settings
+        if (section === "settings") {
+           const userRoleRes = await fetch(`/group/${groupId}/settings`);
+           const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
+            
+           const adminSec = document.getElementById("admin");
+           const memberSec = document.getElementById("member");
+           const viewerSec = document.getElementById("viewer");
 
-            const createList = (list, users) => {
-                list.innerHTML = users.length
-                ? users.map(u => `<li class="list-group-item">${u.username}</li>`).join("")
-                : `<li class="list-group-item text-muted">None</li>`;
-            };
+           if (userRole === "admin") {
+            viewerSec.style.display = 'none';
+           }
 
-            createList(document.getElementById("adminList"), admins);
-            createList(document.getElementById("memberList"), regulars);
-            createList(document.getElementById("viewerList"), viewers);
+           if (userRole === "member") {
+            adminSec.style.display = 'none';
+            viewerSec.style.display = 'none';
+           }
+
+           if (userRole === "viewer") {
+            adminSec.style.display = 'none';
+            memberSec.style.display = 'none';
+           }
         }
 
         if (section === "map") {
-            contentDiv.innerHTML = `
-                <div id="map" style="width: 100%; height: 400px;"></div>
-            `;
-
-            if (!window.googleMapsLoaded) {
-                window.googleMapsLoaded = true;
-
-                const mapsApi = document.createElement("script");
-                mapsApi.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDf8c_RldjfbjhoyNzxzEYMXt3v8rAVToQ&callback=initMap";
-                mapsApi.async = true;
-                mapsApi.defer = true;
-                document.body.appendChild(mapsApi);
-
-                window.initMap = () => {
-                    const mapOptions = {
-                        center: { lat: 50, lng: 5 },
-                        zoom: 15
-                    };
-                    new google.maps.Map(document.getElementById("map"), mapOptions);
-                };
-            } else {
-                window.initMap();
+            try {
+                const module = await import("/js/group-partials/map.js");
+                await module.initMap();
+            } catch (err) {
+                console.error("Failed to load map.js", err);
             }
         }
 
