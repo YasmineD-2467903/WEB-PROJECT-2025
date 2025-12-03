@@ -160,6 +160,28 @@ app.get("/group/:id/members", (request, response) => {
   }
 });
 
+// user role
+app.get("/group/:id/settings", (request, response) => {
+  try {
+      const userId = request.session.user_id; //userId nodig om de user te identifyen
+      if (!userId) return response.status(401).json({ error: "Not logged in" });
+
+      const groupId = request.params.id; //groupId nodig om bepaalde groep tee identifyen
+
+      const userRole = db.prepare(`
+        SELECT role
+        FROM group_members
+        WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+      response.json(userRole);
+  } catch (err) {
+    console.error("Error fetching role of user:", err);
+    response.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//  idk
 // profile page
 
 app.get("/user/me", (req, res) => {

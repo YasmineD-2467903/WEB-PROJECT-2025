@@ -1,3 +1,20 @@
+//function for popup when inviting person in settings secttion
+//neeeds tto be  here, idk why. any other places it doesnt work and i wasted 7 dayas already xd
+function initInvitePopup() {
+    const btn = document.getElementById("inv-btn");
+    const popupHTML = document.getElementById("invitePopup");
+
+    if (!btn || !popupHTML) 
+        return;
+
+    btn.addEventListener("click", () => {
+        const popup = new bootstrap.Modal(popupHTML);
+        popup.show();
+    })
+}
+
+
+//section codeeeeee -> basically loads in a sectttion dependent on which button u click
     const groupId = window.groupId;
     document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -27,6 +44,7 @@
     });
     });
 
+// load section code ->  basically loads in each section   with whateever theey need
 function toDDMMYYYY(dateStr) {
     const [month, day, year] = dateStr.split("-");
     return `${day}/${month}/${year}`;
@@ -40,6 +58,9 @@ function toDDMMYYYY(dateStr) {
         const html = await res.text();
         contentDiv.innerHTML = html;
 
+        //INVITE POPUP MOET NA SECTION-HTML INGELADEN WORDEN
+        initInvitePopup();
+
         // If members section, fetch members and populate
         if (section === "members") {
             try {
@@ -48,6 +69,30 @@ function toDDMMYYYY(dateStr) {
             } catch (err) {
                 console.error("Failed to load members.js", err);
             }
+        }
+
+        // If settings section, dependent on user role show specific settings
+        if (section === "settings") {
+           const userRoleRes = await fetch(`/group/${groupId}/settings`);
+           const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
+            
+           const adminSec = document.getElementById("admin");
+           const memberSec = document.getElementById("member");
+           const viewerSec = document.getElementById("viewer");
+
+           if (userRole === "admin") {
+            viewerSec.style.display = 'none';
+           }
+
+           if (userRole === "member") {
+            adminSec.style.display = 'none';
+            viewerSec.style.display = 'none';
+           }
+
+           if (userRole === "viewer") {
+            adminSec.style.display = 'none';
+            memberSec.style.display = 'none';
+           }
         }
 
         if (section === "map") {
