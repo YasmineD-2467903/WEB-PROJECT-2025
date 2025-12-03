@@ -160,6 +160,38 @@ app.get("/group/:id/members", (request, response) => {
   }
 });
 
+// polls
+
+app.get("/group/:id/polls", (request, response) => {
+  try {
+    const groupId = request.params.id;
+    const userId = request.session.user_id;
+
+    const polls = db.prepare(`
+      SELECT poll_id, creator_id, title
+      FROM group_polls
+      WHERE group_id = ?
+    `).all(groupId);
+
+    const checkRole = db
+      .prepare("SELECT role FROM group_members WHERE user_id = ? AND group_id = ?")
+      .get(userId, groupId);
+
+    const userRole = checkRole.role;
+
+    const checkName = db
+      .prepare("SELECT display_name FROM users WHERE id = ?")
+      .get(userId);
+
+    const creatorName = checkName.display_name;
+
+    response.json({ polls, userRole, creatorName });
+  } catch (err) {
+    console.error("Error fetching group members:", err);
+    response.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // profile page
 
 app.get("/user/me", (req, res) => {
