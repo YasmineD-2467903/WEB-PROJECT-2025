@@ -12,27 +12,21 @@
     <h1 id="groupName" class="fw-semibold"></h1>
     <p id="groupDescription" class="text-muted"></p>
 
-    <hr>
-
     <div class="container" id="groupContent">
 
       <div class="sidebar">  
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="members">Members</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="settings">Settings</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="chat">Chat</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="map">Map Overview</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="polls">Polls</button>
         </div>
@@ -44,6 +38,7 @@
     <script>
       window.groupId = "<%= groupId %>";
     </script>
+    <script src="/js/bootstrap.bundle.js"></script> <!-- KEEP THIS HERE FOR PARTIALS WITH POPUPS -->
     <script src="/js/group.js"></script>
   </body>
 </html>

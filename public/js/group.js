@@ -1,3 +1,19 @@
+//function for popup when inviting person in settings secttion
+//neeeds tto be  here, idk why. any other places it doesnt work and i wasted 7 dayas already xd
+function initInvitePopup() {
+    const btn = document.getElementById("inv-btn");
+    const popupHTML = document.getElementById("invitePopup");
+
+    if (!btn || !popupHTML) 
+        return;
+
+    btn.addEventListener("click", () => {
+        const popup = new bootstrap.Modal(popupHTML);
+        popup.show();
+    })
+}
+
+
 //section codeeeeee -> basically loads in a sectttion dependent on which button u click
     const groupId = window.groupId;
     document.addEventListener("DOMContentLoaded", async () => {
@@ -26,44 +42,7 @@
     });
     });
 
-    // popup code, fully inspireed by an awesome video:  https://www.youtube.com/watch?v=MBaw_6cPmAw
-    const openPopupButtons =  document.querySelectorAll("[data-popup-target]");
-    const closePopupButtons =  document.querySelectorAll("[data-close-button]");
-    const overlay = document.getElementById("overlay");
-
-    openPopupButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const popup = document.querySelector("button.dataset.modelTarget"); //apparently leest JS  dit in  camelcasee??   want zo  is hett in     onze html en de  video zei dat dit prima  was xdd
-            openPopup(popup);
-        })
-    })
-
-    overlay.addEventListener("click", () => {
-        const popups = document.querySelectorAll(".modal.active") //select all   activee popups
-        popups.forEach(popup => {
-            closePopup(popup)
-        })
-    })
-
-    closePopupButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const popup = button.closest(".popup");   //looks for closest parent with class popup!
-            closePopup(popup);
-        })
-    })
-
-    function openPopup(popup) {
-        if (popup == null) return;
-        popup.classList.add("active");
-        overlay.classList.add("active");
-    }
-
-    function closePopup(popup) {
-        if (popup == null) return;
-        popup.classList.remove("active");
-        overlay.classList.remove("active");
-    }
-
+// load section code ->  basically loads in each section   with whateever theey need
     async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
@@ -71,6 +50,9 @@
 
         const html = await res.text();
         contentDiv.innerHTML = html;
+
+        //INVITE POPUP MOET NA SECTION-HTML INGELADEN WORDEN
+        initInvitePopup();
 
         // If members section, fetch members and populate
         if (section === "members") {

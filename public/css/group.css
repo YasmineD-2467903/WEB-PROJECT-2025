@@ -93,58 +93,51 @@
     }
 
         /*----------- popup styling -----------*/
-        .popup {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) scale(0); /*translate centert dee popup on screen, zie video, scale maakt hett invis*/
-          transition: 200ms ease-in-out; /*reden    dat we met scale werken ipv  display none is zodat we transitions kunnen gebruiken!*/
-          border: 1px solid rgb(56, 56, 56);
-          border-radius: 5px;
-          z-index: 10; /**/
-          background-color: white;
-          width: 500px;
-          max-width: 80%;
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .popup.active {
-          transform: translate(-50%, -50%) scale(1);
+
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .popup-header {
-          padding: 10px 15px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1px solid #875D0E;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
         }
-        .popup-header.title {
-          font-size: 1.25rem;
-          font-weight: bold;
+
+        .popup-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
         }
-        .popup-header.close-button {
-          cursor:  pointer;
-          border: none;
-          outline: none;
-          background: none;
-          font-size: 1.25rem;
-          font-weight: bold;
-        }
-        .popup-body {
-          padding: 10px 15px;
-        }
-        #overlay {
-          position: fixed;
-          opacity: 0;
-          transition: 200ms ease-in-out;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0,0,0, 0.5);
-          pointer-events: none; /*als overlay  not activbe, zorgt dit ervoor dat je op andere knoppen op de scheeerm kan klikken*/
-        }
-        #overlay.acttive {
-          opacity: 1;
-          pointer-events: all;
+
+        .popup-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
         }
 
     /*----------- Member-settings -----------*/
