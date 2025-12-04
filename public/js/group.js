@@ -44,12 +44,12 @@ function initInvitePopup() {
     });
     });
 
-// load section code ->  basically loads in each section   with whateever theey need
 function toDDMMYYYY(dateStr) {
     const [month, day, year] = dateStr.split("-");
     return `${day}/${month}/${year}`;
 }
 
+// load section code ->  basically loads in each section   with whateever theey need
     async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
