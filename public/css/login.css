@@ -14,7 +14,6 @@ header{
     color: white;
     font-size: 20px;
     font-style: italic;
-    margin: 0;
 }
 
 
@@ -22,8 +21,6 @@ header{
 body{
   font-family: Arial, Helvetica, sans-serif;
   background-color: solid white;
-  margin: 0; /*beide op 0 zodat de header heel de breedte van uw scherm inneemt*/
-  padding: 0;
 }
 
 .beginpage{
@@ -34,7 +31,7 @@ body{
   min-height: 60vh;
 }
 
-/*zorgt voor scheidingslijn tussen login en registration*/
+/*zorgt voor scheidingslijn tussen login en registration (gestolen van braxx login)*/
 .beginpage::before {
   content: '';
   position: absolute;
@@ -50,24 +47,25 @@ body{
   max-width: 400px;
   text-align: center;
 }
-
 .login h1, .registration h1 {
   margin-top: 50px;
   margin-bottom: 25px;
   
-  color: #FCB6F7;
-  font-size: 30px;  
+  color: rgb(56, 56, 56)s;
+  font-weight: 600;
   text-transform: uppercase;
   line-height: 1;
 }
-
+.login h1{
+  margin-bottom: 30px; /*apart gemaakt  zoda de loogin butonss op dezlfde lijne zijn als bij regisstter ttttekst*/
+}
 
 /*---------login side----------*/
 .inputbox {
   margin-bottom: 15px;
 }
 .inputbox input {
-  width: 50%;
+  width: 56%;
   padding: 12px;
   border: 2px solid rgb(177, 175, 175);
   border-radius: 5px;
@@ -78,6 +76,10 @@ body{
 }
 .inputbox input:hover {
   border-color: rgb(94, 93, 93);
+}
+.inputbox:focus {
+  box-shadow: none !important;
+  border-color: black !important;
 }
 
 
@@ -102,49 +104,52 @@ body{
 #login_button:hover {
   border-color: rgb(139, 137, 137);
 }
-
+#login_button:active {
+  background-color: rgb(139, 137, 137);
+  color: white;
+}
 
 .form-check{
   display: flex;
-  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze op 1 lijn zijn*/
+  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze horizontatal gecentreerrd zijn (wantt flex op een row)*/
 }
-.form-check label  {
+.form-check-label  {
+  margin-top: 3px;
   margin-bottom: 5px;
-  font-weight: 200;
+  margin-left: 8px;
+  font-size: 110%;
+  font-weight: 400;
 }
 .form-check-input{
-  margin-left: 22%; /*heb het forced naar rechts verplaatst omdat het anders heel  fel links stond */
-  margin-right: 10px;  /*extra ruimte ttussen checkbox   en label*/
-  margin-bottom: 10px;
-  border: 2px solid rgb(194, 189, 189);
+  margin-bottom: 5px;
+  border-color: rgb(194, 189, 189) !important;
   cursor: pointer;
 
   /*browsers default checkbox hiden*/
   appearance: none;
 
   /*nu bepalen we onze eigen grootte van box*/
-  width:25px;
-  height: 25px;
-  border-radius: 5px;
+  width: 23px !important; /*!important zodat het bootstrap setttings overruled*/
+  height: 23px !important;
+  border-radius: 5px !important;
+
+  /*tenslotte positie, zodatt hett niet op de verkeerde plek staat*/
+  position: absolute;
 }
 .form-check-input:hover {
   transition: 0.15s ease-in-out;
-  border-color: rgb(139, 137, 137);
+  border-color: rgba(173, 132, 70, 0.664) !important;
 }
-.form-check-input:checked::before { /*dit zijn alle settings die we willen als  het al checked is,  en omdat ded checkbox direct eerstt gechecked wordt, moet dit bij ::before staan*/
-  content: '✓';
-  color: black;
-  font-size: 15px;
-  font-weight: bold;
-
-  /*vinkje in midden krijgen van checkbox*/
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+ /*dit zijn alle settings die we willen als het al checked is,  en omdat de checkbox direct eerstt gechecked is, moet dit bij :checked staan*/
+.form-check-input:checked {
+  background-color: rgba(209, 160, 87, 0.664) !important;
+  border: none;
 }
-.form-check-input:checked::after {
-  content:  "";
+.form-check-input:checked:hover {
+  background-color: rgba(173, 132, 70, 0.664) !important;
+}
+.form-check-input:focus { /*i swear bootstrap is raar like girl wdym lemme jusst add a random blue shadow??*/
+  box-shadow: none !important;
 }
 
 
@@ -156,7 +161,6 @@ body{
 
   font-size: 25px;
 }
-
 #registration_button {
   background-color: rgba(209, 160, 87, 0.664);
   color: rgb(255, 255, 255);
@@ -170,6 +174,7 @@ body{
   line-height: 100%;
 
   margin-top: 10px;
+  margin-bottom: 6%; /*dit is vooral bij gsm zodat het niet geplekt zit tegen rand van gsm*/
   text-align: center;
 
   cursor: pointer;
@@ -177,4 +182,62 @@ body{
 }
 #registration_button:hover {
   background-color: rgba(173, 132, 70, 0.664);
+}
+
+
+
+/*---------PHONE CHANGES---------*/
+@media (max-width: 500px) {
+    /*--------- base settings ---------*/
+    .beginpage{
+      position: relative;
+      display: flex;
+      flex-direction: column; /*maken hett kolom, dan gaatt het gecentreert in kolom komen!*/
+      justify-content: center;
+      gap: 50px;
+      min-height: 60vh;
+    }
+
+    /*zorgt voor scheidingslijn tussen login en registration (gestolen van braxx login)*/
+    .beginpage::before {
+      content: '';
+      position: absolute;
+      background: #ccc;
+      width: 80%; /*moet breed zijn en*/
+      height: 1px; /*moet niet lang zijn, wantt horizontale lijn!*/
+      top: 50%; /*moet in helft van dee scherm staan, rekent van boven naar onder*/
+      left: 10%; /*bij 50% left zal het  juist vanaf de helft beginnen, daarvan 10%*/
+    }
+
+    .login h1, .registration h1 {
+      margin-top: 2%;
+      margin-bottom: 5%;
+    }
+    .login, .registration{
+      margin: 0 auto;
+    }
+    header {
+      border: none;
+    }
+    .about p{
+      display: none;
+    }
+
+    /*--------- login side ---------*/
+    .login h1{
+      margin-bottom: 10%; /*forced erbij gezett, for some reason ging het juist dichtter naar login voor bottom:5%*/
+    }
+    .inputbox input {
+      width: 100%;
+    }
+    #login_button {
+      width: 100%;
+    }
+
+
+    /*--------- register side ---------*/
+    .registration p {
+      font-size: 130%;
+    }
+
 }

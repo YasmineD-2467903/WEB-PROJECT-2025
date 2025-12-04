@@ -2,8 +2,8 @@
 <html>
   <head>
     <title>Group Overview</title>
-    <link rel="stylesheet" href="/css/group.css">
     <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/group.css">
   </head>
 
   <body class="p-4">
@@ -13,39 +13,33 @@
     <p id="groupDescription" class="text-muted"></p>
     <p id="startEnd" class="text-muted"></p>
 
-    <hr>
-
     <div class="container" id="groupContent">
-      <div class="menu">
-        
+
+      <div class="sidebar">  
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="members">Members</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="settings">Settings</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="chat">Chat</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="map">Map Overview</button>
         </div>
-
         <div class="menu">
           <button class="btn btn-outline-primary" data-section="polls">Polls</button>
         </div>
-      
       </div>
+
       <div class="content" id="dynamicContent"></div> <!-- content here :D -->
     </div>
 
     <script>
       window.groupId = "<%= groupId %>";
     </script>
-    <script src="/js/bootstrap.bundle.js"></script>
+    <script src="/js/bootstrap.bundle.js"></script> <!-- KEEP THIS HERE FOR PARTIALS WITH POPUPS -->
     <script src="/js/group.js"></script>
   </body>
 </html>

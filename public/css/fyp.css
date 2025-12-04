@@ -72,7 +72,7 @@ body{
     font-weight: 600;
 
     padding: 12px;
-    border-radius: 5px;
+    border-radius: 5px !important; /*goofy bootstraap autoo zet de topright en bottomright radius op 0px xd*/
     border: none;
     line-height: 100%;
 
@@ -86,13 +86,15 @@ body{
 .btn.btn-outline-primary:hover {
   background-color: rgba(173, 132, 70, 0.664);
 }
+.btn-group {
+    gap: 15px;
+}
 
 
 /*---------PHONE CHANGES---------*/
 @media (max-width: 500px) {
     /*---------base settings---------*/
     header{
-        background-color: #E6BB58;
         border: none;
         margin-bottom: -15px;
         padding: 20px;
@@ -103,6 +105,9 @@ body{
     }
 
     /*-----------Your Groups-----------*/
+    .container.py-5 {
+        margin-left: 20%;
+    }
     .d-flex.justify-content-between.align-items-center.mb-4 {
         margin-left: -25px; /*verplaatsen naar links zodat hett lijkt alsof het in midden staat*/
         width: fit-content;
@@ -129,9 +134,5 @@ body{
     .btn.btn-success,
     .btn.btn-outline-primary {
         font-size: 15px;
-        border-radius: 5px !important; /*moet !important anders gaat bootstrap settings de helft van de border-radius overwriten lol*/
-    }
-    .btn-group {
-        gap: 10px;
     }
 }
