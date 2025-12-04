@@ -35,7 +35,9 @@ export function InitializeDatabase() {
     ) STRICT;
   `).run();
 
-  // GROUPS - DATES AS STRINGS: "MM-DD-YYYY"
+  // GROUPS
+  // DATES AS STRINGS: "MM-DD-YYYY"
+  // TODO dates should probably not be kept as string, but rather as DATETIME, but I have yet to fix this
   db.prepare(`
     CREATE TABLE IF NOT EXISTS groups (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,6 +105,7 @@ export function InitializeDatabase() {
   `).run();
 
   // GROUP CHAT MESSAGES
+  // this section isn't used yet, so it will probably change when I get to it
   db.prepare(`
     CREATE TABLE IF NOT EXISTS group_messages (
       message_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -114,7 +117,8 @@ export function InitializeDatabase() {
     );
   `).run();
 
-  // GROUP POLLS - integer 0/1 false/true
+  // GROUP POLLS
+  // the allow_multiple int is supposed to act as a boolean, so 0 = false, 1 = true
   db.prepare(`
     CREATE TABLE IF NOT EXISTS group_polls (
       poll_id INTEGER PRIMARY KEY AUTOINCREMENT,  
@@ -160,7 +164,7 @@ export function InitializeDatabase() {
       {
         username: "Peter",
         password: "pass",
-        friend_code: "ABCD-ABCD-ABCD-EEEE",
+        friend_code: "ABCD-ABCD-EEEE",
         display_name: "Peter Parker",
         bio: "Friendly neighborhood explorer.",
         bannerColor: "#1e90ff",
@@ -483,5 +487,10 @@ export function InitializeDatabase() {
     console.log("Polls already present — skipping demo inserts.");
   }
 
+  // --- DEMO POLLS OPTIONS --- 
+  // TODO create demo polls options
+
+  // --- DEMO VOTES --- 
+  // TODO create demo votes
 }
 

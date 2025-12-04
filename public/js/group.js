@@ -1,22 +1,13 @@
-//function for popup when inviting person in settings secttion
-//neeeds tto be  here, idk why. any other places it doesnt work and i wasted 7 dayas already xd
-function initInvitePopup() {
-    const btn = document.getElementById("inv-btn");
-    const popupHTML = document.getElementById("invitePopup");
+// DATA
 
-    if (!btn || !popupHTML) 
-        return;
-
-    btn.addEventListener("click", () => {
-        const popup = new bootstrap.Modal(popupHTML);
-        popup.show();
-    })
-}
+const groupId = window.groupId;
+const buttons = document.querySelectorAll(".menu button");
+const contentDiv = document.getElementById("dynamicContent");
 
 
-//section codeeeeee -> basically loads in a sectttion dependent on which button u click
-    const groupId = window.groupId;
-    document.addEventListener("DOMContentLoaded", async () => {
+// EVENT LISTENERS
+
+document.addEventListener("DOMContentLoaded", async () => {
     try {
         const response = await fetch(`/group/${groupId}`);
         if (!response.ok) throw new Error("Failed to fetch group data");
@@ -32,24 +23,36 @@ function initInvitePopup() {
         document.body.innerHTML =
         "<p class='text-danger text-center'>Error loading group data.</p>";
     }
-    });
+});
 
-    const buttons = document.querySelectorAll(".menu button");
-    const contentDiv = document.getElementById("dynamicContent");
-
-    buttons.forEach(btn => {
+buttons.forEach(btn => {
     btn.addEventListener("click", () => {
         const section = btn.getAttribute("data-section");
         loadSection(section);
     });
-    });
+});
+
+
+// FUNCTIONS
+
+function initInvitePopup() {
+    const btn = document.getElementById("inv-btn");
+    const popupHTML = document.getElementById("invitePopup");
+
+    if (!btn || !popupHTML) 
+        return;
+
+    btn.addEventListener("click", () => {
+        const popup = new bootstrap.Modal(popupHTML);
+        popup.show();
+    })
+}
 
 function toDDMMYYYY(dateStr) {
     const [month, day, year] = dateStr.split("-");
     return `${day}/${month}/${year}`;
 }
 
-// load section code ->  basically loads in each section   with whateever theey need
     async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
@@ -58,10 +61,7 @@ function toDDMMYYYY(dateStr) {
         const html = await res.text();
         contentDiv.innerHTML = html;
 
-        //INVITE POPUP MOET NA SECTION-HTML INGELADEN WORDEN
-        initInvitePopup();
-
-        // If members section, fetch members and populate
+        // if members section, fetch members and populate
         if (section === "members") {
             try {
                 const module = await import("/js/group-partials/members.js");
@@ -71,7 +71,24 @@ function toDDMMYYYY(dateStr) {
             }
         }
 
-        // If settings section, dependent on user role show specific settings
+        if (section === "map") {
+            try {
+                const module = await import("/js/group-partials/map.js");
+                await module.initMap();
+            } catch (err) {
+                console.error("Failed to load map.js", err);
+            }
+        }
+
+        if (section === "polls") {
+            try {
+                const module = await import("/js/group-partials/polls.js");
+                await module.loadPolls(groupId);
+            } catch (err) {
+                console.error("Failed to load polls.js", err);
+            }
+        }
+
         if (section === "settings") {
            const userRoleRes = await fetch(`/group/${groupId}/settings`);
            const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
@@ -95,26 +112,8 @@ function toDDMMYYYY(dateStr) {
            }
         }
 
-        if (section === "map") {
-            try {
-                const module = await import("/js/group-partials/map.js");
-                await module.initMap();
-            } catch (err) {
-                console.error("Failed to load map.js", err);
-            }
-        }
-
-        if (section === "polls") {
-            try {
-                const module = await import("/js/group-partials/polls.js");
-                await module.loadPolls(groupId);
-            } catch (err) {
-                console.error("Failed to load polls.js", err);
-            }
-        }
-
     } catch (err) {
         console.error(err);
         contentDiv.innerHTML = `<p class="text-danger">Error loading section.</p>`;
     }
-    }
+}

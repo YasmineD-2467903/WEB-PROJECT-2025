@@ -1,23 +1,31 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadGroups();
-  await loadFriends();
+// EVENT LISTENERS
 
-  const container = document.getElementById("groupList");
-  container.addEventListener("click", (event) => {
-    if (event.target.classList.contains("open-group")) {
-      const groupId = event.target.dataset.id;
-      window.location.href = `/group?id=${groupId}`;
-      // ` ` interpolates, " " will literally take the string...
-      // this sends the group id as a variable to be used
-    }
-  })
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadGroups();
+    await loadFriends();
+
+    const container = document.getElementById("groupList");
+    container.addEventListener("click", (event) => {
+        if (event.target.classList.contains("open-group")) {
+            const groupId = event.target.dataset.id;
+            window.location.href = `/group?id=${groupId}`;
+            // ` ` interpolates, " " will literally take the string...
+            // this sends the group id as a variable to be used
+        }
+    })
 });
 
 document.addEventListener("DOMContentLoaded", () => {
     const createBtn = document.querySelector("#createGroupModal .btn-success");
-
     createBtn.addEventListener("click", handleGroupCreate);
 });
+
+document.getElementById("profilePageModal").addEventListener("show.bs.modal", loadProfileModal);
+document.getElementById("groupInvitesModal").addEventListener("show.bs.modal", loadGroupInvites);
+document.getElementById("inviteFriendModal").addEventListener("show.bs.modal", loadInviteModal);
+
+
+// FUNCTIONS
 
 function handleGroupCreate() {
 
@@ -177,12 +185,12 @@ async function loadProfileModal() {
     cancelProfileEdit();
 }
 
-document.getElementById("profilePageModal").addEventListener("show.bs.modal", loadProfileModal);
 
 async function loadFriends() {
   await loadFriendCode();
   await loadConfirmedFriends();
 }
+
 
 async function loadFriendCode() {
   try {
@@ -194,6 +202,7 @@ async function loadFriendCode() {
     document.getElementById("userFriendCode").value = "XXXX-XXXX-XXXX";
   }
 }
+
 
 async function loadConfirmedFriends() {
     const container = document.getElementById("friendsList");
@@ -231,6 +240,7 @@ async function loadConfirmedFriends() {
         container.innerHTML = "<p class='text-danger text-center'>Error loading friends.</p>";
     }
 }
+
 
 async function loadOtherProfile(userId) {
     try {
@@ -328,13 +338,19 @@ async function handleAddFriend() {
     document.getElementById("addFriendCode").value = "";
 }
 
-function copyFriendCode() {
+async function copyFriendCode() {
     const input = document.getElementById("userFriendCode");
-    input.select();
-    input.setSelectionRange(0, 99999); // for mobile
-    document.execCommand("copy");
-    alert("Friend code copied!");
+    const text = input.value;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        alert("Friend code copied!");
+    } catch (err) {
+        console.error("Failed to copy friend code:", err);
+        alert("Failed to copy. Please copy manually.");
+    }
 }
+
 
 async function loadGroupInvites() {
     const list = document.getElementById("groupInviteList");
@@ -368,8 +384,6 @@ async function loadGroupInvites() {
     });
 }
 
-document.getElementById("groupInvitesModal")
-    .addEventListener("show.bs.modal", loadGroupInvites);
 
 async function acceptInvite(id) {
     await fetch(`/groups/accept-invite/${id}`, { method: "POST" });
@@ -382,7 +396,6 @@ async function declineInvite(id) {
     loadGroupInvites();
 }
 
-document.getElementById("inviteFriendModal").addEventListener("show.bs.modal", loadInviteModal);
 
 async function loadInviteModal() {
     loadInviteFriends();
