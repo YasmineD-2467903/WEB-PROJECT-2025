@@ -15,6 +15,65 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="createPollModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Poll Creation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!--
+                        give the user the option to enter a title for the poll (put a character limit on it: arbitrary amount). 
+                        Beneath the title, there's 2 input fields for poll options, there must always be at least 2. Under that, 
+                        there is a button "+", when clicked, a new input field will show up like the previous two, and the "+"
+                        is moved below this new one, this caps at 6 options.
+                        ALSO END DATE, I FORGOT THAT WAS A THING
+                    -->
+                    <div class="mb-3">
+                        <label class="form-label">Poll Title</label>
+                        <input type="text" id="pollTitleInput" class="form-control" maxlength="80" placeholder="Enter poll title...">
+                        <small class="text-muted">Max 80 characters</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Poll End Time</label>
+                        <input type="datetime-local" id="pollEndTimeInput" class="form-control">
+                        <div class="form-check mt-1">
+                            <input class="form-check-input" type="checkbox" id="noEndTimeCheck">
+                            <label class="form-check-label">No end time</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Allow Multiple Votes</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="pollAllowMultiple">
+                            <label class="form-check-label">Users can select multiple options</label>
+                        </div>
+                    </div>
+
+                    <div id="pollOptionInputs">
+                        <label class="form-label">Options</label>
+
+                        <div class="input-group mb-2 poll-option">
+                            <input type="text" class="form-control" placeholder="Option 1">
+                        </div>
+
+                        <div class="input-group mb-2 poll-option">
+                            <input type="text" class="form-control" placeholder="Option 2">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-primary w-100 mb-3" id="addPollOptionBtn">+ Add Option</button>
+
+                    <button class="btn btn-success w-100" id="submitPollCreateBtn">Create Poll</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <main class="container py-5">
 

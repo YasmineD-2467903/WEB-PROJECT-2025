@@ -275,6 +275,62 @@ app.get("/user/friend-requests", (req, res) => {
   res.json({ requests });
 });
 
+// create a poll
+app.post("/group/:id/polls/create", (req, res) => {
+    try {
+        const groupId = Number(req.params.id);
+        const userId = req.session.user_id;
+        const { title, allow_multiple, end_time, options } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, error: "Not logged in" });
+        }
+
+        if (!title || !Array.isArray(options) || options.length < 2) {
+            return res.status(400).json({ success: false, error: "Invalid poll data" });
+        }
+
+        const membership = db.prepare(`
+            SELECT role FROM group_members
+            WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership || membership.role !== "admin") {
+            return res.status(403).json({ success: false, error: "Only admins can create polls" });
+        }
+
+        const insertPoll = db.prepare(`
+            INSERT INTO group_polls (group_id, creator_id, title, allow_multiple, end_time)
+            VALUES (?, ?, ?, ?, ?)
+        `);
+
+        const pollResult = insertPoll.run(
+            groupId,
+            userId,
+            title,
+            allow_multiple ? 1 : 0,
+            end_time || null
+        );
+
+        const pollId = pollResult.lastInsertRowid;
+
+        const insertOption = db.prepare(`
+            INSERT INTO poll_options (poll_id, contents, vote_count)
+            VALUES (?, ?, 0)
+        `);
+
+        for (const optText of options) {
+            insertOption.run(pollId, optText);
+        }
+
+        return res.json({ success: true, pollId });
+
+    } catch (err) {
+        console.error("Error creating poll:", err);
+        res.status(500).json({ success: false, error: "Server error creating poll" });
+    }
+});
+
 // confirm a vote
 app.post("/poll/:id/confirmVote", (req, res) => {
     try {
