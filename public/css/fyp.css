@@ -86,6 +86,10 @@ body{
 .btn.btn-outline-primary:hover {
   background-color: rgba(173, 132, 70, 0.664);
 }
+.btn.btn-success:active,
+.btn.btn-outline-primary:active {
+    background-color: #875D0E;
+}
 .btn-group {
     gap: 15px;
 }

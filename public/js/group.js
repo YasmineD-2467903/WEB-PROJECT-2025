@@ -34,20 +34,6 @@ buttons.forEach(btn => {
 
 
 // FUNCTIONS
-
-function initInvitePopup() {
-    const btn = document.getElementById("inv-btn");
-    const popupHTML = document.getElementById("invitePopup");
-
-    if (!btn || !popupHTML) 
-        return;
-
-    btn.addEventListener("click", () => {
-        const popup = new bootstrap.Modal(popupHTML);
-        popup.show();
-    })
-}
-
 function toDDMMYYYY(dateStr) {
     const [month, day, year] = dateStr.split("-");
     return `${day}/${month}/${year}`;

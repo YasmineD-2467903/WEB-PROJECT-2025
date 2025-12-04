@@ -4,7 +4,6 @@
   grid-template-columns: 280px 1fr;
 }
 .container div {
-  background-color: white;
   padding: 10px;
 }
 
@@ -50,7 +49,6 @@
 /*----------- Content: settings -----------*/
 .settings-section {
   display: grid;
-  background-color: red;
 }
 .admin-settings, .member-settings, .viewer-settings {
   width: 60%;
@@ -93,52 +91,7 @@
     }
 
         /*----------- popup styling -----------*/
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .popup-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 10px;
-        }
-
-        .popup-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .popup-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 15px;
-            border-top: 1px solid #dee2e6;
-            padding-top: 15px;
-        }
+        
 
     /*----------- Member-settings -----------*/
 
@@ -167,7 +120,7 @@
   background-color: rgba(173, 132, 70, 0.664);
   color: rgb(56, 56, 56);
 }
-.btn.btn-outline-primary:active { /*toevoegen bij fyp!!*/
+.btn.btn-outline-primary:active {
   color: white;
-  background-color: rgba(173, 132, 70, 0.664) !important;
+  background-color: #875D0E;
 }
