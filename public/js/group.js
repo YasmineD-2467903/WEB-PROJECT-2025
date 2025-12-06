@@ -76,26 +76,12 @@ function toDDMMYYYY(dateStr) {
         }
 
         if (section === "settings") {
-           const userRoleRes = await fetch(`/group/${groupId}/settings`);
-           const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
-            
-           const adminSec = document.getElementById("admin");
-           const memberSec = document.getElementById("member");
-           const viewerSec = document.getElementById("viewer");
-
-           if (userRole === "admin") {
-            viewerSec.style.display = 'none';
-           }
-
-           if (userRole === "member") {
-            adminSec.style.display = 'none';
-            viewerSec.style.display = 'none';
-           }
-
-           if (userRole === "viewer") {
-            adminSec.style.display = 'none';
-            memberSec.style.display = 'none';
-           }
+           try {
+                const module = await import("/js/group-partials/settings.js");
+                await module.loadSettings(groupId);
+            } catch (err) {
+                    console.error("Failed to load members.js", err);
+            }
         }
 
     } catch (err) {

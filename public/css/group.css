@@ -54,11 +54,20 @@
   border: 1px solid #cdd0d4;
   border-radius: 8px;
 
-  width: 80%;
+  width: 80%; /*if full-screen, dan is de kader niet al te groot en de helft leeg (omdat 100% veel ruimte innneeemt*/
 }
-.setting-item .btn {
-  margin: 5px;
-}
+
+  /*----------- FORMS -----------*/
+    .form-control {
+      margin: 5px;
+      margin-left: -10px;
+      width: 80%;
+    }
+    .form-control:focus {
+      border-color: #875D0E;
+      box-shadow: 0  0 0 0.15rem rgb(231, 206, 148);
+    }
+
   /*----------- CHECKBOXES -----------*/
     .form-check  {
       margin-left: 10%;
