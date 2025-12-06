@@ -3,6 +3,7 @@ import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
 import multer from "multer";
 import path from "path";
+//import { Server } from "socket.io";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -78,25 +79,47 @@ app.use((req, res, next) => {
 // ========================== ALL GET ROUTES ==========================
 
 
-// user role
+/*
+    CREATE TABLE IF NOT EXISTS groups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      description TEXT,
+      startDate TEXT, 
+      endDate TEXT,
+      allowMemberInvite INTEGER DEFAULT 0,
+      allowMemberPoll INTEGER DEFAULT 0,
+      allowViewerChat INTEGER DEFAULT 0
+*/
+
+// get group settings
 app.get("/group/:id/settings", (request, response) => {
-  try {
-      const userId = request.session.user_id; //userId nodig om de user te identifyen
-      if (!userId) return response.status(401).json({ error: "Not logged in" });
+    try {
+        const userId = request.session.user_id; //userId nodig om de user te identifyen
+        if (!userId) return response.status(401).json({ error: "Not logged in" });
 
-      const groupId = request.params.id; //groupId nodig om bepaalde groep tee identifyen
+        const groupId = request.params.id; //groupId nodig om bepaalde groep te identifyen
 
-      const userRole = db.prepare(`
-        SELECT role
-        FROM group_members
-        WHERE user_id = ? AND group_id = ?
+        const userRole = db.prepare(`
+            SELECT role
+            FROM group_members
+            WHERE user_id = ? AND group_id = ?
         `).get(userId, groupId);
 
-      response.json(userRole);
-  } catch (err) {
-    console.error("Error fetching role of user:", err);
-    response.status(500).json({ error: "Internal server error" });
-  }
+        const groupSettings = db.prepare(`
+            SELECT name, description, startDate, endDate, allowMemberInvite, allowMemberPoll, allowViewerChat
+            FROM groups
+            WHERE id = ?    
+        `).get(groupId);
+
+        return response.json({
+            role: userRole.role,
+            settings: groupSettings
+        });
+
+    } catch (err) {
+        console.error("Error fetching role of user:", err);
+        response.status(500).json({ error: "Internal server error" });
+    }
 });
 
 // automatically open login page
@@ -210,19 +233,22 @@ app.get("/groups", (req, res) => {
         if (!userId) return res.status(401).json({ error: "Not logged in" });
 
         const groups = db.prepare(`
-            SELECT g.id, g.name, g.description, gm.role
+            SELECT g.id, g.name, g.description, gm.role, g.allowMemberInvite
             FROM groups g
             JOIN group_members gm ON gm.group_id = g.id
             WHERE gm.user_id = ?
         `).all(userId);
 
         const roles = {};
+        const allowInvite = {};
         for (const g of groups) {
             roles[g.id] = g.role;
+            allowInvite[g.id] = g.allowMemberInvite === 1;
             delete g.role;
+            delete g.allowMemberInvite;
         }
 
-        res.json({ groups, roles });
+        res.json({ groups, roles, allowInvite });
 
     } catch (err) {
         console.error("Error fetching groups:", err);
@@ -680,36 +706,49 @@ app.post("/user/unfriend", (req, res) => {
 // send a group invite
 app.post("/user/invite-to-group", (req, res) => {
     const inviterId = req.session.user_id;
-    const { friendId, groupId, role } = req.body;
+    const { friendId, groupId, role: requestedRole } = req.body;
 
     if (!inviterId)
         return res.status(401).json({ error: "Not logged in" });
 
-    // later on groups will have the setting that can allow members to invite others (only as member or viewer), i will implement that later, when I actually do the settings
     const membership = db.prepare(`
-        SELECT role FROM group_members
-        WHERE user_id = ? AND group_id = ?
+        SELECT gm.role AS inviterRole, g.allowMemberInvite
+        FROM group_members gm
+        JOIN groups g ON gm.group_id = g.id
+        WHERE gm.user_id = ? AND gm.group_id = ?
     `).get(inviterId, groupId);
 
-    if (!membership || membership.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can invite." });
+    if (!membership) return res.status(403).json({ error: "You are not a member of this group." });
+
+    const { inviterRole, allowMemberInvite } = membership;
+
+    // viewers can never invite
+    if (inviterRole === "viewer") return res.status(403).json({ error: "Viewers cannot invite members." });
+
+    // members can only invite if allowed
+    if (inviterRole === "member" && !allowMemberInvite) {
+        return res.status(403).json({ error: "Members are not allowed to invite." });
     }
 
-    // dont invite someone who is alr in the group
+    // prevent inviting higher than your own role
+    const roleHierarchy = { viewer: 1, member: 2, admin: 3 };
+    if (roleHierarchy[requestedRole] > roleHierarchy[inviterRole]) {
+        return res.status(403).json({ error: "You cannot invite someone to a higher role than your own." });
+    }
+
+    // don't invite someone who is already in the group
     const alreadyMember = db.prepare(`
         SELECT 1 FROM group_members
         WHERE user_id = ? AND group_id = ?
     `).get(friendId, groupId);
 
-    if (alreadyMember) {
-        return res.json({ error: "This user is already a member of the group." });
-    }
+    if (alreadyMember) return res.json({ error: "This user is already a member of the group." });
 
     try {
         db.prepare(`
             INSERT INTO invites (group_id, inviter_id, invited_id, role)
             VALUES (?, ?, ?, ?)
-        `).run(groupId, inviterId, friendId, role);
+        `).run(groupId, inviterId, friendId, requestedRole);
 
         res.json({ success: true, message: "Invite sent!" });
 
@@ -717,11 +756,11 @@ app.post("/user/invite-to-group", (req, res) => {
         if (err.message.includes("UNIQUE")) {
             return res.json({ error: "This user already has a pending invite." });
         }
-
         console.error(err);
         res.status(500).json({ error: "Database error sending invite." });
     }
 });
+
 
 // accept a group invite
 app.post("/groups/accept-invite/:inviteId", (req, res) => {
@@ -891,6 +930,47 @@ app.post("/poll/:id/removeVote", (req, res) => {
         res.status(500).json({ success: false, error: "Internal server error" });
     }
 });
+
+// update group settings
+app.post("/group/:id/settings/update", (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const groupId = req.params.id;
+        const { allowMemberInvite, allowMemberPoll, allowViewerChat, bio, title, startDate, endDate } = req.body;
+
+        const settingsDb = db.prepare(`
+            UPDATE groups
+            SET allowMemberInvite = ?, 
+                allowMemberPoll = ?, 
+                allowViewerChat = ?,
+                name = COALESCE(?, name),
+                description = COALESCE(?, description),
+                startDate = COALESCE(?, startDate),
+                endDate = COALESCE(?, endDate)
+            WHERE id = ?
+        `);
+
+        settingsDb.run(
+            allowMemberInvite ? 1 : 0,
+            allowMemberPoll ? 1 : 0,
+            allowViewerChat ? 1 : 0,
+            title || null,
+            bio || null,
+            startDate || null,
+            endDate || null,
+            groupId
+        );
+
+        res.json({ success: true, message: "Group settings updated successfully" });
+
+    } catch (err) {
+        console.error("Error updating group settings:", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 
 // ========================== MIDDLEWARE ==========================

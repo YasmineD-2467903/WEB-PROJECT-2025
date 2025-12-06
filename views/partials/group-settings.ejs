@@ -6,29 +6,36 @@
         <div class="setting-item"> <!-- basically ik groupeer de checkboxes in 1 item en dee knoppen in 1 item zodat ze ltijd smen gectegorizeerd zijn in de grid-->
             <!-- instelling voor invites (member) -->
             <div class="form-check form-switch"> <!-- online van de bootstrap checkbox page gestolen lol -->
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to invite others?</label>
+                <input class="form-check-input" type="checkbox" id="memberInvitationCheck">
+                <label class="form-check-label" for="memberInvitationCheck">Allow members to invite others?</label>
             </div>
             <!-- instelling voor polls (member) -->
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to create polls?</label>
+                <input class="form-check-input" type="checkbox" id="memberPollCheck">
+                <label class="form-check-label" for="memberPollCheck">Allow members to create polls?</label>
             </div>
             <!-- instelling voor chats (viewer) -->
             <div class="form-check form-switch"> 
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Allow viewers to chat?</label>
+                <input class="form-check-input" type="checkbox" id="viewerChatCheck">
+                <label class="form-check-label" for="viewerChatCheck">Allow viewers to chat?</label>
             </div>
         </div>
 
         <div class="setting-item">
             <!-- instelling om bio te changen -->
-            <button class="btn btn-outline-primary" id="changeBio">Change biography?</button>
+            <input type="text" id="changeBio" class="form-control" maxlength="80" placeholder="Change biography">
             <!-- instelling om titel te changen -->
-            <button class="btn btn-outline-primary" id="changeTitle">Change title?</button>
+            <input type="text" id="changeTitle" class="form-control" maxlength="80" placeholder="Change title">
             <!-- instelling om begin/end date te changen -->
-            <button class="btn btn-outline-primary" id="changeDate">Change date?</button>
+            <input type="datetime-local" id="changeStartDate" class="form-control">
+            <input type="datetime-local" id="changeEndDate" class="form-control">
         </div>
+
+        <div class="cancelSave">
+            <button class="btn btn-outline-primary" id="saveSettings">Save</button>
+            <button class="btn btn-outline-cancel" id="cancelSettings">Cancel</button>
+        </div>
+        
     </div>
 
 
@@ -40,5 +47,8 @@
         <h2 class="viewer-header" id="VS-header">You can't acces this!</h2>
         <p class="text-muted">Ask the admin to invite you.</p>
     </div>
+
+    <script src="/js/bootstrap.bundle.js"></script>
+    <script src="/js/group-partials/settings.js"></script>
 
 </div>

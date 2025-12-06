@@ -44,7 +44,10 @@ export function InitializeDatabase() {
       name TEXT,
       description TEXT,
       startDate TEXT, 
-      endDate TEXT
+      endDate TEXT,
+      allowMemberInvite INTEGER DEFAULT 0,
+      allowMemberPoll INTEGER DEFAULT 0,
+      allowViewerChat INTEGER DEFAULT 0
     ) STRICT;
   `).run();
 

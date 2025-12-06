@@ -39,7 +39,21 @@ function toDDMMYYYY(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
-    async function loadSection(section) {
+function formatDateForInput(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    const hours = String(date.getHours()).padStart(2,'0');
+    const minutes = String(date.getMinutes()).padStart(2,'0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+
+async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);
         if (!res.ok) throw new Error("Failed to load section");
@@ -76,26 +90,14 @@ function toDDMMYYYY(dateStr) {
         }
 
         if (section === "settings") {
-           const userRoleRes = await fetch(`/group/${groupId}/settings`);
-           const userRole = (await userRoleRes.json()).role; //forces het om te wachten promise klaara is en dann result returnen, aandeers returned het een onafgewerkte iets en dan caan hett niet de ids opppiken en werkt ditt niet xd
-            
-           const adminSec = document.getElementById("admin");
-           const memberSec = document.getElementById("member");
-           const viewerSec = document.getElementById("viewer");
+            const res = await fetch(`/group/${groupId}/settings`);
+            const data = await res.json();
 
-           if (userRole === "admin") {
-            viewerSec.style.display = 'none';
-           }
+            const userRole = data.role;
+            const settings = data.settings; 
 
-           if (userRole === "member") {
-            adminSec.style.display = 'none';
-            viewerSec.style.display = 'none';
-           }
-
-           if (userRole === "viewer") {
-            adminSec.style.display = 'none';
-            memberSec.style.display = 'none';
-           }
+            const { initSettingsSection } = await import("/js/group-partials/settings.js");
+            initSettingsSection(userRole, settings, groupId);
         }
 
     } catch (err) {
