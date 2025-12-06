@@ -332,20 +332,24 @@ app.get("/group/:id/polls", (req, res) => {
         `).all(groupId);
 
         const polls = pollsRaw.map(poll => {
-        const creator = db
-            .prepare("SELECT display_name FROM users WHERE id = ?")
-            .get(poll.creator_id);
-        return {
-            ...poll,
-            creator_name: creator ? creator.display_name : "Unknown"
-        };
+            const creator = db
+                .prepare("SELECT display_name FROM users WHERE id = ?")
+                .get(poll.creator_id);
+            return {
+                ...poll,
+                creator_name: creator ? creator.display_name : "Unknown"
+            };
         });
 
         const checkRole = db
             .prepare("SELECT role FROM group_members WHERE user_id = ? AND group_id = ?")
             .get(userId, groupId);
-
         const userRole = checkRole ? checkRole.role : "viewer";
+
+        const allowMemberPollRow = db
+            .prepare("SELECT allowMemberPoll FROM groups WHERE id = ?")
+            .get(groupId);
+        const allowMemberPoll = allowMemberPollRow ? !!allowMemberPollRow.allowMemberPoll : false;
 
         const modalData = {};
         
@@ -370,12 +374,13 @@ app.get("/group/:id/polls", (req, res) => {
             };
         }
 
-        res.json({ polls, userRole, modalData });
+        res.json({ polls, userRole, modalData, allowMemberPoll });
     } catch (err) {
         console.error("Error fetching group polls:", err);
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 // friend requests
 // fairly certain this isn't actually used

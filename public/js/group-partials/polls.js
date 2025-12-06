@@ -8,9 +8,10 @@ export async function loadPolls(groupId) {
 
         const polls = data.polls || [];
         const currentUserRole = data.userRole;
+        const allowMemberPoll = data.allowMemberPoll;
 
         const createBtn = document.getElementById("createPollButton");
-        createBtn.hidden = currentUserRole !== "admin";
+        createBtn.hidden = !(currentUserRole === "admin" || (currentUserRole === "member" && allowMemberPoll));
 
         const pollList = document.getElementById("pollList");
 
