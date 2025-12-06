@@ -430,34 +430,50 @@ async function loadInviteGroups() {
     const res = await fetch("/groups");
     const data = await res.json();
 
-    select.innerHTML = "";
-
     if (!data.groups || data.groups.length === 0) {
         select.innerHTML = `<option disabled>No groups available</option>`;
         return;
     }
 
-    data.groups.forEach(group => {
-        const role = data.roles[group.id]; // ← use your backend role map
+    for (const group of data.groups) {
+        const userRole = data.roles[group.id]; // role in group
+        const canInvite = (userRole === "admin") || (userRole === "member" && data.allowInvite[group.id]);
 
-        if (role === "admin") {
+        if (canInvite) {
             const opt = document.createElement("option");
             opt.value = group.id;
             opt.textContent = group.name;
+            opt.dataset.role = userRole || "viewer";
             select.appendChild(opt);
+        }
+    }
+
+    if (select.selectedOptions[0]) {
+        loadInviteRoles();
+    }
+}
+
+function loadInviteRoles() {
+    const groupSelect = document.getElementById("inviteGroupSelect");
+    const roleSelect = document.getElementById("inviteRoleSelect");
+    const selectedOption = groupSelect.selectedOptions[0];
+    if (!selectedOption) return;
+
+    const userRole = selectedOption.dataset.role;
+    const roleHierarchy = { viewer: 1, member: 2, admin: 3 };
+
+    roleSelect.innerHTML = "";
+    ["viewer", "member", "admin"].forEach(r => {
+        if (roleHierarchy[r] <= roleHierarchy[userRole]) {
+            const opt = document.createElement("option");
+            opt.value = r;
+            opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+            roleSelect.appendChild(opt);
         }
     });
 }
 
-function loadInviteRoles() {
-    const select = document.getElementById("inviteRoleSelect");
-    select.innerHTML = `
-        <option value="viewer">Viewer</option>
-        <option value="member">Member</option>
-        <option value="admin">Admin</option>
-    `;
-}
-
+document.getElementById("inviteGroupSelect").addEventListener("change", loadInviteRoles);
 async function inviteFriend() {
     const friendId = document.getElementById("inviteFriendSelect").value;
     const groupId = document.getElementById("inviteGroupSelect").value;
