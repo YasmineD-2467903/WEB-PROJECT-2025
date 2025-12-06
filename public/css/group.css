@@ -47,26 +47,19 @@
 }
 
 /*----------- Content: settings -----------*/
-.settings-section {
+.settings-grid {
   display: grid;
-}
-.admin-settings, .member-settings, .viewer-settings {
-  width: 60%;
-  margin: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 350px is of 1 fraction (25% v available space)*/
 
   border: 1px solid #cdd0d4;
   border-radius: 8px;
-}
-#AS-header, #MS-header, #VS-header {
-  text-align: center;
-  margin-bottom: -5px; /*wat dichter bij de iteems zetten!*/
-}
 
-  /*----------- Admin-settings -----------*/
-    .container-fluid { /*contaainer maakt hier 100% gebruikt van de 60% breeedte in admin-settings!*/
-      display: flex;
-      align-items: center;
-    }
+  width: 80%;
+}
+.setting-item .btn {
+  margin: 5px;
+}
+  /*----------- CHECKBOXES -----------*/
     .form-check  {
       margin-left: 10%;
     }
@@ -74,7 +67,7 @@
       border-color: rgb(194, 189, 189);
       margin-top: 5px; /*positie beetje naar  onder  (heel  weinig)*/
 
-      transition: 0.15s ease-in-out !important; /*bootstrap :DDDDDD*/
+      transition: 0.15s ease-in-out;
       cursor: pointer;
     }
     .form-check-input:hover {
@@ -90,14 +83,14 @@
       box-shadow: none;
     }
 
-        /*----------- popup styling -----------*/
-        
 
-    /*----------- Member-settings -----------*/
+/*----------- Content: Chat -----------*/
 
-#inv-btn {
-  width: 40% !important; /*knop moet kleiner zijn dan de 80% die bij de rest gebruikt wordt*/
-}
+
+
+/*----------- Content: Polls -----------*/
+
+
 
 /*----------- Buttons -----------*/
 .btn.btn-outline-primary {

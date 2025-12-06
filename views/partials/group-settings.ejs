@@ -1,29 +1,39 @@
 <div class="settings-section">
     <h1 class="settings-header">Settings</h1>
 
-    <div class="admin-settings" id="admin">
-        <h2 class="admin-header" id="AS-header">Admin</h2>
+    <div class="settings-grid" id="admin">
         
-        <div class="container-fluid">
+        <div class="setting-item"> <!-- basically ik groupeer de checkboxes in 1 item en dee knoppen in 1 item zodat ze ltijd smen gectegorizeerd zijn in de grid-->
+            <!-- instelling voor invites (member) -->
             <div class="form-check form-switch"> <!-- online van de bootstrap checkbox page gestolen lol -->
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to invite others?</label>
             </div>
-        
+            <!-- instelling voor polls (member) -->
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Allow members to create polls?</label>
             </div>
-
+            <!-- instelling voor chats (viewer) -->
             <div class="form-check form-switch"> 
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Allow viewers to chat?</label>
             </div>
         </div>
+
+        <div class="setting-item">
+            <!-- instelling om bio te changen -->
+            <button class="btn btn-outline-primary" id="changeBio">Change biography?</button>
+            <!-- instelling om titel te changen -->
+            <button class="btn btn-outline-primary" id="changeTitle">Change title?</button>
+            <!-- instelling om begin/end date te changen -->
+            <button class="btn btn-outline-primary" id="changeDate">Change date?</button>
+        </div>
     </div>
 
+
     <div class="member-settings" id="member">
-        <h2 class="member-header" id="MS-header">Member</h2>
+        <p>test voor member role</p>
     </div>
 
     <div class="settings-section" id="viewer">
