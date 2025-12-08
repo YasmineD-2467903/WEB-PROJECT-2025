@@ -35,7 +35,6 @@ export async function loadMembers(groupId) {
                 span.addEventListener("click", () => loadOtherProfile(u.id));
 
                 li.appendChild(span);
-                li.appendChild(document.createTextNode(` (${u.role})`)); 
                 list.appendChild(li);
             });
         };
@@ -54,9 +53,6 @@ export async function loadMembers(groupId) {
 
 // --- Manage Roles Modal ---
 
-/* 
-    NOTE: must add a check so that I don't remove my own admin role, and so that there remains at least one admin in the group
-*/
 function setupManageRolesModal(members, groupId) {
     const modalEl = document.getElementById("manageRolesModal");
     const modal = new bootstrap.Modal(modalEl);
@@ -84,7 +80,7 @@ function setupManageRolesModal(members, groupId) {
     members.forEach(m => {
         const option = document.createElement("option");
         option.value = m.username;
-        option.textContent = `${m.username} (${m.role})`;
+        option.textContent = `${m.username}`;
         memberSelect.appendChild(option);
     });
 
