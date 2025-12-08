@@ -80,7 +80,7 @@ function setupManageRolesModal(members, groupId) {
     members.forEach(m => {
         const option = document.createElement("option");
         option.value = m.username;
-        option.textContent = `${m.username}`;
+        option.textContent = `${m.username} (${m.role})`;
         memberSelect.appendChild(option);
     });
 
