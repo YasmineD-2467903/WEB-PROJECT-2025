@@ -24,7 +24,6 @@ document.getElementById("profilePageModal").addEventListener("show.bs.modal", lo
 document.getElementById("groupInvitesModal").addEventListener("show.bs.modal", loadGroupInvites);
 document.getElementById("inviteFriendModal").addEventListener("show.bs.modal", loadInviteModal);
 
-
 // FUNCTIONS
 
 function handleGroupCreate() {
@@ -131,6 +130,8 @@ function handleGroupDelete(groupId, userRole) {
   .then(() => loadGroups());
 }
 
+// ===== PROFILE & FRIENDS ===== 
+
 function enableProfileEdit() {
     document.getElementById("profileViewMode").classList.add("d-none");
     document.getElementById("profileEditMode").classList.remove("d-none");
@@ -169,6 +170,16 @@ async function saveProfileChanges() {
 async function loadProfileModal() {
     const res = await fetch("/user/me");
     const user = await res.json();
+
+    const friendBtnContainer = document.getElementById("friendActionContainer");
+    if (friendBtnContainer) friendBtnContainer.innerHTML = "";
+
+    const profileBtnContainer = document.getElementById("profileActionContainer");
+    if (profileBtnContainer) profileBtnContainer.innerHTML = `
+        <button class="btn btn-success w-100 mt-4" onclick="enableProfileEdit()">
+            EDIT PROFILE
+        </button>
+    `;
 
     document.getElementById("displayName").innerText = user.display_name || user.username;
     document.getElementById("username").innerText = "@" + user.username;
@@ -247,6 +258,9 @@ async function loadOtherProfile(userId) {
         const res = await fetch(`/user/profile/${userId}`);
         if (!res.ok) throw new Error("User not found");
         const user = await res.json();
+
+        const profileBtnContainer = document.getElementById("profileActionContainer");
+        if (profileBtnContainer) profileBtnContainer.innerHTML = "";
 
         const modalEl = document.getElementById("profilePageModal");
         modalEl.removeEventListener("show.bs.modal", loadProfileModal);
