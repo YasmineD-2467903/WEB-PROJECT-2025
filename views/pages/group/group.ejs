@@ -34,6 +34,36 @@
       </div>
 
       <div class="content" id="dynamicContent"></div> <!-- content here :D -->
+
+      <!-- profile Page Modal -->
+      <div class="modal fade" id="profilePageModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content">
+
+                  <!-- Banner -->
+                  <div id="profileBanner" class="position-relative" style="height: 180px; background: #cccccc;">
+                      <img id="profilePicture"
+                          src="/uploads/default.png"
+                          class="rounded-circle position-absolute"
+                          style="width: 120px; height: 120px; object-fit: cover; bottom: -60px; left: 20px; border: 4px solid white;">
+                  </div>
+
+                  <div class="modal-body mt-5">
+
+                      <!-- VIEW MODE -->
+                      <div id="profileViewMode">
+                          <h3 id="displayName" class="fw-bold">Display Name</h3>
+                          <p id="username" class="text-muted">@username</p>
+                          <p id="bio">This is the user bio.</p>
+
+                          <div id="profileActionContainer"></div>
+
+                          <div id="friendActionContainer" class="mt-2"></div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
     </div>
 
     <script>

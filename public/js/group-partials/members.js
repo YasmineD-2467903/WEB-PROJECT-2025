@@ -15,9 +15,29 @@ export async function loadMembers(groupId) {
         const viewers = members.filter(m => m.role === "viewer");
 
         const createList = (list, users) => {
-            list.innerHTML = users.length
-                ? users.map(u => `<li class="list-group-item">${u.username}</li>`).join("")
-                : `<li class="list-group-item text-muted">None</li>`;
+            list.innerHTML = ""; // clear old items
+
+            if (!users.length) {
+                const li = document.createElement("li");
+                li.className = "list-group-item text-muted";
+                li.textContent = "None";
+                list.appendChild(li);
+                return;
+            }
+
+            users.forEach(u => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+
+                const span = document.createElement("span");
+                span.textContent = u.username;
+                span.style.cursor = "pointer";
+                span.addEventListener("click", () => loadOtherProfile(u.id));
+
+                li.appendChild(span);
+                li.appendChild(document.createTextNode(` (${u.role})`)); 
+                list.appendChild(li);
+            });
         };
 
         createList(document.getElementById("adminList"), admins);
@@ -167,3 +187,61 @@ window.addEventListener("hidden.bs.modal", () => {
     document.body.classList.remove('modal-open');
     document.body.style.removeProperty('overflow');
 });
+
+async function loadOtherProfile(userId) {
+    try {
+        const res = await fetch(`/user/profile/${userId}`);
+        if (!res.ok) throw new Error("User not found");
+
+        const user = await res.json();
+
+        document.getElementById("displayName").innerText = user.display_name || user.username;
+        document.getElementById("username").innerText = "@" + user.username;
+        document.getElementById("bio").innerText = user.bio || "";
+        document.getElementById("profileBanner").style.background = user.bannerColor || "#cccccc";
+        document.getElementById("profilePicture").src = user.profilePicture ? "/uploads/" + user.profilePicture : "/uploads/default.png";
+
+        const friendBtnContainer = document.getElementById("friendActionContainer");
+        friendBtnContainer.innerHTML = ""; // reset
+
+        const friendsRes = await fetch("/user/friends");
+        const friendsData = await friendsRes.json();
+        const isFriend = friendsData.friends.some(f => f.id === user.id);
+
+        if (isFriend) {
+            const unfriendBtn = document.createElement("button");
+            unfriendBtn.className = "btn btn-danger";
+            unfriendBtn.textContent = "UNFRIEND";
+            unfriendBtn.onclick = async () => {
+                if (!confirm(`Are you sure you want to unfriend ${user.display_name || user.username}?`)) return;
+
+                try {
+                    const res = await fetch("/user/unfriend", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ friendId: user.id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert("Friendship removed.");
+                        friendBtnContainer.innerHTML = "";
+                    } else {
+                        alert("Error: " + (data.error || "Failed to unfriend."));
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to unfriend.");
+                }
+            };
+            friendBtnContainer.appendChild(unfriendBtn);
+        }
+
+        const modalEl = document.getElementById("profilePageModal");
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+
+    } catch (err) {
+        console.error("Failed to load user profile:", err);
+        alert("Failed to load user profile.");
+    }
+}

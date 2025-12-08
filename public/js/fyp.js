@@ -315,16 +315,11 @@ async function loadOtherProfile(userId) {
 
         const bsModal = new bootstrap.Modal(modalEl);
         bsModal.show();
-
-        setTimeout(() => {
-            modalEl.addEventListener("show.bs.modal", loadProfileModal);
-        }, 100);
     } catch (err) {
         console.error(err);
         alert("Failed to load user profile.");
     }
 }
-
 
 async function handleAddFriend() {
     const usernameInput = document.getElementById("addFriendUsername").value.trim();

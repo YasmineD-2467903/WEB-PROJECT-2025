@@ -24,8 +24,20 @@ export function initSettingsSection(userRole, settings, groupId) {
         document.getElementById("viewerChatCheck").checked = !!settings.allowViewerChat;
         document.getElementById("changeBio").value = settings.description || "";
         document.getElementById("changeTitle").value = settings.name || "";
-        document.getElementById("changeStartDate").value = formatDateForInput(settings.startDate);
-        document.getElementById("changeEndDate").value = formatDateForInput(settings.endDate);
+        
+        function formatForDatetimeInput(dateStr) {
+            const date = new Date(dateStr);
+            const pad = (n) => n.toString().padStart(2, "0");
+            const year = date.getFullYear();
+            const month = pad(date.getMonth() + 1); // months are 0-indexed APPARENTLY
+            const day = pad(date.getDate());
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        document.getElementById("changeStartDate").value = formatForDatetimeInput(settings.startDate);
+        document.getElementById("changeEndDate").value = formatForDatetimeInput(settings.endDate);
     }
 
     const saveBtn = document.getElementById("saveSettings");
@@ -66,19 +78,5 @@ export function initSettingsSection(userRole, settings, groupId) {
         }
     });
 
-    cancelBtn.addEventListener("click", () => window.location.reload());
-}
-
-
-function formatDateForInput(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2,'0');
-    const day = String(date.getDate()).padStart(2,'0');
-    const hours = String(date.getHours()).padStart(2,'0');
-    const minutes = String(date.getMinutes()).padStart(2,'0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    cancelBtn.addEventListener("click", () => initSettingsSection(userRole, settings, groupId));
 }

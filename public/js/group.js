@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("groupDescription").textContent =
         group.description || "No description provided.";
         document.getElementById("startEnd").textContent =
-            `${toDDMMYYYY(group.startDate)} - ${toDDMMYYYY(group.endDate)}`;
+            `${new Date(group.startDate).toLocaleString()} - ${new Date(group.endDate).toLocaleString()}`;
     } catch (err) {
         console.error(err);
         document.body.innerHTML =
@@ -34,25 +34,6 @@ buttons.forEach(btn => {
 
 
 // FUNCTIONS
-function toDDMMYYYY(dateStr) {
-    const [month, day, year] = dateStr.split("-");
-    return `${day}/${month}/${year}`;
-}
-
-function formatDateForInput(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2,'0');
-    const day = String(date.getDate()).padStart(2,'0');
-    const hours = String(date.getHours()).padStart(2,'0');
-    const minutes = String(date.getMinutes()).padStart(2,'0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-
 async function loadSection(section) {
     try {
         const res = await fetch(`/group/${groupId}/section/${section}`);

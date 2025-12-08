@@ -81,37 +81,6 @@ app.use((req, res, next) => {
 // ========================== ALL GET ROUTES ==========================
 
 
-// get group settings
-app.get("/group/:id/settings", (request, response) => {
-    try {
-        const userId = request.session.user_id; //userId nodig om de user te identifyen
-        if (!userId) return response.status(401).json({ error: "Not logged in" });
-
-        const groupId = request.params.id; //groupId nodig om bepaalde groep te identifyen
-
-        const userRole = db.prepare(`
-            SELECT role
-            FROM group_members
-            WHERE user_id = ? AND group_id = ?
-        `).get(userId, groupId);
-
-        const groupSettings = db.prepare(`
-            SELECT name, description, startDate, endDate, allowMemberInvite, allowMemberPoll, allowViewerChat
-            FROM groups
-            WHERE id = ?    
-        `).get(groupId);
-
-        return response.json({
-            role: userRole.role,
-            settings: groupSettings
-        });
-
-    } catch (err) {
-        console.error("Error fetching role of user:", err);
-        response.status(500).json({ error: "Internal server error" });
-    }
-});
-
 // automatically open login page
 app.get("/", (req, res) => {
     res.redirect("/login");
@@ -175,8 +144,8 @@ app.get("/user/me", (req, res) => {
     res.json(user);
 });
 
-// other persons profile (friend or not)
-// TODO this is yet to be connected to the member list, but it should!!!
+// other persons profile (friend or not) 
+// actually also used to load your own profile, but in a view-only manner, so you don't get the edit button showed
 app.get("/user/profile/:id", async (req, res) => {
     const userId = req.params.id;
 
@@ -290,7 +259,7 @@ app.get("/group/:id/members", (req, res) => {
         const userId = req.session.user_id;
 
         const members = db.prepare(`
-            SELECT u.username, gm.role
+            SELECT u.id, u.username, gm.role
             FROM group_members gm
             JOIN users u ON u.id = gm.user_id
             WHERE gm.group_id = ?
@@ -310,24 +279,35 @@ app.get("/group/:id/members", (req, res) => {
 });
 
 // user role within a group
+// get group settings
 app.get("/group/:id/settings", (request, response) => {
-  try {
-      const userId = request.session.user_id; //userId nodig om de user te identifyen
-      if (!userId) return response.status(401).json({ error: "Not logged in" });
+    try {
+        const userId = request.session.user_id; //userId nodig om de user te identifyen
+        if (!userId) return response.status(401).json({ error: "Not logged in" });
 
-      const groupId = request.params.id; //groupId nodig om bepaalde groep tee identifyen
+        const groupId = request.params.id; //groupId nodig om bepaalde groep te identifyen
 
-      const userRole = db.prepare(`
-        SELECT role
-        FROM group_members
-        WHERE user_id = ? AND group_id = ?
+        const userRole = db.prepare(`
+            SELECT role
+            FROM group_members
+            WHERE user_id = ? AND group_id = ?
         `).get(userId, groupId);
 
-      response.json(userRole);
-  } catch (err) {
-    console.error("Error fetching role of user:", err);
-    response.status(500).json({ error: "Internal server error" });
-  }
+        const groupSettings = db.prepare(`
+            SELECT name, description, startDate, endDate, allowMemberInvite, allowMemberPoll, allowViewerChat
+            FROM groups
+            WHERE id = ?    
+        `).get(groupId);
+
+        return response.json({
+            role: userRole.role,
+            settings: groupSettings
+        });
+
+    } catch (err) {
+        console.error("Error fetching role of user:", err);
+        response.status(500).json({ error: "Internal server error" });
+    }
 });
 
 // polls within a group
@@ -1007,7 +987,7 @@ app.use((error, req, res, next) => {
 // ========================== STARTUP ==========================
 
 // App starts here
-// InitializeDatabase();
+InitializeDatabase();
 const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
@@ -1017,10 +997,12 @@ const io = new Server(server);
 // ========================== SOCKET.IO CHAT ==========================
 
 io.on("connection", (socket) => {
+    // joining the group chat
     socket.on("joinGroupChat", (groupId) => {
         socket.join(`group_${groupId}`);
     });
 
+    // loading previous messages in the chat
     socket.on("loadChatHistory", (groupId) => {
         try {
             const messages = db.prepare(`
@@ -1040,6 +1022,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // sending a new message in the group chat
     socket.on("sendMessage", (data) => {
         const { groupId, userId, text } = data;
         if (!text || !text.trim()) return;
