@@ -1,6 +1,8 @@
 let socket;
 let listenersAttached = false;
 
+// TODO: add check for group settings, to see if viewers are allowed to use chat, according to that -> make input field hidden or not
+
 export async function initChat(groupId) {
     try {
         // fetch current user info
