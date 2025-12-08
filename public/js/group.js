@@ -100,6 +100,15 @@ async function loadSection(section) {
             initSettingsSection(userRole, settings, groupId);
         }
 
+        if (section === "chat") {
+            try {
+                const module = await import("/js/group-partials/chat.js");
+                await module.initChat(groupId);
+            } catch (err) {
+                console.error("Failed to load chat.js", err);
+            }
+        }
+
     } catch (err) {
         console.error(err);
         contentDiv.innerHTML = `<p class="text-danger">Error loading section.</p>`;

@@ -3,7 +3,8 @@ import session from "express-session";
 import { db, InitializeDatabase } from "./db.js";
 import multer from "multer";
 import path from "path";
-//import { Server } from "socket.io";
+import http from "http";
+import { Server } from "socket.io";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -17,6 +18,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 const app = express();
+
 const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
 InitializeDatabase();
@@ -177,7 +179,7 @@ app.get("/user/me", (req, res) => {
     if (!userId) return res.status(401).json({ error: "Not logged in" });
 
     const user = db.prepare(`
-        SELECT username, display_name, bio, bannerColor, profilePicture
+        SELECT id, username, display_name, bio, bannerColor, profilePicture
         FROM users
         WHERE id = ?
     `).get(userId);
@@ -1018,6 +1020,53 @@ app.use((error, req, res, next) => {
 
 // App starts here
 // InitializeDatabase();
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
+});
+
+const io = new Server(server);
+
+// ========================== SOCKET.IO CHAT ==========================
+
+io.on("connection", (socket) => {
+    socket.on("joinGroupChat", (groupId) => {
+        socket.join(`group_${groupId}`);
+    });
+
+    socket.on("loadChatHistory", (groupId) => {
+        try {
+            const messages = db.prepare(`
+                SELECT 
+                    gm.contents,
+                    gm.timestamp,
+                    u.display_name
+                FROM group_messages gm
+                JOIN users u ON gm.user_id = u.id
+                WHERE gm.group_id = ?
+                ORDER BY gm.timestamp ASC
+            `).all(groupId);
+
+            socket.emit("chatHistory", messages);
+        } catch (err) {
+            console.error("Chat history error:", err);
+        }
+    });
+
+    socket.on("sendMessage", (data) => {
+        const { groupId, userId, text } = data;
+        if (!text || !text.trim()) return;
+
+        db.prepare(`
+            INSERT INTO group_messages (group_id, user_id, contents)
+            VALUES (?, ?, ?)
+        `).run(groupId, userId, text);
+
+        const user = db.prepare("SELECT display_name FROM users WHERE id = ?").get(userId);
+
+        io.to(`group_${groupId}`).emit("newMessage", {
+            display_name: user?.display_name || "Unknown",
+            contents: text,
+            timestamp: new Date().toISOString()
+        });
+    });
 });
