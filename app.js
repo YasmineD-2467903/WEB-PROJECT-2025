@@ -81,18 +81,6 @@ app.use((req, res, next) => {
 // ========================== ALL GET ROUTES ==========================
 
 
-/*
-    CREATE TABLE IF NOT EXISTS groups (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      description TEXT,
-      startDate TEXT, 
-      endDate TEXT,
-      allowMemberInvite INTEGER DEFAULT 0,
-      allowMemberPoll INTEGER DEFAULT 0,
-      allowViewerChat INTEGER DEFAULT 0
-*/
-
 // get group settings
 app.get("/group/:id/settings", (request, response) => {
     try {

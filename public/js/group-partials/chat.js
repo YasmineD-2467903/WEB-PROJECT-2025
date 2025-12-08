@@ -6,18 +6,23 @@ let listenersAttached = false;
 export async function initChat(groupId) {
     try {
         // fetch current user info
-        const res = await fetch(`/user/me`);
-        if (!res.ok) throw new Error("Failed to fetch user info");
-        const user = await res.json();
+        const res1 = await fetch(`/user/me`);
+        if (!res1.ok) throw new Error("Failed to fetch user info");
+        const user = await res1.json();
 
-        // now initialize socket with user info
-        setupSocket(groupId, user.id, user.display_name);
+        // fetch group settings info
+        const res2 = await fetch(`/group/${groupId}/settings`);
+        if (!res2.ok) throw new Error("Failed to fetch settings info");
+        const settings = await res2.json();
+
+        // init socket with user info & settings
+        setupSocket(groupId, settings, user.id, user.display_name);
     } catch (err) {
         console.error("Error fetching current user:", err);
     }
 }
 
-function setupSocket(groupId, userId, displayName) {
+function setupSocket(groupId, groupSettings, userId, displayName) {
     if (!socket) socket = io();
 
     // join room + load messages
@@ -27,6 +32,11 @@ function setupSocket(groupId, userId, displayName) {
     const messagesDiv = document.getElementById("chatMessages");
     const input = document.getElementById("chatInput");
     const sendBtn = document.getElementById("sendChatBtn");
+
+    if ((groupSettings.role == "viewer") && (groupSettings.settings.allowViewerChat == 0)) { 
+        input.hidden = true;
+        sendBtn.hidden = true;
+    }
 
     if (!listenersAttached) {
         socket.on("chatHistory", (messages) => {
@@ -70,11 +80,8 @@ function renderMessage(msg) {
     msgDiv.classList.add("mb-2");
 
     msgDiv.innerHTML = `
-        <strong>${escapeHtml(msg.display_name)}</strong><br>
-        <span>${escapeHtml(msg.contents)}</span>
-        <div class="text-muted small">
-            ${new Date(msg.timestamp).toLocaleString()}
-        </div>
+        <strong>${createInnerHtml(msg.display_name)} ${new Date(msg.timestamp).toLocaleString()}</strong><br>
+        <span>${createInnerHtml(msg.contents)}</span>
     `;
 
     messagesDiv.appendChild(msgDiv);
@@ -85,7 +92,7 @@ function scrollBottom() {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function escapeHtml(text) {
+function createInnerHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
