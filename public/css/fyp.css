@@ -1,181 +1,98 @@
 /*---------base settings---------*/
-    header{
-        background-color: #E6BB58;
-        border-bottom: 10px solid #875D0E ;
-        padding: 40px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .about h1{
-        color: white;
-        font-style: bold;
-    }
-    .about p{
-        color: white;
-        font-size: 20px;
-        font-style: italic;
-        margin: 0;
-    }
-    body{
-        font-family: Arial, Helvetica, sans-serif;
-        background-color: solid white;
-    }
-
+header{
+  background-color: #E6BB58;
+  border-bottom: 10px solid #875D0E ;
+  padding: 40px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.about h1{
+    color: white;
+    font-style: bold;
+}
+.about p{
+    color: white;
+    font-size: 20px;
+    font-style: italic;
+    margin: 0;
+}
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: solid white;
+  margin: 0; /*beide op 0 zodat de header heel de breedte van uw scherm inneemt*/
+  padding: 0;
+}
 
 /*-----------Your Groups-----------*/
-    .container.py-5 {
-        margin-left: 20%;
-    }
-    .d-flex.justify-content-between.align-items-center.mb-4 {
-        border-bottom: 2px solid #ccc;;
-        flex-direction: column;
-        width: 80%; /*maakt het zodat de border enkel 80% van scherm iinneemt rond de content*/
-        padding-bottom: 10px; /*breathing room tussen knoppen en scheidingslijn*/
-    }
-    .fw-semibold {
-        font-size: 25px;
-        margin-bottom: 4px;
-    }
-
+.container.py-5 {
+    margin-left: 20%;
+}
+.d-flex.justify-content-between.align-items-center.mb-4 {
+    border-bottom: 2px solid #ccc;;
+    flex-direction: column;
+    width: 80%; /*maakt het zodat de border enkel 80% van scherm iinneemt rond de content*/
+    padding-bottom: 10px; /*breathing room tussen knoppen en scheidingslijn*/
+}
+.fw-semibold {
+    font-size: 25px;
+    margin-bottom: 4px;
+}
 
 /*-----------Groepen-----------*/ 
-    #groupList {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 300px is of 1 fraction (25% v available space)*/
-        max-width: 80%; /*enkel 80% van scherm lateeen gebruikeen omdat we het al forceed naar rechtt hebben beewogen, 20% van scherm is daarmee verloren*/
-        margin-left: 0px;
-        gap: 10px; /*gap tussen de groepen*/
-    }
-    #groupList > div {
-        margin-top: 20px;
-        width: 100%;
-        border: 2px solid #ccc;
-        border-radius: 15px;
-    }
-    #groupList .card-body {
-        padding: 10px;
-    }
-    #groupList .card-title {
-        font-size: 25px;
-        margin-bottom: 5px;
-    }
-    #groupList .text-muted {
-        font-size: 15px;
-    }
-
-
-/*-----------Sidebar-----------*/
-    .sidebar-container {
-        position: fixed;
-        bottom: 60%;
-        left: 2%;
-    }
-    /*--- SIDEBAR KNOP ---*/
-        .sidebarBtn {
-            position: relative;
-            transition: 0.15s ease-in-out;
-
-            width: 55px;
-            height: 55px;
-            left: 20px;
-
-            background: #C47A1A;
-            color: white;
-            border: none;
-            border-radius: 50%; /*ik wil een circulairee button voor de sidedebar hebben op pc dus 50% voor cirkeel!*/
-        }
-        .sidebarBtn:hover {
-            background-color: #e0922b;
-        }
-
-    /*--- CONTAINER VAN SIDEBAR-ITEMS ---*/
-        .sidebar {
-            position: absolute;
-            opacity: 0; /* INVISIBLE!!! */
-            visibility: hidden; /* als invisible, mag je niet op de items kunnen klikken -> makes de container invis en dus de knoppen niet interactable */
-            
-            transition: 300ms ease-in-out;
-        }
-        .sidebar.show {
-            opacity: 1; /* !INVISIBLE */
-            visibility: visible; /*same as before but NOW U CAN CLICK!*/
-        }
-
-    /*-- SIDEBAR ITEMS --*/
-        .sidebar-items {
-            position: fixed;
-            
-            margin-top: 10px;
-            width: 10%;
-            height: 20vh;
-
-            border: 2px solid #ccc;
-            border-radius: 10px; 
-
-            display: grid;
-            grid-template-columns: minmax(150px, 300px);
-            align-items: center;
-            gap: 10px;
-        }
-        .square-btn.btn.btn-basic,
-        #logoutBtn {
-            width: 50%;
-        }
-        #logoutBtn{
-            color: rgb(56, 56, 56);
-            font-size: 15px;
-            font-weight: 600;
-
-            border: 2px solid rgb(161, 25, 25);
-            border-radius: 5px;
-            text-align: center;
-            
-            transition: 0.15s ease-in-out;
-            cursor: pointer;
-        }
-        #logoutBtn:hover {
-            border-color: red
-        }
-        #logoutBtn:active {
-            color: white;
-            background-color: red;
-        }
-
+#groupList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 300px is of 1 fraction (25% v available space)*/
+    max-width: 80%; /*enkel 80% van scherm lateeen gebruikeen omdat we het al forceed naar rechtt hebben beewogen, 20% van scherm is daarmee verloren*/
+    margin-left: 0px;
+    gap: 10px; /*gap tussen de groepen*/
+}
+#groupList > div {
+    margin-top: 20px;
+    width: 100%;
+    border: 2px solid #ccc;
+    border-radius: 15px;
+}
+#groupList .card-body {
+    padding: 10px;
+}
+#groupList .card-title {
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+#groupList .text-muted {
+    font-size: 15px;
+}
 
 /*-----------Buttons-----------*/
-    .btn.btn-success,
-    .btn.btn-outline-primary,
-    .square-btn.btn.btn-basic {
-        background-color: rgba(209, 160, 87);
-        color: rgb(56, 56, 56);
-        font-size: 15px;
-        font-weight: 600;
+.btn.btn-success,
+.btn.btn-outline-primary {
+    background-color: rgba(209, 160, 87, 0.664);
+    color: rgb(56, 56, 56);
+    font-size: 15px;
+    font-weight: 600;
 
-        padding: 12px;
-        border-radius: 5px !important; /*goofy bootstraap autoo zet de topright en bottomright radius op 0px xd*/
-        border: none;
-        line-height: 100%;
+    padding: 12px;
+    border-radius: 5px !important; /*goofy bootstraap autoo zet de topright en bottomright radius op 0px xd*/
+    border: none;
+    line-height: 100%;
 
-        margin-top: 2px;
-        text-align: center;
+    margin-top: 2px;
+    text-align: center;
 
-        transition: 0.15s ease-in-out;
-        cursor: pointer;
-    }
-    .btn.btn-success:hover,
-    .btn.btn-outline-primary:hover,
-    .square-btn.btn.btn-basic:hover {
-    background-color: rgb(211, 141, 36);
-    }
-    .btn.btn-success:active,
-    .btn.btn-outline-primary:active,
-    .square-btn.btn.btn-basic:active {
-        background-color: #875D0E;
-        color: white;
-    }
-    .btn-group {
-        gap: 15px;
-    }
+    transition: 0.15s ease-in-out;
+    cursor: pointer;
+}
+.btn.btn-success:hover,
+.btn.btn-outline-primary:hover {
+  background-color: rgba(173, 132, 70, 0.664);
+}
+.btn.btn-success:active,
+.btn.btn-outline-primary:active {
+    background-color: #875D0E;
+}
+.btn-group {
+    gap: 15px;
+}
 
 
 /*---------PHONE CHANGES---------*/

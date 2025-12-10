@@ -55,10 +55,7 @@ async function loadSection(section) {
         if (section === "map") {
             try {
                 const mapModule = await import("/js/group-partials/map.js");
-                //await mapModule.initMap();
-                //await mapModule.addMarker();
-
-                await mapModule;
+                await mapModule.init();
 
             } catch (err) {
                 console.error("Failed to load map.js", err);
