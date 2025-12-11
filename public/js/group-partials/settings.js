@@ -1,22 +1,5 @@
 export function initSettingsSection(userRole, settings, groupId) {
-    const adminSec = document.getElementById("admin");
-    const memberSec = document.getElementById("member");
-    const viewerSec = document.getElementById("viewer");
-
-    if (userRole === "admin") {
-        viewerSec.style.display = 'none';
-        memberSec.style.display = 'none';
-    }
-
-    if (userRole === "member") {
-        adminSec.style.display = 'none';
-        viewerSec.style.display = 'none';
-    }
-
-    if (userRole === "viewer") {
-        adminSec.style.display = 'none';
-        memberSec.style.display = 'none';
-    }
+    setupVisibility(userRole);
 
     if (settings) {
         document.getElementById("memberInvitationCheck").checked = !!settings.allowMemberInvite;
@@ -79,4 +62,40 @@ export function initSettingsSection(userRole, settings, groupId) {
     });
 
     cancelBtn.addEventListener("click", () => initSettingsSection(userRole, settings, groupId));
+}
+
+function setupVisibility(userRole) {
+    if (userRole !== "admin") {
+        // Disable buttons (gestolen van https://www.webdevtutor.net/blog/javascript-button-click-by-class)
+        const forms = document.querySelectorAll(".form-control")
+        forms.forEach(form => {
+            form.disable = true
+            form.style.opacity = "0.7"; //change the opacity of it to indicate u cant click
+            form.style.cursor = "not-allowed";
+            console.log("-- Disabled buttons in settings");
+
+            form.addEventListener("click", () => {
+                alert("Only admin can change settings! Ask for a role swap or forever hold your peace...");
+            })
+        })
+
+        //Disable checkboxes (based on forms lol)
+        const checkboxes = document.querySelectorAll(".form-check-input")
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = true;
+            checkbox.style.opacity = "0.7"; //change the opacity of it to indicate u cant click
+            console.log("-- Disabled checkboxes in settings");
+        })
+
+        //Not-allowed cursor doesn't add on the checkboxes so  we add on top of labels for the  same effect as the above
+        const labels = document.querySelectorAll(".form-check-label");
+        labels.forEach(label => {
+            label.style.cursor = "not-allowed"
+            console.log("-- stupid cursor for checkboxes xd");
+
+            label.addEventListener("click", () => {
+                alert("Only admin can change settings! Ask for a role swap or forever hold your peace...");
+            })
+        })
+    }
 }
