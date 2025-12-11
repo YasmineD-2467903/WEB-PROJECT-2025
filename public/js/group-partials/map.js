@@ -46,6 +46,13 @@ async function fetchAllStops() {
 let infoWindow;
 let marker;
 
+let mapInstance = null;
+let markersForDay = [];
+let directionsService = null;
+let directionsRenderer = null;
+
+window.currentDayStops = [];
+
 async function initMap() {
     //  Request the needed libraries.
     const [{ Map, InfoWindow }, { AdvancedMarkerElement }] = await Promise.all([
@@ -57,31 +64,57 @@ async function initMap() {
     const mapElement = document.querySelector("gmp-map");
     // Get the inner map.
     const innerMap = mapElement.innerMap;
+
+    mapInstance = innerMap; // save globally
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        map: innerMap,
+        suppressMarkers: true
+    });
+
     // Set map options.
     innerMap.setOptions({
         mapTypeControl: false,
     });
 
-    const marker = new AdvancedMarkerElement({
-        map: innerMap,
-        position: mapElement.center,
-        title: "something",
-        gmpClickable: true,
-    });
-    mapElement.append(marker);
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userPos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
 
-    // it works now its okay
+                // Re-center map
+                innerMap.setCenter(userPos);
+
+                // Add a marker for current location
+                const userMarker = new google.maps.marker.AdvancedMarkerElement({
+                    map: innerMap,
+                    position: userPos,
+                    title: "Your Location",
+                    gmpClickable: false,
+                });
+
+                userMarker.addListener("click", () => {
+                    infoWindow.setContent("You are here");
+                    infoWindow.setHeaderDisabled(false);
+                    infoWindow.setHeaderContent("Current Location");
+                    infoWindow.open(innerMap, userMarker);
+                });
+            },
+            () => {
+                console.warn("Geolocation permission denied or unavailable");
+            }
+        );
+    } else {
+        console.warn("Browser does not support geolocation");
+    }
 
     infoWindow = new InfoWindow();
 
-    marker.addListener("click", (ev) => {
-        infoWindow.setContent("test...");
-        infoWindow.setHeaderDisabled(false);
-        infoWindow.setHeaderContent(marker.title);
-        infoWindow.open(innerMap, marker);
-    });
-
     initAutocomplete(innerMap);
+    renderStopsOnMap();
 }
 
 function initAutocomplete(map) {
@@ -201,6 +234,80 @@ function initAutocomplete(map) {
     });
 }
 
+function renderStopsOnMap() {
+    if (!mapInstance) return;
+
+    markersForDay.forEach(marker => {
+        marker.map = null;
+    });
+    markersForDay = [];
+
+    if (directionsRenderer) {
+        directionsRenderer.set('directions', null);
+    }
+
+    if (!window.currentDayStops || window.currentDayStops.length === 0) return;
+
+    const bounds = new google.maps.LatLngBounds();
+
+    window.currentDayStops.forEach(stop => {
+        const position = { lat: stop.lat, lng: stop.lng };
+
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+            map: mapInstance,
+            position,
+            title: stop.title
+        });
+
+        marker.addListener("click", () => {
+            infoWindow.setContent(`
+                <strong>${stop.title}</strong><br>
+                ${stop.description || ""}<br>
+                <small>${stop.startDate}</small>
+            `);
+            infoWindow.open(mapInstance, marker);
+        });
+
+        markersForDay.push(marker);
+        bounds.extend(position);
+    });
+
+    mapInstance.fitBounds(bounds);
+}
+
+
+async function generateRouteForDay() {
+    const stops = window.currentDayStops;
+    if (!stops || stops.length < 2) {
+        alert("Need at least 2 stops to create a route.");
+        return;
+    }
+
+    const waypoints = stops.slice(1, -1).map(s => ({
+        location: { lat: s.lat, lng: s.lng },
+        stopover: true
+    }));
+
+    const request = {
+        origin: { lat: stops[0].lat, lng: stops[0].lng },
+        destination: { lat: stops[stops.length - 1].lat, lng: stops[stops.length - 1].lng },
+        waypoints,
+        optimizeWaypoints: false,
+        travelMode: google.maps.TravelMode.DRIVING,
+    };
+
+    directionsService.route(request, (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK) {
+            directionsRenderer.setDirections(result);
+        } else {
+            console.error("Route error:", status, result);
+            alert("Failed to generate route");
+        }
+    });
+}
+
+document.getElementById("generateRouteBtn").addEventListener("click", generateRouteForDay);
+
 // ==================== PLANNER NAV ====================
 
 const prevBtn = document.getElementById("prevDayBtn");
@@ -235,18 +342,6 @@ nextBtn.addEventListener("click", () => {
     }
 });
 
-function getPreviousDay(dateStr) {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() - 1);
-    return d.toISOString().split('T')[0];
-}
-
-function getNextDay(dateStr) {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
-}
-
 // ==================== LOAD STOPS ====================
 
 function loadStopsForDate(dateStr) {
@@ -259,12 +354,18 @@ function loadStopsForDate(dateStr) {
                stopDate.getMonth() === currentDate.getMonth() &&
                stopDate.getDate() === currentDate.getDate();
     });
+    
+    window.currentDayStops = [...stopsForDate];
 
     const container = document.getElementById("stopsContainer");
     container.innerHTML = "";
 
     if (stopsForDate.length === 0) {
         container.innerHTML = `<div>No stops for this day</div>`;
+        
+        renderStopsOnMap();
+        if (directionsRenderer) directionsRenderer.set('directions', null);
+
         updatePlannerNav();
         return;
     }
@@ -295,6 +396,8 @@ function loadStopsForDate(dateStr) {
     });
 
     updatePlannerNav();
+    renderStopsOnMap();
+    if (directionsRenderer) directionsRenderer.set('directions', null);
 }
 
 
@@ -464,18 +567,24 @@ async function openEditStopModal(stopId) {
 function cleanup() {
     window.lastSelectedStop = null;
 
+    // Clear stops container
     const container = document.getElementById("stopsContainer");
     if (container) container.innerHTML = "";
 
+    // Clear forms
     const addForm = document.getElementById("addStopForm");
     if (addForm) addForm.onsubmit = null;
 
     const editForm = document.getElementById("editStopForm");
     if (editForm) editForm.onsubmit = null;
 
-    prevBtn.replaceWith(prevBtn.cloneNode(true));
-    nextBtn.replaceWith(nextBtn.cloneNode(true));
+    // Replace buttons to remove old listeners
+    const prevBtn = document.getElementById("prevDayBtn");
+    const nextBtn = document.getElementById("nextDayBtn");
+    if (prevBtn) prevBtn.replaceWith(prevBtn.cloneNode(true));
+    if (nextBtn) nextBtn.replaceWith(nextBtn.cloneNode(true));
 
+    // Clear map marker and infoWindow
     if (marker) {
         marker.setMap(null);
         marker = null;
@@ -485,6 +594,7 @@ function cleanup() {
         infoWindow = null;
     }
 
+    // Reset autocomplete input
     const input = document.getElementById("pac-input");
     if (input) {
         const newInput = input.cloneNode(true);
@@ -492,75 +602,15 @@ function cleanup() {
     }
 }
 
+
 // ==================== INIT ====================
 
 export async function init() {
-    cleanup();
-
     await fetchGroupInfo();
     await fetchAllStops();
     loadStopsForDate(currentPlannerDate);
 
     await initMap();
-
-    const newPrevBtn = document.getElementById("prevDayBtn");
-    const newNextBtn = document.getElementById("nextDayBtn");
-
-    newPrevBtn.addEventListener("click", () => {
-        const prev = new Date(currentPlannerDate);
-        prev.setDate(prev.getDate() - 1);
-        if (prev >= new Date(tripStartDate)) {
-            currentPlannerDate = prev.toISOString().split("T")[0];
-            loadStopsForDate(currentPlannerDate);
-        }
-    });
-
-    newNextBtn.addEventListener("click", () => {
-        const next = new Date(currentPlannerDate);
-        next.setDate(next.getDate() + 1);
-        if (next <= new Date(tripEndDate)) {
-            currentPlannerDate = next.toISOString().split("T")[0];
-            loadStopsForDate(currentPlannerDate);
-        }
-    });
-
-    const addBtn = document.getElementById("addStopBtn");
-    addBtn.addEventListener("click", () => {
-        if (!window.lastSelectedStop) return alert("Please select a location on the map first.");
-        document.getElementById("stopTitle").value = window.lastSelectedStop.title || "";
-        document.getElementById("stopStart").value = `${currentPlannerDate}T09:00`;
-        document.getElementById("stopEnd").value = `${currentPlannerDate}T10:00`;
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("addStopModal"));
-        modal.show();
-    });
-
-    const addForm = document.getElementById("addStopForm");
-    addForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const start = document.getElementById("stopStart").value;
-        const end = document.getElementById("stopEnd").value;
-        if (end < start) return alert("End date/time cannot be before start date/time");
-        if (start < tripStartDate || end > tripEndDate) return alert("Stop must be within the trip duration");
-
-        const formData = new FormData(e.target);
-        formData.append("lat", window.lastSelectedStop.lat);
-        formData.append("lng", window.lastSelectedStop.lng);
-
-        try {
-            const res = await fetch(`/group/${window.groupId}/stops`, { method: 'POST', body: formData });
-            const data = await res.json();
-            if (res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById("addStopModal")).hide();
-                await fetchAllStops();
-                loadStopsForDate(currentPlannerDate);
-            } else {
-                alert(data.error || "Failed to add stop");
-            }
-        } catch (err) {
-            console.error("Failed to add stop:", err);
-            alert("Failed to add stop. Check console for details.");
-        }
-    });
 }
 
 init();

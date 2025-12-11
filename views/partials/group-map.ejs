@@ -3,10 +3,11 @@
   <div class="map-controls">
     <input id="pac-input" class="controls" type="text" placeholder="Search Box" />
     <button id="addStopBtn" class="btn btn-primary">Add stop</button>
+    <button id="generateRouteBtn" class="btn btn-primary">Generate Route</button>
   </div>
 
   <!-- map -->
-  <gmp-map center="50,5" zoom="14" map-id="DEMO_MAP_ID"></gmp-map>
+  <gmp-map center="50,5" zoom="14" map-id="DEMO_MAP_ID" allow="geolocation"></gmp-map>
 
   <!-- daily Planner -->
   <section id="daily-planner">
