@@ -51,6 +51,26 @@ async function loadSection(section) {
                 console.error("Failed to load members.js", err);
             }
         }
+        
+        if (section === "settings") {
+            const res = await fetch(`/group/${groupId}/settings`);
+            const data = await res.json();
+
+            const userRole = data.role;
+            const settings = data.settings; 
+
+            const { initSettingsSection } = await import("/js/group-partials/settings.js");
+            initSettingsSection(userRole, settings, groupId);
+        }
+
+        if (section === "chat") {
+            try {
+                const module = await import("/js/group-partials/chat.js");
+                await module.initChat(groupId);
+            } catch (err) {
+                console.error("Failed to load chat.js", err);
+            }
+        }
 
         if (section === "map") {
             try {
@@ -71,26 +91,6 @@ async function loadSection(section) {
                 await module.loadPolls(groupId);
             } catch (err) {
                 console.error("Failed to load polls.js", err);
-            }
-        }
-
-        if (section === "settings") {
-            const res = await fetch(`/group/${groupId}/settings`);
-            const data = await res.json();
-
-            const userRole = data.role;
-            const settings = data.settings; 
-
-            const { initSettingsSection } = await import("/js/group-partials/settings.js");
-            initSettingsSection(userRole, settings, groupId);
-        }
-
-        if (section === "chat") {
-            try {
-                const module = await import("/js/group-partials/chat.js");
-                await module.initChat(groupId);
-            } catch (err) {
-                console.error("Failed to load chat.js", err);
             }
         }
 
