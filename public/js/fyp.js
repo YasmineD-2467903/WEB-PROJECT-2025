@@ -553,3 +553,18 @@ function toggleSidebar(button) {
     }
     button.classList.toggle("is-active");
 }
+
+async function handleLogout() {
+    console.log("--> LOGGING OUT")
+    const res = await fetch("/user/me");
+    const user = await res.json();
+
+    alert("It was nice seeing you, hope you come again!")
+    deleteCookie(user.id);
+    window.location.href = "/login";
+}
+
+// extra hulpmiddel voor handleLogout()
+function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}

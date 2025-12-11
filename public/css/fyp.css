@@ -106,20 +106,23 @@
             position: fixed;
             
             margin-top: 10px;
-            width: 10%;
-            height: 20vh;
+            padding: 5px;
+            width: 180px;
+            height: 155px;
 
+            background-color: white;
             border: 2px solid #ccc;
             border-radius: 10px; 
 
-            display: grid;
-            grid-template-columns: minmax(150px, 300px);
+            display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 10px;
         }
+
         .square-btn.btn.btn-basic,
         #logoutBtn {
-            width: 50%;
+            width: 100px;
         }
         #logoutBtn{
             color: rgb(56, 56, 56);
@@ -196,7 +199,6 @@
         margin-left: 20%;
     }
     .d-flex.justify-content-between.align-items-center.mb-4 {
-        margin-left: -25px; /*verplaatsen naar links zodat hett lijkt alsof het in midden staat*/
         width: fit-content;
         flex-direction: column;
     }
@@ -215,6 +217,11 @@
     }
     #groupList .text-muted {
         font-size: 15px;
+    }
+
+    /*-----------Sidebar-----------*/
+    .sidebar-container {
+        bottom: 80%;
     }
 
     /*-----------Buttons-----------*/
