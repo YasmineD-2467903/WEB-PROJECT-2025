@@ -17,140 +17,141 @@ header{
 }
 
 
-/*---------base settings---------*/
-body{
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: solid white;
-}
+/*--------- base ---------*/
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: solid white;
+  }
 
-.beginpage{
-  position: relative;
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  min-height: 60vh;
-}
+  .beginpage{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    min-height: 60vh;
+  }
 
-/*zorgt voor scheidingslijn tussen login en registration (gestolen van braxx login)*/
-.beginpage::before {
-  content: '';
-  position: absolute;
-  background: #ccc;
-  width: 1px;
-  height: 80%;
-  top: 10%;
-  left: 50%;
-}
+  /*zorgt voor scheidingslijn tussen login en registration (gestolen van braxx login)*/
+  .beginpage::before {
+    content: '';
+    position: absolute;
+    background: #ccc;
+    width: 1px;
+    height: 80%;
+    top: 10%;
+    left: 50%;
+  }
 
-.login, .registration{
-  flex: 1;
-  max-width: 400px;
-  text-align: center;
-}
-.login h1, .registration h1 {
-  margin-top: 50px;
-  margin-bottom: 25px;
-  
-  color: rgb(56, 56, 56)s;
-  font-weight: 600;
-  text-transform: uppercase;
-  line-height: 1;
-}
-.login h1{
-  margin-bottom: 30px; /*apart gemaakt  zoda de loogin butonss op dezlfde lijne zijn als bij regisstter ttttekst*/
-}
+  .login, .registration{
+    flex: 1;
+    max-width: 400px;
+    text-align: center;
+  }
+  .login h1, .registration h1 {
+    margin-top: 50px;
+    margin-bottom: 25px;
+    
+    color: rgb(56, 56, 56)s;
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .login h1{
+    margin-bottom: 30px; /*apart gemaakt  zoda de loogin butonss op dezlfde lijne zijn als bij regisstter ttttekst*/
+  }
 
 /*---------login side----------*/
-.inputbox {
-  margin-bottom: 15px;
-}
-.inputbox input {
-  width: 56%;
-  padding: 12px;
-  border: 2px solid rgb(177, 175, 175);
-  border-radius: 5px;
-  transition: 0.15s ease-in-out;
-  cursor:text;
+  .inputbox {
+    margin-bottom: 15px;
+  }
+  .inputbox input {
+    width: 56%;
+    padding: 12px;
+    border: 2px solid rgb(177, 175, 175);
+    border-radius: 5px;
+    transition: 0.15s ease-in-out;
+    cursor:text;
 
-  font-size: medium;
-}
-.inputbox input:hover {
-  border-color: rgb(94, 93, 93);
-}
-.inputbox:focus {
-  box-shadow: none !important;
-  border-color: black !important;
-}
+    font-size: medium;
+  }
+  .inputbox input:hover {
+    border-color: rgb(94, 93, 93);
+  }
+  .inputbox:focus {
+    box-shadow: none !important; /*fix this btw, by changing the class to input box ipv inputbox*/
+    border-color: black !important;
+  }
 
 
-#login_button {
-  background-color: white;
-  color: rgb(56, 56, 56);
-  font-size: 20px;
-  font-weight: 650;
+  #login_button {
+    background-color: white;
+    color: rgb(56, 56, 56);
+    font-size: 20px;
+    font-weight: 650;
 
-  padding: 12px;
-  border-radius: 5px;
-  border: 2px solid rgb(194, 189, 189);
-  width: 56%; /*voor een of andere redene kan de width niet heetzeelfde zijn als die van inputbox, dit lijkt eveengroot tho*/
-  line-height: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 2px solid rgb(194, 189, 189);
+    width: 56%; /*voor een of andere redene kan de width niet heetzeelfde zijn als die van inputbox, dit lijkt eveengroot tho*/
+    line-height: 100%;
 
-  margin-top: 20px;
-  text-align: center;
+    margin-top: 20px;
+    text-align: center;
 
-  transition: 0.15s ease-in-out;
-  cursor: pointer;
-}
-#login_button:hover {
-  border-color: rgb(139, 137, 137);
-}
-#login_button:active {
-  background-color: rgb(139, 137, 137);
-  color: white;
-}
+    transition: 0.15s ease-in-out;
+    cursor: pointer;
+  }
+  #login_button:hover {
+    border-color: rgb(139, 137, 137);
+  }
+  #login_button:active {
+    background-color: rgb(139, 137, 137);
+    color: white;
+  }
 
-.form-check{
-  display: flex;
-  align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze horizontatal gecentreerrd zijn (wantt flex op een row)*/
-}
-.form-check-label  {
-  margin-top: 3px;
-  margin-bottom: 5px;
-  margin-left: 8px;
-  font-size: 110%;
-  font-weight: 400;
-}
-.form-check-input{
-  margin-bottom: 5px;
-  border-color: rgb(194, 189, 189) !important;
-  cursor: pointer;
+  /*----------  CHECKBOX ----------*/
+    .form-check{
+      display: flex;
+      align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze horizontatal gecentreerrd zijn (wantt flex op een row)*/
+    }
+    .form-check-label  {
+      margin-top: 3px;
+      margin-bottom: 5px;
+      margin-left: 8px;
+      font-size: 110%;
+      font-weight: 400;
+    }
+    .form-check-input{
+      margin-bottom: 5px;
+      border-color: rgb(194, 189, 189) !important;
+      cursor: pointer;
 
-  /*browsers default checkbox hiden*/
-  appearance: none;
+      /*browsers default checkbox hiden*/
+      appearance: none;
 
-  /*nu bepalen we onze eigen grootte van box*/
-  width: 23px !important; /*!important zodat het bootstrap setttings overruled*/
-  height: 23px !important;
-  border-radius: 5px !important;
+      /*nu bepalen we onze eigen grootte van box*/
+      width: 23px !important; /*!important zodat het bootstrap setttings overruled*/
+      height: 23px !important;
+      border-radius: 5px !important;
 
-  /*tenslotte positie, zodatt hett niet op de verkeerde plek staat*/
-  position: absolute;
-}
-.form-check-input:hover {
-  transition: 0.15s ease-in-out;
-  border-color: rgba(173, 132, 70, 0.664) !important;
-}
- /*dit zijn alle settings die we willen als het al checked is,  en omdat de checkbox direct eerstt gechecked is, moet dit bij :checked staan*/
-.form-check-input:checked {
-  background-color: rgba(209, 160, 87, 0.664) !important;
-  border: none;
-}
-.form-check-input:checked:hover {
-  background-color: rgba(173, 132, 70, 0.664) !important;
-}
-.form-check-input:focus { /*i swear bootstrap is raar like girl wdym lemme jusst add a random blue shadow??*/
-  box-shadow: none !important;
-}
+      /*tenslotte positie, zodatt hett niet op de verkeerde plek staat*/
+      position: absolute;
+    }
+    .form-check-input:hover {
+      transition: 0.15s ease-in-out;
+      border-color: rgba(173, 132, 70, 0.664) !important;
+    }
+    /*dit zijn alle settings die we willen als het al checked is,  en omdat de checkbox direct eerstt gechecked is, moet dit bij :checked staan*/
+    .form-check-input:checked {
+      background-color: rgba(209, 160, 87, 0.664) !important;
+      border: none;
+    }
+    .form-check-input:checked:hover {
+      background-color: rgba(173, 132, 70, 0.664) !important;
+    }
+    .form-check-input:focus { /*i swear bootstrap is raar like girl wdym lemme jusst add a random blue shadow??*/
+      box-shadow: none !important;
+    }
 
 
 /*---------register side----------*/
