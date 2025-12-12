@@ -1,5 +1,8 @@
 export function initSettingsSection(userRole, settings, groupId) {
-    setupVisibility(userRole);
+
+    const saveBtn = document.getElementById("saveSettings");
+    const cancelBtn = document.getElementById("cancelSettings");
+    setupVisibility(userRole, saveBtn, cancelBtn);
 
     if (settings) {
         document.getElementById("memberInvitationCheck").checked = !!settings.allowMemberInvite;
@@ -22,9 +25,6 @@ export function initSettingsSection(userRole, settings, groupId) {
         document.getElementById("changeStartDate").value = formatForDatetimeInput(settings.startDate);
         document.getElementById("changeEndDate").value = formatForDatetimeInput(settings.endDate);
     }
-
-    const saveBtn = document.getElementById("saveSettings");
-    const cancelBtn = document.getElementById("cancelSettings");
 
     function validateDates(start, end) {
         if (!start || !end) return true;
@@ -64,19 +64,15 @@ export function initSettingsSection(userRole, settings, groupId) {
     cancelBtn.addEventListener("click", () => initSettingsSection(userRole, settings, groupId));
 }
 
-function setupVisibility(userRole) {
+function setupVisibility(userRole, saveBtn, cancelBtn) {
     if (userRole !== "admin") {
         // Disable buttons (gestolen van https://www.webdevtutor.net/blog/javascript-button-click-by-class)
         const forms = document.querySelectorAll(".form-control")
         forms.forEach(form => {
-            form.disable = true
+            form.disabled = true
             form.style.opacity = "0.7"; //change the opacity of it to indicate u cant click
             form.style.cursor = "not-allowed";
-            console.log("-- Disabled buttons in settings");
-
-            form.addEventListener("click", () => {
-                alert("Only admin can change settings! Ask for a role swap or forever hold your peace...");
-            })
+            console.log("-- Disabled forms in settings");
         })
 
         //Disable checkboxes (based on forms lol)
@@ -92,10 +88,13 @@ function setupVisibility(userRole) {
         labels.forEach(label => {
             label.style.cursor = "not-allowed"
             console.log("-- stupid cursor for checkboxes xd");
-
-            label.addEventListener("click", () => {
-                alert("Only admin can change settings! Ask for a role swap or forever hold your peace...");
-            })
         })
+
+        //Disable special buttons (not-allowed cursor doesnt work???)
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = "0.7";
+
+        cancelBtn.disabled = true;
+        cancelBtn.style.opacity = "0.7";
     }
 }
