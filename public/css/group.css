@@ -198,6 +198,12 @@
   
 
 
+/*----------- Content: Map Overview -----------*/
+  #test {
+    height: 50vh;
+  }
+
+
 /*----------- Content: Polls -----------*/
 
 
@@ -241,7 +247,7 @@
     }
 
 
-  /*----------- Content: members -----------*/
+  /*----------- Content: settings -----------*/
     #formGroup {
       margin-left: 10px;
     }
