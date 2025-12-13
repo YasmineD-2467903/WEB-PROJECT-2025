@@ -3,6 +3,7 @@
     <head>
         <title>Main Page</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <link rel="stylesheet" href="/css/bootstrap.css">
         <link rel="stylesheet" href="/css/fyp.css">
     </head>
@@ -225,11 +226,11 @@
         
         <main class="container py-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-semibold">Your Groups</h2>
+                <h2 class="fw-semibold fs-1">Your Groups</h2>
                 <div class="btn-group">
                     <button
                             type="button"
-                            class="btn btn-success"
+                            class="btn btn-success fs-6"
                             data-bs-toggle="modal"
                             data-bs-target="#createGroupModal"
                         >
@@ -237,7 +238,7 @@
                     </button>
                     <button
                             type="button"
-                            class="btn btn-outline-primary"
+                            class="btn btn-outline-primary fs-6"
                             data-bs-toggle="modal"
                             data-bs-target="#groupInvitesModal"
                         >
@@ -256,10 +257,8 @@
 
         <div class="sidebar-container">
             <button class="sidebarBtn" id="sidebarBtn" onclick="toggleSidebar(this)">
-                <!-- basically de icoon voor de sidebar met de 2 knoppen-->
-                <svg width="28" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
+                <!-- basically de icoon voor de sidebar met de 3 knoppen-->
+                <i class="bi bi-list fs-3" id="sidebarBtnIcon"></i>
             </button>
 
             <!-- de sidebar in question (stolen from codeing2GO: https://youtu.be/S9OiWe5iBYo?si=u2YSOJOfke0UlZ1v)-->

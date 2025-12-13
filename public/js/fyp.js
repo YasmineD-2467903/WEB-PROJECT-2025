@@ -537,19 +537,21 @@ async function confirmInviteFriend() {
 
 function toggleSidebar(button) {
     const sidebar = document.getElementById("Sidebar");
-    const svg = button.querySelector("svg"); //icon gebruikt bij sidebar
+    const icon = document.getElementById("sidebarBtnIcon"); //icon gebruikt bij sidebar
 
     if (sidebar.classList.contains("show")) {
         //sluit sidebar en change icon 
-        sidebar.classList.remove("show")
-        svg.innerHTML = '<path d="M4 6h16M4 12h16M4 18h16"/>';
-        console.log("-- sidebar closed")
+        sidebar.classList.remove("show");
+        console.log("-- sidebar closed");
+        icon.classList.remove("bi-x-lg");
+        icon.classList.add("bi-list");
 
     } else {
         //open sidebar en change icon
-        sidebar.classList.add("show")
-        svg.innerHTML = '<path d="M18 6L6 18M6 6l12 12"/>';
+        sidebar.classList.add("show");
         console.log("-- sidebar open");
+        icon.classList.remove("bi-list");
+        icon.classList.add("bi-x-lg");
     }
     button.classList.toggle("is-active");
 }

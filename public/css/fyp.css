@@ -201,9 +201,10 @@
     .d-flex.justify-content-between.align-items-center.mb-4 {
         width: fit-content;
         flex-direction: column;
+
+        margin-left: -25px;
     }
-    .fw-semibold {
-        font-size: 40px;
+    .fw-semibold.fs-1 {
         margin-bottom: 4px;
     }
 
@@ -221,7 +222,7 @@
 
     /*-----------Sidebar-----------*/
     .sidebar-container {
-        bottom: 80%;
+        bottom: 83%;
     }
 
     /*-----------Buttons-----------*/
