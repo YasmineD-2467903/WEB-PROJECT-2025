@@ -1,5 +1,8 @@
 // ==================== FETCH DATA ====================
 
+let userRole;
+let userId;
+
 let tripStartDate = null;
 let tripEndDate = null;
 let currentPlannerDate = null;
@@ -10,9 +13,26 @@ async function fetchGroupInfo() {
         if (!res.ok) throw new Error("Failed to fetch group info");
         const group = await res.json();
 
+        const userRes = await fetch(`/group/${window.groupId}/settings`);
+        if (!res.ok) return alert("Group settings not found");
+        const data = await userRes.json();
+        userRole = data.role;
+        userId = data.userId;
+
         tripStartDate = group.startDate;
         tripEndDate = group.endDate;
         currentPlannerDate = tripStartDate.split("T")[0];
+
+        if (userRole === 'viewer') {
+            document.getElementById("addStopBtn").hidden = true;
+            document.getElementById("generateRouteBtn").hidden = false;
+        } else if (userRole === 'member') {
+            document.getElementById("addStopBtn").hidden = false;
+            document.getElementById("generateRouteBtn").hidden = false;
+        } else if (userRole === 'admin') {
+            document.getElementById("addStopBtn").hidden = false;
+            document.getElementById("generateRouteBtn").hidden = false;
+        }
 
         updatePlannerNav();
         loadStopsForDate(currentPlannerDate);
@@ -44,8 +64,6 @@ async function fetchAllStops() {
 // ==================== MAP ====================
 
 let infoWindow;
-let marker;
-
 let mapInstance = null;
 let markersForDay = [];
 let directionsService = null;
@@ -374,10 +392,16 @@ function loadStopsForDate(dateStr) {
         const stopEl = document.createElement("div");
         stopEl.className = "stop";
 
-        // Render files if any
         const filesHtml = stop.files && stop.files.length > 0
             ? `<div class="stop-files">Files:<ul>${stop.files.map(f => 
                 `<li><a href="/uploads/stops/${f.file_path}" target="_blank">${f.file_name}</a></li>`).join("")}</ul></div>`
+            : "";
+
+        const isOwner = (stop.creator_id && stop.creator_id === userId);
+        const canEdit = userRole === 'admin' || (userRole === 'member' && isOwner);
+        
+        const editButtonHtml = canEdit 
+            ? `<button class="btn btn-sm btn-secondary editStopBtn" data-id="${stop.id}">Edit</button>`
             : "";
 
         stopEl.innerHTML = `
@@ -386,7 +410,7 @@ function loadStopsForDate(dateStr) {
             <div>${stop.description || ""}</div>
             <div>Author: ${stop.author}</div>
             ${filesHtml}
-            <button class="btn btn-sm btn-secondary editStopBtn" data-id="${stop.id}">Edit</button>
+            ${editButtonHtml}
         `;
         container.appendChild(stopEl);
     });
@@ -456,6 +480,15 @@ async function openEditStopModal(stopId) {
         const res = await fetch(`/group/${window.groupId}/stops/${stopId}`);
         if (!res.ok) return alert("Stop not found");
         const stop = await res.json();
+
+        const isOwner = (stop.creator_id && stop.creator_id === userId);
+        const canEdit = userRole === 'admin' || (userRole === 'member' && isOwner);
+        
+        // just in case
+        if (!canEdit) {
+            alert("You don't have permission to edit this stop");
+            return;
+        }
 
         // Fetch existing files for this stop
         const filesRes = await fetch(`/group/${window.groupId}/stops/${stopId}/files`);
@@ -561,47 +594,6 @@ async function openEditStopModal(stopId) {
         alert("Failed to open stop. Check console for details.");
     }
 }
-
-// ==================== CLEANUP ====================
-
-function cleanup() {
-    window.lastSelectedStop = null;
-
-    // Clear stops container
-    const container = document.getElementById("stopsContainer");
-    if (container) container.innerHTML = "";
-
-    // Clear forms
-    const addForm = document.getElementById("addStopForm");
-    if (addForm) addForm.onsubmit = null;
-
-    const editForm = document.getElementById("editStopForm");
-    if (editForm) editForm.onsubmit = null;
-
-    // Replace buttons to remove old listeners
-    const prevBtn = document.getElementById("prevDayBtn");
-    const nextBtn = document.getElementById("nextDayBtn");
-    if (prevBtn) prevBtn.replaceWith(prevBtn.cloneNode(true));
-    if (nextBtn) nextBtn.replaceWith(nextBtn.cloneNode(true));
-
-    // Clear map marker and infoWindow
-    if (marker) {
-        marker.setMap(null);
-        marker = null;
-    }
-    if (infoWindow) {
-        infoWindow.close();
-        infoWindow = null;
-    }
-
-    // Reset autocomplete input
-    const input = document.getElementById("pac-input");
-    if (input) {
-        const newInput = input.cloneNode(true);
-        input.parentNode.replaceChild(newInput, input);
-    }
-}
-
 
 // ==================== INIT ====================
 

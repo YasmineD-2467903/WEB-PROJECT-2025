@@ -297,7 +297,6 @@ app.get("/group/:id/members", (req, res) => {
     }
 });
 
-// user role within a group
 // get group settings
 app.get("/group/:id/settings", (request, response) => {
     try {
@@ -319,6 +318,7 @@ app.get("/group/:id/settings", (request, response) => {
         `).get(groupId);
 
         return response.json({
+            userId: userId,
             role: userRole.role,
             settings: groupSettings
         });
@@ -391,25 +391,10 @@ app.get("/group/:id/polls", (req, res) => {
     }
 });
 
-
-// friend requests
-// fairly certain this isn't actually used
-app.get("/user/friend-requests", (req, res) => {
-    const userId = req.session.user_id;
-    const requests = db.prepare(`
-        SELECT u.username, u.display_name
-        FROM friend_requests fr
-        JOIN users u ON fr.requester_id = u.id
-        WHERE fr.requested_id = ?
-    `).all(userId);
-
-    res.json({ requests });
-});
-
 app.get("/group/:id/stops", (req, res) => {
     try {
         const userId = req.session.user_id;
-        const groupId = Number(req.params.id);
+        const groupId = req.params.id;
 
         if (!userId) return res.status(401).json({ error: "Not logged in" });
 
@@ -442,21 +427,16 @@ app.get("/group/:id/stops", (req, res) => {
 app.get("/group/:id/stops/:stopId", (req, res) => {
     try {
         const userId = req.session.user_id;
-        const groupId = Number(req.params.id);
-        const stopId = Number(req.params.stopId);
+        const groupId = req.params.id;
+        const stopId = req.params.stopId;
 
         if (!userId) return res.status(401).json({ error: "Not logged in" });
-
-        const membership = db.prepare(`
-            SELECT role FROM group_members WHERE user_id = ? AND group_id = ?
-        `).get(userId, groupId);
-
-        if (!membership) return res.status(403).json({ error: "Not a member of this group" });
 
         const stop = db.prepare(`
             SELECT s.id, s.title, s.description, s.startDate, s.endDate,
                    s.coordinates_lat AS lat, s.coordinates_lng AS lng,
                    u.display_name AS author,
+                   s.creator_id,
                    (SELECT json_group_array(json_object('file_name', sf.file_name, 'file_path', sf.file_path)) 
                     FROM stop_files sf WHERE sf.stop_id = s.id) AS files
             FROM stops s
@@ -475,12 +455,10 @@ app.get("/group/:id/stops/:stopId", (req, res) => {
 });
 
 app.get("/group/:groupId/stops/:stopId/files", (req, res) => {
-  const stopId = Number(req.params.stopId);
+  const stopId = req.params.stopId;
   const files = db.prepare("SELECT * FROM stop_files WHERE stop_id = ?").all(stopId);
   res.json(files);
 });
-
-
 
 // ========================== ALL POST ROUTES ==========================
 
