@@ -1,18 +1,106 @@
-<!--group-map.ejs-->
-<head>
-    <link rel="stylesheet" href="/css/bootstrap.css">
-</head>
 <body>
-  <input
-    id="pac-input"
-    class="controls"
-    type="text"
-    placeholder="Search Box"
-    width="150px"
-  />
-  <gmp-map center="50,5" zoom="14" map-id="DEMO_MAP_ID" id="test">
-    <!--<div id="controls" slot="control-inline-start-block-start">
-      can add stuff here?
-    </div>-->
-  </gmp-map>
+  <!-- controls -->
+  <div class="map-controls">
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box" />
+    <button id="addStopBtn" class="btn btn-primary">Add stop</button>
+    <button id="generateRouteBtn" class="btn btn-primary">Generate Route</button>
+  </div>
+
+  <!-- map -->
+  <gmp-map center="50,5" zoom="14" map-id="DEMO_MAP_ID" allow="geolocation"></gmp-map>
+
+  <!-- daily Planner -->
+  <section id="daily-planner">
+    <header class="planner-header">
+      <button id="prevDayBtn" class="btn btn-secondary">&lt; Previous Day</button>
+      <h2 id="plannerDate">YYYY-MM-DD</h2>
+      <button id="nextDayBtn" class="btn btn-secondary">Next Day &gt;</button>
+    </header>
+    <div id="stopsContainer">
+      <!-- stops will load dynamically here -->
+    </div>
+  </section>
+
+  <!-- add stop modal -->
+  <div class="modal fade" id="addStopModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Stop</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addStopForm">
+            <div class="mb-2">
+              <label for="stopTitle">Title</label>
+              <input type="text" id="stopTitle" name="title" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="stopStart">Start Date & Time</label>
+              <input type="datetime-local" id="stopStart" name="startDate" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="stopEnd">End Date & Time</label>
+              <input type="datetime-local" id="stopEnd" name="endDate" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="stopNotes">Notes</label>
+              <textarea id="stopNotes" name="description" class="form-control"></textarea>
+            </div>
+            <div class="mb-2">
+              <label for="stopFiles">Upload Files</label>
+              <input type="file" id="stopFiles" name="files" multiple class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Stop</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- edit stop modal -->
+  <div class="modal fade" id="editStopModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content p-3">
+
+        <h5>Edit Stop</h5>
+
+        <form id="editStopForm" enctype="multipart/form-data">
+          <div class="mb-2">
+            <label for="editStopTitle">Title</label>
+            <input id="editStopTitle" name="title" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label for="editStopDescription">Notes</label>
+            <textarea id="editStopDescription" name="description" class="form-control"></textarea>
+          </div>
+
+          <div class="mb-2">
+            <label for="editStopStart">Start Date & Time</label>
+            <input id="editStopStart" name="startDate" type="datetime-local" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label for="editStopEnd">End Date & Time</label>
+            <input id="editStopEnd" name="endDate" type="datetime-local" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label>Existing Files</label>
+            <div id="existingFiles" class="mb-2"></div>
+          </div>
+
+          <div class="mb-2">
+            <label for="editStopFiles">Upload New Files</label>
+            <input id="editStopFiles" name="files" type="file" multiple class="form-control">
+          </div>
+
+          <button type="submit" id="saveEditStopBtn" class="btn btn-primary">Save</button>
+          <button type="button" id="deleteStopBtn" class="btn btn-danger">Delete</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
 </body>

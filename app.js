@@ -6,6 +6,12 @@ import path from "path";
 import http from "http";
 import { Server } from "socket.io";
 
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "public/uploads/");
@@ -15,6 +21,19 @@ const storage = multer.diskStorage({
         cb(null, `user_${req.session.user_id}${ext}`);
     }
 });
+
+const stopStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/stops/");
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const unique = `stop_${Date.now()}_${Math.random().toString(36).slice(2)}${ext}`;
+    cb(null, unique);
+  }
+});
+
+const uploadStopFiles = multer({ storage: stopStorage });
 
 const upload = multer({ storage });
 const app = express();
@@ -278,7 +297,6 @@ app.get("/group/:id/members", (req, res) => {
     }
 });
 
-// user role within a group
 // get group settings
 app.get("/group/:id/settings", (request, response) => {
     try {
@@ -300,6 +318,7 @@ app.get("/group/:id/settings", (request, response) => {
         `).get(groupId);
 
         return response.json({
+            userId: userId,
             role: userRole.role,
             settings: groupSettings
         });
@@ -372,21 +391,74 @@ app.get("/group/:id/polls", (req, res) => {
     }
 });
 
+app.get("/group/:id/stops", (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = req.params.id;
 
-// friend requests
-// fairly certain this isn't actually used
-app.get("/user/friend-requests", (req, res) => {
-    const userId = req.session.user_id;
-    const requests = db.prepare(`
-        SELECT u.username, u.display_name
-        FROM friend_requests fr
-        JOIN users u ON fr.requester_id = u.id
-        WHERE fr.requested_id = ?
-    `).all(userId);
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
 
-    res.json({ requests });
+        const membership = db.prepare(`
+            SELECT role FROM group_members WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership) return res.status(403).json({ error: "Not a member of this group" });
+
+        const stops = db.prepare(`
+            SELECT s.id, s.title, s.description, s.startDate, s.endDate,
+                   s.coordinates_lat AS lat, s.coordinates_lng AS lng,
+                   u.display_name AS author,
+                   (SELECT json_group_array(json_object('file_name', sf.file_name, 'file_path', sf.file_path)) 
+                    FROM stop_files sf WHERE sf.stop_id = s.id) AS files
+            FROM stops s
+            JOIN users u ON s.creator_id = u.id
+            WHERE s.group_id = ?
+            ORDER BY s.startDate ASC
+        `).all(groupId);
+
+        res.json(stops.map(s => ({ ...s, files: s.files ? JSON.parse(s.files) : [] })));
+    } catch (err) {
+        console.error("Error fetching stops:", err);
+        res.status(500).json({ error: "Failed to fetch stops" });
+    }
 });
 
+
+app.get("/group/:id/stops/:stopId", (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = req.params.id;
+        const stopId = req.params.stopId;
+
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const stop = db.prepare(`
+            SELECT s.id, s.title, s.description, s.startDate, s.endDate,
+                   s.coordinates_lat AS lat, s.coordinates_lng AS lng,
+                   u.display_name AS author,
+                   s.creator_id,
+                   (SELECT json_group_array(json_object('file_name', sf.file_name, 'file_path', sf.file_path)) 
+                    FROM stop_files sf WHERE sf.stop_id = s.id) AS files
+            FROM stops s
+            JOIN users u ON s.creator_id = u.id
+            WHERE s.id = ? AND s.group_id = ?
+        `).get(stopId, groupId);
+
+        if (!stop) return res.status(404).json({ error: "Stop not found" });
+
+        stop.files = stop.files ? JSON.parse(stop.files) : [];
+        res.json(stop);
+    } catch (err) {
+        console.error("Error fetching stop:", err);
+        res.status(500).json({ error: "Failed to fetch stop" });
+    }
+});
+
+app.get("/group/:groupId/stops/:stopId/files", (req, res) => {
+  const stopId = req.params.stopId;
+  const files = db.prepare("SELECT * FROM stop_files WHERE stop_id = ?").all(stopId);
+  res.json(files);
+});
 
 // ========================== ALL POST ROUTES ==========================
 
@@ -964,6 +1036,156 @@ app.post("/group/:id/settings/update", (req, res) => {
     } catch (err) {
         console.error("Error updating group settings:", err);
         res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.post("/group/:groupId/stops", uploadStopFiles.array("files"), (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = Number(req.params.groupId);
+
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const membership = db.prepare(`
+            SELECT role FROM group_members
+            WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership || membership.role === "viewer") return res.status(403).json({ error: "Not allowed to add stops" });
+
+        const { title, description, startDate, endDate, lat, lng } = req.body;
+
+        if (!title || !startDate || !endDate || !lat || !lng) return res.status(400).json({ error: "Missing required fields" });
+
+        const stopResult = db.prepare(`
+            INSERT INTO stops 
+            (group_id, creator_id, title, description, startDate, endDate, coordinates_lat, coordinates_lng)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(groupId, userId, title, description || "", startDate, endDate, lat, lng);
+
+        const stopId = stopResult.lastInsertRowid;
+
+        if (req.files && req.files.length > 0) {
+            const insertFile = db.prepare(`
+                INSERT INTO stop_files
+                (stop_id, group_id, file_name, file_path, file_type, file_size)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `);
+            for (const file of req.files) {
+                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype, file.size);
+            }
+        }
+
+        res.json({ success: true, stopId });
+    } catch (err) {
+        console.error("Error creating stop:", err);
+        res.status(500).json({ error: "Failed to create stop" });
+    }
+});
+
+app.post("/group/:groupId/stops/:stopId/update", uploadStopFiles.array("files"), (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = Number(req.params.groupId);
+        const stopId = Number(req.params.stopId);
+
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const membership = db.prepare(`
+            SELECT role FROM group_members WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership || membership.role === "viewer") return res.status(403).json({ error: "Not allowed to edit stops" });
+
+        const { title, description, startDate, endDate, lat, lng } = req.body;
+
+        db.prepare(`
+            UPDATE stops SET
+                title = ?, description = ?, startDate = ?, endDate = ?, coordinates_lat = ?, coordinates_lng = ?
+            WHERE id = ? AND group_id = ?
+        `).run(title, description, startDate, endDate, lat, lng, stopId, groupId);
+
+        if (req.files && req.files.length > 0) {
+            const insertFile = db.prepare(`
+                INSERT INTO stop_files
+                (stop_id, group_id, file_name, file_path, file_type, file_size)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `);
+            for (const file of req.files) {
+                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype, file.size);
+            }
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error updating stop:", err);
+        res.status(500).json({ error: "Failed to update stop" });
+    }
+});
+
+app.post("/group/:groupId/stops/:stopId/delete", (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = Number(req.params.groupId);
+        const stopId = Number(req.params.stopId);
+
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const membership = db.prepare(`
+            SELECT role FROM group_members WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership || membership.role === "viewer") return res.status(403).json({ error: "Not allowed to delete stops" });
+
+        db.prepare("DELETE FROM stop_files WHERE stop_id = ?").run(stopId);
+        db.prepare("DELETE FROM stops WHERE id = ? AND group_id = ?").run(stopId, groupId);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error deleting stop:", err);
+        res.status(500).json({ error: "Failed to delete stop" });
+    }
+});
+
+app.post("/group/:groupId/stops/:stopId/files/:fileId/delete", (req, res) => {
+    try {
+        const userId = req.session.user_id;
+        const groupId = Number(req.params.groupId);
+        const stopId = Number(req.params.stopId);
+        const fileId = Number(req.params.fileId);
+
+        if (!userId) return res.status(401).json({ error: "Not logged in" });
+
+        const membership = db.prepare(`
+            SELECT role FROM group_members WHERE user_id = ? AND group_id = ?
+        `).get(userId, groupId);
+
+        if (!membership || membership.role === "viewer") 
+            return res.status(403).json({ error: "Not allowed to delete files" });
+
+        const file = db.prepare(`
+            SELECT file_path FROM stop_files 
+            WHERE id = ? AND stop_id = ? AND group_id = ?
+        `).get(fileId, stopId, groupId);
+
+        if (!file) return res.status(404).json({ error: "File not found" });
+
+        const filePath = path.join(__dirname, "public", "uploads", "stops", file.file_path);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        } else {
+            console.warn("File already missing:", filePath);
+        }
+
+        db.prepare(`DELETE FROM stop_files WHERE id = ?`).run(fileId);
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error("Error deleting stop file:", err);
+        res.status(500).json({ error: "Failed to delete stop file" });
     }
 });
 

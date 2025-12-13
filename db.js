@@ -36,6 +36,7 @@ export function InitializeDatabase() {
     `).run();
 
     // GROUPS
+    // groups and trips are essentially the same thing, as we decided to make each group have one trip.
     db.prepare(`
         CREATE TABLE IF NOT EXISTS groups (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,32 +77,34 @@ export function InitializeDatabase() {
         );
     `).run();
 
-    // TRIPS
-    db.prepare(`
-        CREATE TABLE IF NOT EXISTS trips (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            group_id INTEGER,
-            name TEXT,
-            start_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-            end_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-            country TEXT,
-            cover_photo TEXT,
-            FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
-        );
-    `).run();
-
     // STOPS
     db.prepare(`
         CREATE TABLE IF NOT EXISTS stops (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            trip_id INTEGER,
+            group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+            creator_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
             title TEXT,
             description TEXT,
-            date TEXT,
+            startDate DATETIME,
+            endDate DATETIME,
             coordinates_lat REAL,
-            coordinates_lng REAL,
-            tags TEXT,
-            FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
+            coordinates_lng REAL
+        );
+    `).run();
+
+    // STOP UPLOADS
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS stop_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            stop_id INTEGER NOT NULL,
+            group_id INTEGER NOT NULL,
+            file_name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            file_type TEXT,
+            file_size INTEGER,
+            uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (stop_id) REFERENCES stops(id) ON DELETE CASCADE,
+            FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
         );
     `).run();
 
