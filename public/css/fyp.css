@@ -1,42 +1,42 @@
 /*---------base settings---------*/
-header{
-  background-color: #E6BB58;
-  border-bottom: 10px solid #875D0E ;
-  padding: 40px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-.about h1{
-    color: white;
-    font-style: bold;
-}
-.about p{
-    color: white;
-    font-size: 20px;
-    font-style: italic;
-    margin: 0;
-}
-body{
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: solid white;
-  margin: 0; /*beide op 0 zodat de header heel de breedte van uw scherm inneemt*/
-  padding: 0;
-}
+    header{
+        background-color: #E6BB58;
+        border-bottom: 10px solid #875D0E ;
+        padding: 40px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .about h1{
+        color: white;
+        font-style: bold;
+    }
+    .about p{
+        color: white;
+        font-size: 20px;
+        font-style: italic;
+        margin: 0;
+    }
+    body{
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: solid white;
+    }
+
 
 /*-----------Your Groups-----------*/
-.container.py-5 {
-    margin-left: 20%;
-}
-.d-flex.justify-content-between.align-items-center.mb-4 {
-    border-bottom: 2px solid #ccc;;
-    flex-direction: column;
-    width: 80%; /*maakt het zodat de border enkel 80% van scherm iinneemt rond de content*/
-    padding-bottom: 10px; /*breathing room tussen knoppen en scheidingslijn*/
-}
-.fw-semibold {
-    font-size: 25px;
-    margin-bottom: 4px;
-}
+    .container.py-5 {
+        margin-left: 20%;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        border-bottom: 2px solid #ccc;;
+        flex-direction: column;
+        width: 80%; /*maakt het zodat de border enkel 80% van scherm iinneemt rond de content*/
+        padding-bottom: 10px; /*breathing room tussen knoppen en scheidingslijn*/
+    }
+    .fw-semibold {
+        font-size: 25px;
+        margin-bottom: 4px;
+    }
+
 
 /*-----------Groepen-----------*/ 
     #groupList {
@@ -146,35 +146,39 @@ body{
 
 
 /*-----------Buttons-----------*/
-.btn.btn-success,
-.btn.btn-outline-primary {
-    background-color: rgba(209, 160, 87, 0.664);
-    color: rgb(56, 56, 56);
-    font-size: 15px;
-    font-weight: 600;
+    .btn.btn-success,
+    .btn.btn-outline-primary,
+    .square-btn.btn.btn-basic {
+        background-color: rgba(209, 160, 87);
+        color: rgb(56, 56, 56);
+        font-size: 15px;
+        font-weight: 600;
 
-    padding: 12px;
-    border-radius: 5px !important; /*goofy bootstraap autoo zet de topright en bottomright radius op 0px xd*/
-    border: none;
-    line-height: 100%;
+        padding: 12px;
+        border-radius: 5px !important; /*goofy bootstraap autoo zet de topright en bottomright radius op 0px xd*/
+        border: none;
+        line-height: 100%;
 
-    margin-top: 2px;
-    text-align: center;
+        margin-top: 2px;
+        text-align: center;
 
-    transition: 0.15s ease-in-out;
-    cursor: pointer;
-}
-.btn.btn-success:hover,
-.btn.btn-outline-primary:hover {
-  background-color: rgba(173, 132, 70, 0.664);
-}
-.btn.btn-success:active,
-.btn.btn-outline-primary:active {
-    background-color: #875D0E;
-}
-.btn-group {
-    gap: 15px;
-}
+        transition: 0.15s ease-in-out;
+        cursor: pointer;
+    }
+    .btn.btn-success:hover,
+    .btn.btn-outline-primary:hover,
+    .square-btn.btn.btn-basic:hover {
+    background-color: rgb(211, 141, 36);
+    }
+    .btn.btn-success:active,
+    .btn.btn-outline-primary:active,
+    .square-btn.btn.btn-basic:active {
+        background-color: #875D0E;
+        color: white;
+    }
+    .btn-group {
+        gap: 15px;
+    }
 
 
 /*---------PHONE CHANGES---------*/

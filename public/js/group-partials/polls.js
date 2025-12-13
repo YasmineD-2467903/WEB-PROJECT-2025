@@ -99,7 +99,7 @@ function setupGroupPollModal(userRole, pollId, pollModalData) {
         const hasVoted = userVotes.includes(option.option_id);
         return `
             <div class="poll-option-wrapper" style="position: relative; margin-bottom: 10px;">
-                <div class="poll-option ${hasVoted ? 'voted' : ''}" data-option-id="${option.option_id}" style="display: inline-block; cursor: pointer;">
+                <div class="poll-option ${hasVoted ? 'voted' : ''}" data-option-id="${option.option_id}" style="display: inline-block; cursor: pointer; margin-left: 10px;">
                     ${option.contents} (<span class="vote-count">${option.vote_count || 0}</span> votes)
                 </div>
                 <button class="btn btn-sm btn-danger remove-vote-btn" 

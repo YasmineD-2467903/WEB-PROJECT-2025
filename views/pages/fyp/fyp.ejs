@@ -254,17 +254,34 @@
             
         </main>
 
-
-        <div class="bottom-left-buttons">
-            
-            <button
-                    type="button"
-                    class="square-btn btn btn-basic"
-                    data-bs-toggle="modal"
-                    data-bs-target="#profilePageModal"
-                >
-                    Profile
+        <div class="sidebar-container">
+            <button class="sidebarBtn" id="sidebarBtn" onclick="toggleSidebar(this)">
+                <!-- basically de icoon voor de sidebar met de 2 knoppen-->
+                <svg width="28" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
             </button>
+
+            <!-- de sidebar in question (stolen from codeing2GO: https://youtu.be/S9OiWe5iBYo?si=u2YSOJOfke0UlZ1v)-->
+            <aside class="sidebar" id="Sidebar">
+                <div class="sidebar-items">
+                    <button
+                            type="button"
+                            class="square-btn btn btn-basic"
+                            data-bs-toggle="modal"
+                            data-bs-target="#profilePageModal"
+                        >
+                            Profile
+                    </button>
+
+                    <button
+                            type="button"
+                            class="square-btn btn btn-basic"
+                            data-bs-toggle="modal"
+                            data-bs-target="#friendsPageModal"
+                        >
+                            Friends
+                    </button>
 
                     <button
                             type="button"
@@ -277,5 +294,6 @@
                 </div>
             </aside>
         </div>
+        
     </body>
 </html>

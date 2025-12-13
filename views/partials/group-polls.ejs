@@ -1,9 +1,10 @@
-<body>    
+<div class="polls-section">
+
     <div class="modal fade" id="pollModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Poll Overview</h5>
+                    <h5 class="modal-title fw-semibold">Poll Overview</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -20,7 +21,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Poll Creation</h5>
+                    <h2 class="modal-title fw-semibold">Poll Creation</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -33,54 +34,49 @@
                         ALSO END DATE, I FORGOT THAT WAS A THING
                     -->
                     <div class="mb-3">
-                        <label class="form-label">Poll Title</label>
-                        <input type="text" id="pollTitleInput" class="form-control" maxlength="80" placeholder="Enter poll title...">
+                        <label class="form-label" id="popup-label">Poll Title</label>
+                        <input type="text" id="pollTitleInput" class="form-control ms-2 w-100" maxlength="80" placeholder="Enter poll title...">
                         <small class="text-muted">Max 80 characters</small>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Poll End Time</label>
-                        <input type="datetime-local" id="pollEndTimeInput" class="form-control">
-                        <div class="form-check mt-1">
+                        <label class="form-label" id="popup-label">Poll End Time</label>
+                        <input type="datetime-local" id="pollEndTimeInput" class="form-control ms-2 w-100 text-muted">
+                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="noEndTimeCheck">
                             <label class="form-check-label">No end time</label>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Allow Multiple Votes</label>
+                        <label class="form-label" id="popup-label">Allow Multiple Votes</label>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="pollAllowMultiple">
                             <label class="form-check-label">Users can select multiple options</label>
                         </div>
                     </div>
 
-                    <div id="pollOptionInputs">
-                        <label class="form-label">Options</label>
-
-                        <div class="input-group mb-2 poll-option">
+                    <div>
+                        <label class="form-label" id="popup-label">Options</label>
+                        <div class="input-group mb-1 ms-2 w-100 poll-option">
                             <input type="text" class="form-control" placeholder="Option 1">
                         </div>
-
-                        <div class="input-group mb-2 poll-option">
+                        <div class="input-group mb-2 ms-2 poll-option">
                             <input type="text" class="form-control" placeholder="Option 2">
                         </div>
                     </div>
 
-                    <button class="btn btn-outline-primary w-100 mb-3" id="addPollOptionBtn">+ Add Option</button>
-
+                    <button class="btn btn-outline-primary w-100 mb-3 d-flex justify-content-center" id="addPollOptionBtn">+ Add Option</button>
                     <button class="btn btn-success w-100" id="submitPollCreateBtn">Create Poll</button>
                 </div>
             </div>
         </div>
     </div>
     
-    <main class="container py-5">
-
-        <div class="row align-items-center mb-3">
-            <div class="col">
-                <h2 class="fw-semibold m-0">Group Polls</h2>
-            </div>
+    <main class="polls-page">
+        <div class="polls-header">
+            <h2 class="fw-semibold m-0">Group Polls</h2>
+        </div>
 
             <div class="col-auto">
                 <button
@@ -103,8 +99,6 @@
             </div>
         </div>
 
-        <script src="/js/bootstrap.bundle.js"></script>
         <script src="/js/group-partials/polls.js"></script>
-        
     </main>
-</body>
+</div>

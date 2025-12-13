@@ -81,7 +81,7 @@ function renderMessage(msg) {
 
     msgDiv.innerHTML = `
         <strong>${createInnerHtml(msg.display_name)} ${new Date(msg.timestamp).toLocaleString()}</strong><br>
-        <span>${createInnerHtml(msg.contents)}</span>
+        <span class="message-text">${createInnerHtml(msg.contents)}</span>
     `;
 
     messagesDiv.appendChild(msgDiv);
