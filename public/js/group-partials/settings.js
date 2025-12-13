@@ -1,22 +1,8 @@
 export function initSettingsSection(userRole, settings, groupId) {
-    const adminSec = document.getElementById("admin");
-    const memberSec = document.getElementById("member");
-    const viewerSec = document.getElementById("viewer");
 
-    if (userRole === "admin") {
-        viewerSec.style.display = 'none';
-        memberSec.style.display = 'none';
-    }
-
-    if (userRole === "member") {
-        adminSec.style.display = 'none';
-        viewerSec.style.display = 'none';
-    }
-
-    if (userRole === "viewer") {
-        adminSec.style.display = 'none';
-        memberSec.style.display = 'none';
-    }
+    const saveBtn = document.getElementById("saveSettings");
+    const cancelBtn = document.getElementById("cancelSettings");
+    setupVisibility(userRole, saveBtn, cancelBtn);
 
     if (settings) {
         document.getElementById("memberInvitationCheck").checked = !!settings.allowMemberInvite;
@@ -39,9 +25,6 @@ export function initSettingsSection(userRole, settings, groupId) {
         document.getElementById("changeStartDate").value = formatForDatetimeInput(settings.startDate);
         document.getElementById("changeEndDate").value = formatForDatetimeInput(settings.endDate);
     }
-
-    const saveBtn = document.getElementById("saveSettings");
-    const cancelBtn = document.getElementById("cancelSettings");
 
     function validateDates(start, end) {
         if (!start || !end) return true;
@@ -79,4 +62,39 @@ export function initSettingsSection(userRole, settings, groupId) {
     });
 
     cancelBtn.addEventListener("click", () => initSettingsSection(userRole, settings, groupId));
+}
+
+function setupVisibility(userRole, saveBtn, cancelBtn) {
+    if (userRole !== "admin") {
+        // Disable buttons (gestolen van https://www.webdevtutor.net/blog/javascript-button-click-by-class)
+        const forms = document.querySelectorAll(".form-control")
+        forms.forEach(form => {
+            form.disabled = true
+            form.style.opacity = "0.7"; //change the opacity of it to indicate u cant click
+            form.style.cursor = "not-allowed";
+            console.log("-- Disabled forms in settings");
+        })
+
+        //Disable checkboxes (based on forms lol)
+        const checkboxes = document.querySelectorAll(".form-check-input")
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = true;
+            checkbox.style.opacity = "0.7"; //change the opacity of it to indicate u cant click
+            console.log("-- Disabled checkboxes in settings");
+        })
+
+        //Not-allowed cursor doesn't add on the checkboxes so  we add on top of labels for the  same effect as the above
+        const labels = document.querySelectorAll(".form-check-label");
+        labels.forEach(label => {
+            label.style.cursor = "not-allowed"
+            console.log("-- stupid cursor for checkboxes xd");
+        })
+
+        //Disable special buttons (not-allowed cursor doesnt work???)
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = "0.7";
+
+        cancelBtn.disabled = true;
+        cancelBtn.style.opacity = "0.7";
+    }
 }

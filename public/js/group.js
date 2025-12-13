@@ -51,26 +51,7 @@ async function loadSection(section) {
                 console.error("Failed to load members.js", err);
             }
         }
-
-        if (section === "map") {
-            try {
-                const mapModule = await import("/js/group-partials/map.js");
-                await mapModule.init();
-
-            } catch (err) {
-                console.error("Failed to load map.js", err);
-            }
-        }
-
-        if (section === "polls") {
-            try {
-                const module = await import("/js/group-partials/polls.js");
-                await module.loadPolls(groupId);
-            } catch (err) {
-                console.error("Failed to load polls.js", err);
-            }
-        }
-
+        
         if (section === "settings") {
             const res = await fetch(`/group/${groupId}/settings`);
             const data = await res.json();
@@ -88,6 +69,25 @@ async function loadSection(section) {
                 await module.initChat(groupId);
             } catch (err) {
                 console.error("Failed to load chat.js", err);
+            }
+        }
+
+        if (section === "map") {
+            try {
+                const mapModule = await import("/js/group-partials/map.js");
+                await mapModule.init();
+
+            } catch (err) {
+                console.error("Failed to load map.js", err);
+            }
+        }
+
+        if (section === "polls") {
+            try {
+                const module = await import("/js/group-partials/polls.js");
+                await module.loadPolls(groupId);
+            } catch (err) {
+                console.error("Failed to load polls.js", err);
             }
         }
 

@@ -1,45 +1,168 @@
-header{
-    background-color: #FCB6F7;
-    color: white;
-    padding: .5rem 0 0 0;
-    margin: 0px;
-    
-    
-}
-.wrapper{
-      display: flex;
-  justify-content: center;
-  align-items: center;
+/*---------header---------*/
+  header{
+    background-color: #E6BB58;;
+    border-bottom: 10px solid #875D0E;  /*solid moet voor stijl, border-bottom = 3!*/
+    padding: 40px;
+    margin-bottom: 50px;
+    text-align: center;
+  }
+  .about h1{
+      color: white;
+      font-style: bold;
+  }
+  .about p{
+      color: white;
+      font-size: 20px;
+      font-style: italic;
+  }
+  #registerText {
+    font-size: 50px;
+    text-align: center;
+
+  }
+
+
+/*--------- form ----------*/
+.inputform {
+  display: flex;
   flex-direction: column;
-  padding: 2rem 0;
-}
-.about h1{
-    color: white;
-    font-style: bold;
-    text-align: center;
-}
-.about p{
-    color: white;
-    font-size: 1.2rem;
-    font-style: italic;
-    text-align: center;
-    margin: 0;
+  align-items: center;
 }
 
-h1{
-    color: #FCB6F7;
-    text-align: center;
-}
+
+/*---------input boxes----------*/
 .input.box{
     width: 250px;
-  margin: 0.5rem 0;
-}
-.input.box input {
-  width: 70%;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  box-align: center;
-}
+    margin: 0.5rem 0;
+  }
+  .input.box {
+    margin-bottom: 15px;
+    align-items: center;
+  }
+  .input.box input {
+    width: 70%;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-align: center;
+  }
+  .input.box input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgb(177, 175, 175);
+    border-radius: 5px;
+    transition: 0.15s ease-in-out;
+    cursor:text;
+
+    font-size: medium;
+  }
+  .input.box input:hover {
+    border-color: rgb(94, 93, 93);
+  }
+  
+    /*----------  CHECKBOX ----------*/
+    .form-check{
+      display: flex;
+      align-items: center;  /*omdat  checkbox  enn  label deel van form check zzijn,forced dit dat ze horizontatal gecentreerrd zijn (wantt flex op een row)*/
+    }
+    .form-check-label  {
+      margin-top: 3px;
+      margin-left: 8px;
+      font-size: 110%;
+      font-weight: 400;
+    }
+    .form-check-input{
+      margin-bottom: 5px;
+      border-color: rgb(194, 189, 189) !important;
+      cursor: pointer;
+
+      /*browsers default checkbox hiden*/
+      appearance: none;
+
+      /*nu bepalen we onze eigen grootte van box*/
+      width: 23px !important; /*!important zodat het bootstrap setttings overruled*/
+      height: 23px !important;
+      border-radius: 5px !important;
+
+      /*tenslotte positie, zodatt hett niet op de verkeerde plek staat*/
+      position: absolute;
+    }
+    .form-check-input:hover {
+      transition: 0.15s ease-in-out;
+      border-color: rgba(173, 132, 70, 0.664) !important;
+    }
+    /*dit zijn alle settings die we willen als het al checked is,  en omdat de checkbox direct eerstt gechecked is, moet dit bij :checked staan*/
+    .form-check-input:checked {
+      background-color: rgba(209, 160, 87, 0.664) !important;
+      border: none;
+    }
+    .form-check-input:checked:hover {
+      background-color: rgba(173, 132, 70, 0.664) !important;
+    }
+    .form-check-input:focus { /*i swear bootstrap is raar like girl wdym lemme jusst add a random blue shadow??*/
+      box-shadow: none !important;
+    }
+
+    /*----------  BUTTON ----------*/
+    #register {
+      background-color: #e9b25f;
+      color: rgb(56, 56, 56);
+      font-size: 20px;
+      font-weight: 650;
+
+      padding: 12px;
+      border-radius: 5px;
+      border: none;
+      width: 250px;
+      line-height: 100%;
+
+      margin-top: 20px;
+      text-align: center;
+
+      transition: 0.15s ease-in-out;
+      cursor: pointer;
+    }
+    #register:hover {
+      background-color: #dfaa48;
+    }
+    #register:active {
+      background-color: #875D0E;
+      color: white;
+    }
+    #back {
+      background-color: white;
+      color: rgb(56, 56, 56);
+      font-size: 20px;
+      font-weight: 650;
+
+      padding: 12px;
+      border-radius: 5px;
+      border: 2px solid #ac791c;
+      width: 250px;
+      line-height: 100%;
+
+      margin-top: 20px;
+      text-align: center;
+
+      transition: 0.15s ease-in-out;
+      cursor: pointer;
+    }
+    #back:hover {
+      border-color: #875D0E;
+    }
+    #back:active {
+      background-color: #875D0E;
+      color: white;
+    }
+
+/*---------PHONE CHANGES---------*/
+  @media (max-width: 500px) {
+    header {
+      border: none;
+    }
+    .about p{
+      display: none;
+    }
+  }

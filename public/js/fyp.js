@@ -534,3 +534,37 @@ async function confirmInviteFriend() {
 
     alert("Invite sent!");
 }
+
+function toggleSidebar(button) {
+    const sidebar = document.getElementById("Sidebar");
+    const svg = button.querySelector("svg"); //icon gebruikt bij sidebar
+
+    if (sidebar.classList.contains("show")) {
+        //sluit sidebar en change icon 
+        sidebar.classList.remove("show")
+        svg.innerHTML = '<path d="M4 6h16M4 12h16M4 18h16"/>';
+        console.log("-- sidebar closed")
+
+    } else {
+        //open sidebar en change icon
+        sidebar.classList.add("show")
+        svg.innerHTML = '<path d="M18 6L6 18M6 6l12 12"/>';
+        console.log("-- sidebar open");
+    }
+    button.classList.toggle("is-active");
+}
+
+async function handleLogout() {
+    console.log("--> LOGGING OUT")
+    const res = await fetch("/user/me");
+    const user = await res.json();
+
+    alert("It was nice seeing you, hope you come again!")
+    deleteCookie(user.id);
+    window.location.href = "/login";
+}
+
+// extra hulpmiddel voor handleLogout()
+function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}

@@ -1,5 +1,28 @@
 <div class="members-section">
-    <h3 class="title-header">Group Members</h3>
+
+    <div class="title-section">
+        <h1 class="title-header">Group Members</h1>
+
+        <div id="manageBtns">
+            <button type="button" class="btn btn-secondary me-2" id="manageRoles">
+                <i class="bi bi-person-badge"></i>
+                Change Roles
+            </button>
+            <button type="button" class="btn btn-secondary" id="manageMembers">
+                <i class="bi bi-person-gear"></i>
+                Manage Members
+            </button>
+        </div>
+    </div>
+
+    <h3>Admins</h3>
+    <ul class="list-group mb-3" id="adminList"></ul>
+
+    <h3 class="member-header">Members</h3>
+    <ul class="list-group" id="memberList"></ul>
+
+    <h3 class="viewer-header">Viewers</h3>
+    <ul class="list-group" id="viewerList"></ul>
 
     <!-- manageRoles Modal -->
     <div class="modal fade" id="manageRolesModal" tabindex="-1" aria-hidden="true">
@@ -44,23 +67,4 @@
             </div>
         </div>
     </div>
-
-<div id="manageBtns" hidden>
-    <button type="button" id="manageRoles">
-        Change Roles
-    </button>
-
-    <button type="button" id="manageMembers">
-        Manage Members
-    </button>
-</div>
-
-<h5>Admins</h5>
-<ul class="list-group mb-3" id="adminList"></ul>
-
-    <h5 class="member-header">Members</h5>
-    <ul class="list-group" id="memberList"></ul>
-
-    <h5 class="viewer-header">Viewers</h5>
-    <ul class="list-group" id="viewerList"></ul>
 </div>

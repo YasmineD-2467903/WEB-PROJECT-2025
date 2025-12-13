@@ -1,100 +1,207 @@
-.container {
-  display: grid;
-  grid-template-areas: "sidebar content";
-  grid-template-columns: 280px 1fr;
-}
-.container div {
-  padding: 10px;
-}
+/*----------- Header -----------*/
+  header{
+      background-color: #E6BB58;
+      text-align: center;
+      padding: 5px;
+      margin-bottom: 10px;
+  }
+  #back {
+    color: #535353;
+  }
+  #back:hover {
+    color: #a1a3a7;
+  }
 
-.content {
-  grid-area: content;
-}
+/*----------- special padding voor iedere child -----------*/
+  .container div {
+    padding: 10px;
+  }
 
 /*----------- Sidebar -----------*/
-/*https://www.youtube.com/watch%3Fv%3DLjs9cktoubc&ved=2ahUKEwiHvq_p3fuQAxVMU6QEHWezDFYQwqsBegQIGRAB&usg=AOvVaw3PBNLwXLLxPxd4YPb9y3PP*/
-.sidebar {
-  width: 280px;
-  display: flex;
-  flex-direction: column; /*zet iteems onder elkaar*/
-  gap: 10px;
+  .sidebar {
+    width: 280px;
+    display: flex;
+    flex-direction: column; /*zet iteems onder elkaar*/
+    gap: 10px;
+  }
+  #sidebarBtn {
+    margin: 15px;
+    width: 150px;
+    height: min-content;
 
-  grid-area: sidebar;
-}
+    font-weight: 600;
+    color: rgb(56, 56, 56);
+    background-color: white;
+    border: 2px solid #c79521 !important;
+
+    transition: 0.15s ease-in-out;
+  }
+  #sidebarBtn:hover {
+    border-color: #875D0E !important;
+  }
+
 
 /*----------- Content: members -----------*/
-.title-header {
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-.admin-header,
-.member-header,
-.viewer-header {
-  font-weight: 530;
-  color: rgb(56, 56, 56);
-}
-.list-group {
-  flex-wrap: wrap;  /*als geen plaats, jump naar volgende lijn*/
-  /*display: fleex niett nodig want list-grorup heefttt da al (zie  bootstrap)*/
+  .members-section {
+    padding: 0px !important;
+    width: 80%;
+  }
+  .title-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    margin-bottom: 15px;
+    border-bottom: 2px solid #9aa1a7;
+  }
+  .title-header {
+    margin-bottom: 10px;
+  }
+  .admin-header,
+  .member-header,
+  .viewer-header {
+    font-weight: 530;
+    color: rgb(56, 56, 56);
+  }
+  .list-group {
+    flex-wrap: wrap;  /*als geen plaats, jump naar volgende lijn*/
+    /*display: fleex niett nodig want list-grorup heefttt da al (zie  bootstrap)*/
 
-  border: 2px solid #cdd0d4;
-  width: 80%;
-  margin-bottom: 2%;
-}
-.list-group-item {
-  border: none !important;
-  font-weight: 450;
-}
+    border: 2px solid #cdd0d4;
+    margin-bottom: 2%;
+  }
+  .list-group-item {
+    border: none !important;
+    font-weight: 450;
+  }
+    /*----------- CHANGE & MANAGE BTNS -----------*/
+      #manageBtns {
+        padding: 0px;
+      }
+      #manageRoles,
+      #manageMembers {
+        margin-bottom: 10px;
+        width: 200px;
 
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: 0.15s ease-in-out;
+      }
+      #manageRoles {
+        background-color: #79944a;
+        transition: 0.15s ease-in-out;
+      }
+      #manageRoles:hover {
+        background-color: #69833b;
+      }
+      #manageRoles:active {
+        background-color: #4a5f26;
+      }
+      #manageMembers {
+        background-color: #62929e;
+      }
+      #manageMembers:hover {
+        background-color: #577d86;
+      }
+      #manageMembers:active {
+        background-color: #436871;
+      }
+
+      
 /*----------- Content: settings -----------*/
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 350px is of 1 fraction (25% v available space)*/
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /*aantal kolommen lataen we herhalend auto-gevuld worden waarbij grootte voor iedere kolom minimum 350px is of 1 fraction (25% v available space)*/
+    align-items: center;
 
-  border: 1px solid #cdd0d4;
-  border-radius: 8px;
+    border: 1px solid #cdd0d4;
+    border-radius: 8px;
 
-  width: 80%; /*if full-screen, dan is de kader niet al te groot en de helft leeg (omdat 100% veel ruimte innneeemt*/
-}
+    width: 80%; /*if full-screen, dan is de kader niet al te groot en de helft leeg (omdat 100% veel ruimte innneeemt*/
+  }
+  #settingsExpl {
+    font-size: 20px;
+  }
+    /*----------- FORMS -----------*/
+      .form-control {
+        margin: 5px;
+        margin-left: -10px;
+        width: 80%;
+      }
+      .form-control:focus {
+        border-color: #875D0E;
+        box-shadow: 0  0 0 0.15rem rgb(231, 206, 148);
+      }
 
-  /*----------- FORMS -----------*/
-    .form-control {
-      margin: 5px;
-      margin-left: -10px;
-      width: 80%;
-    }
-    .form-control:focus {
-      border-color: #875D0E;
-      box-shadow: 0  0 0 0.15rem rgb(231, 206, 148);
-    }
+    /*----------- CHECKBOXES -----------*/
+      .form-check  {
+        margin-left: 10%;
+      }
+      .form-check-input {
+        border-color: rgb(194, 189, 189);
+        margin-top: 5px; /*positie beetje naar  onder  (heel  weinig)*/
 
-  /*----------- CHECKBOXES -----------*/
-    .form-check  {
-      margin-left: 10%;
-    }
-    .form-check-input {
-      border-color: rgb(194, 189, 189);
-      margin-top: 5px; /*positie beetje naar  onder  (heel  weinig)*/
+        transition: 0.15s ease-in-out;
+        cursor: pointer;
+      }
+      .form-check-input:hover {
+        color: #E6BB58;
+        border-color: #E6BB58;
+      }
+      .form-check-input:checked {
+        background-color: #E6BB58;
+        border-color: #E6BB58
+      }
+      .form-check-input:focus {
+        border-color: #E6BB58;
+        box-shadow: none;
+      }
 
-      transition: 0.15s ease-in-out;
-      cursor: pointer;
-    }
-    .form-check-input:hover {
-      color: #E6BB58;
-      border-color: #E6BB58;
-    }
-    .form-check-input:checked {
-      background-color: #E6BB58;
-      border-color: #E6BB58
-    }
-    .form-check-input:focus {
-      border-color: #E6BB58;
-      box-shadow: none;
-    }
+    /*----------- SAVE & CANCEL -----------*/
+      #saveSettings, 
+      #cancelSettings {
+        margin: 10px;
+        width: 80%;
+        
+        color: rgb(56, 56, 56);
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+      }
+      #saveSettings {
+        background-color: #b3c088;
+        transition: 0.15s ease-in-out;
+      }
+      #saveSettings:hover {
+        background-color: #a0b165;
+      }
+      #saveSettings:active {
+        background-color: #737a58;
+        color: white;
+      }
 
+      #cancelSettings {
+        border: none;
+        background-color: #d46c4f;
+        transition: 0.15s ease-in-out;
+      }
+      #cancelSettings:hover {
+        background-color: #ad5b44;
+      }
+      #cancelSettings:active {
+        color: white;
+        background-color: #5d3037;
+      }
 
 /*----------- Content: Chat -----------*/
+  
 
+
+/*----------- Content: Map Overview -----------*/
+  #test {
+    height: 50vh;
+  }
 
 
 /*----------- Content: Polls -----------*/
@@ -102,27 +209,46 @@
 
 
 /*----------- Buttons -----------*/
-.btn.btn-outline-primary {
-    background-color: rgba(209, 160, 87, 0.664);
+  .btn.btn-outline-primary {
+      background-color: rgba(209, 160, 87, 0.664);
+      color: rgb(56, 56, 56);
+      font-size: 15px;
+      font-weight: 600;
+
+      width: 80% !important; /*kut bootstrap maakt da automatisch fit-content, wij willen dat noppen evengroot is dus !important voor de width*/
+      padding: 12px;
+      border-radius: 5px;
+      border: none;
+      line-height: 100%;
+      text-align: start;
+
+      transition: 0.15s ease-in-out;
+  }
+  .btn.btn-outline-primary:hover {
+    background-color: rgba(173, 132, 70, 0.664);
     color: rgb(56, 56, 56);
-    font-size: 15px;
-    font-weight: 600;
+  }
+  .btn.btn-outline-primary:active {
+    color: white;
+    background-color: #875D0E;
+  }
 
-    width: 80% !important; /*kut bootstrap maakt da automatisch fit-content, wij willen dat noppen evengroot is dus !important voor de width*/
-    padding: 12px;
-    border-radius: 5px;
-    border: none;
-    line-height: 100%;
-    text-align: center;
 
-    transition: 0.15s ease-in-out;
-    cursor: pointer;
-}
-.btn.btn-outline-primary:hover {
-  background-color: rgba(173, 132, 70, 0.664);
-  color: rgb(56, 56, 56);
-}
-.btn.btn-outline-primary:active {
-  color: white;
-  background-color: #875D0E;
+/*---------PHONE CHANGES---------*/
+@media (max-width: 500px) { 
+
+  /*----------- Content: members -----------*/
+    .members-section {
+      margin-left: 40px;
+    }
+    #manageRoles,
+    #manageMembers { 
+      width: 100px;
+    }
+
+
+  /*----------- Content: settings -----------*/
+    #formGroup {
+      margin-left: 10px;
+    }
 }
