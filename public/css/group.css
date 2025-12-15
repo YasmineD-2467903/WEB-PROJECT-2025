@@ -75,9 +75,6 @@
     font-weight: 450;
   }
     /*----------- CHANGE & MANAGE BTNS -----------*/
-      #manageBtns {
-        padding: 0px;
-      }
       #manageRoles,
       #manageMembers {
         margin-bottom: 10px;
@@ -86,10 +83,6 @@
         border: none;
         font-size: 15px;
         font-weight: 600;
-        transition: 0.15s ease-in-out;
-      }
-      #manageRoles {
-        background-color: #79944a;
         transition: 0.15s ease-in-out;
       }
       #manageRoles:hover {
@@ -108,6 +101,14 @@
         background-color: #436871;
       }
 
+      /*----------- CANCEL BTN -----------*/
+      #cancelMember, #removeMember {
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        width: 150px;
+      }
+
       
 /*----------- Content: settings -----------*/
   .settings-grid {
@@ -118,10 +119,16 @@
     border: 1px solid #cdd0d4;
     border-radius: 8px;
 
-    width: 80%; /*if full-screen, dan is de kader niet al te groot en de helft leeg (omdat 100% veel ruimte innneeemt*/
+    width: 70%; /*if full-screen, dan is de kader niet al te groot en de helft leeg (omdat 100% veel ruimte innneeemt*/
   }
   #settingsExpl {
     font-size: 20px;
+  }
+  #formGroup > input {
+    margin-left: 10px;
+  }
+  #checkboxGroup > div {
+    margin-bottom: 10px;
   }
     /*----------- FORMS -----------*/
       .form-control {
@@ -170,27 +177,16 @@
         text-align: center;
         transition: 0.15s ease-in-out;
       }
-      #saveSettings {
-        background-color: #b3c088;
-      }
-      #saveSettings:hover {
-        background-color: #a0b165;
-      }
-      #saveSettings:active {
-        background-color: #737a58;
-        color: white;
-      }
-
-      #cancelSettings {
+      #cancelSettings, #deleteStopBtn, #removeMember {
         border: none;
         background-color: #d46c4f;
       }
-      #cancelSettings:hover {
+      #cancelSettings:hover, #deleteStopBtn:hover, #removeMember:hover {
         background-color: #ad5b44;
       }
-      #cancelSettings:active {
+      #cancelSettings:active, #deleteStopBtn:active, #removeMember:active {
         color: white;
-        background-color: #5d3037;
+        background-color: #882d3b;
       }
 
 /*----------- Content: Chat -----------*/
@@ -219,6 +215,85 @@
   #test {
     height: 50vh;
   }
+  .map-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+  }
+  #stopsContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 400px)); 
+      max-width: 80%; 
+      margin-left: 0px;
+      gap: 10px;
+  }
+  #stopsContainer > div {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      border: 2px solid #ccc;
+      border-radius: 15px;
+  }
+
+  /*----------- MAP BUTTONS -----------*/
+      #addStopBtn, #generateRouteBtn {
+        width: 150px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        transition: 0.15s ease-in-out;
+      }
+      #saveStop {
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        transition: 0.15s ease-in-out;
+
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      #generateRouteBtn {
+        color: rgb(56, 56, 56);
+        background-color: rgba(209, 160, 87, 0.664);
+      }
+      #generateRouteBtn:hover {
+        background-color: rgba(173, 132, 70, 0.664);
+      }
+      #generateRouteBtn:active {
+        color: white;
+        background-color: #875D0E;
+      }
+
+      .editBtns {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      #saveEditStopBtn, #deleteStopBtn {
+        color: rgb(56, 56, 56);
+        width: 50%;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        transition: 0.15s ease-in-out;
+      }
+
+      .btn.btn-sm.btn-secondary, .btn.btn-secondary {
+        font-size: 15px;
+        font-weight: 600;
+        width: 100px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+      }
+      .btn.btn-secondary {
+        width: 150px;
+      }
+
 
 
 /*----------- Content: Polls -----------*/
@@ -288,6 +363,28 @@
     background-color: #875D0E;
   }
 
+  .btn.btn-outline-cancel {
+    color: white;
+    background-color: #97535d;
+  }
+  .btn.btn-outline-cancel:hover {
+    background-color: #85444e;
+  }
+  .btn.btn-outline-cancel:active {
+    color: white;
+    background-color: #5d3037;
+  }
+
+  #addStopBtn, #saveStop, #saveSettings, #saveEditStopBtn,#manageRoles { /*knoppen van andere contents ook hier omdatt ik de dezelfde kleuern wil pakken zonder het duplicate code*/
+    color: white;
+    background-color: #79944a;
+  }
+  #addStopBtn:hover, #saveStop:hover, #saveSettings:hover, #saveEditStopBtn:hover, #manageRoles:hover {
+    background-color: #61802c;
+  }
+  #addStopBtn:active, #saveStop:active, #saveSettings:active, #saveEditStopBtn:active, #manageRoles:active {
+    background-color: #4a5f26;
+  }
 
 /*---------PHONE CHANGES---------*/
 @media (max-width: 500px) { 
@@ -303,7 +400,16 @@
 
 
   /*----------- Content: settings -----------*/
-    #formGroup {
+    .setting-item {
+      margin-top: 10px;
+    }
+    #checkboxGroup > div {
       margin-left: 10px;
+    }
+
+
+    /*----------- Content: Map Overview -----------*/
+    #stopsContainer > div {
+      margin-bottom: 5px;
     }
 }

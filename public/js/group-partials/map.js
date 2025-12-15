@@ -379,7 +379,9 @@ function loadStopsForDate(dateStr) {
     container.innerHTML = "";
 
     if (stopsForDate.length === 0) {
-        container.innerHTML = `<div>No stops for this day</div>`;
+        container.innerHTML = `<div class="text-center">
+                                  <h3>No stops for this day</h3>
+                                </div>`;
         
         renderStopsOnMap();
         if (directionsRenderer) directionsRenderer.set('directions', null);

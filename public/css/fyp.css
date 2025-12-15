@@ -180,6 +180,20 @@
         gap: 15px;
     }
 
+    .btn.btn-outline-cancel {
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        background-color: #97535d;
+    }
+    .btn.btn-outline-cancel:hover {
+        background-color: #85444e;
+    }
+    .btn.btn-outline-cancel:active {
+        color: white;
+        background-color: #5d3037;
+    }
+
 
 /*---------PHONE CHANGES---------*/
 @media (max-width: 500px) {
