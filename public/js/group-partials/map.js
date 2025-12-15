@@ -54,7 +54,7 @@ async function fetchAllStops() {
             return;
         }
 
-        allStops = data.sort((a, b) => new Date(a.start) - new Date(b.start));
+        allStops = data.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
     } catch (err) {
         console.error("Failed to fetch all stops:", err);
         allStops = [];
@@ -255,9 +255,7 @@ function initAutocomplete(map) {
 function renderStopsOnMap() {
     if (!mapInstance) return;
 
-    markersForDay.forEach(marker => {
-        marker.map = null;
-    });
+    markersForDay.forEach(marker => marker.setMap(null));
     markersForDay = [];
 
     if (directionsRenderer) {
@@ -269,7 +267,15 @@ function renderStopsOnMap() {
     const bounds = new google.maps.LatLngBounds();
 
     window.currentDayStops.forEach(stop => {
-        const position = { lat: stop.lat, lng: stop.lng };
+        const lat = Number(stop.lat);
+        const lng = Number(stop.lng);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            console.warn("Skipping stop with invalid coordinates:", stop);
+            return;
+        }
+
+        const position = new google.maps.LatLng(lat, lng);
 
         const marker = new google.maps.marker.AdvancedMarkerElement({
             map: mapInstance,
@@ -277,20 +283,13 @@ function renderStopsOnMap() {
             title: stop.title
         });
 
-        marker.addListener("click", () => {
-            infoWindow.setContent(`
-                <strong>${stop.title}</strong><br>
-                ${stop.description || ""}<br>
-                <small>${stop.startDate}</small>
-            `);
-            infoWindow.open(mapInstance, marker);
-        });
-
         markersForDay.push(marker);
         bounds.extend(position);
     });
 
-    mapInstance.fitBounds(bounds);
+    if (markersForDay.length > 0) {
+        mapInstance.fitBounds(bounds);
+    }
 }
 
 

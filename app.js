@@ -1097,13 +1097,13 @@ app.post("/group/:groupId/stops/:stopId/update", uploadStopFiles.array("files"),
 
         if (!membership || membership.role === "viewer") return res.status(403).json({ error: "Not allowed to edit stops" });
 
-        const { title, description, startDate, endDate, lat, lng } = req.body;
+        const { title, description, startDate, endDate } = req.body;
 
         db.prepare(`
             UPDATE stops SET
-                title = ?, description = ?, startDate = ?, endDate = ?, coordinates_lat = ?, coordinates_lng = ?
+                title = ?, description = ?, startDate = ?, endDate = ?
             WHERE id = ? AND group_id = ?
-        `).run(title, description, startDate, endDate, lat, lng, stopId, groupId);
+        `).run(title, description, startDate, endDate, stopId, groupId);
 
         if (req.files && req.files.length > 0) {
             const insertFile = db.prepare(`
