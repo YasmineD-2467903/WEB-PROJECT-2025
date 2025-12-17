@@ -48,9 +48,9 @@ function generateFriendCode() {
     const segment = () =>
         Math.random().toString(36).substring(2, 6).toUpperCase();
     return `${segment()}-${segment()}-${segment()}`;
-    }
+}
 
-    function createUniqueFriendCode() {
+function createUniqueFriendCode() {
     let code;
     let exists;
 

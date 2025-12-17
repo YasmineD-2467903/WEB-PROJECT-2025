@@ -157,380 +157,699 @@ export function InitializeDatabase() {
         )  
     `).run();
 
-    // --- DEMO USERS ---
-    const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
+    // --- COMPREHENSIVE DEMO DATA ---
+    const demoCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
 
-    if (userCount === 0) {
-        console.log("Database empty: inserting example users...");
-        const exampleUsers = [
+    if (demoCount === 0) {
+        console.log("Database empty: inserting comprehensive demo data...");
+        
+        // generate random friend codes - from app.js
+        function generateFriendCode() {
+            const segment = () =>
+                Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `${segment()}-${segment()}-${segment()}`;
+        }
+
+        function generateUniqueFriendCode() {
+            let code;
+            let exists;
+
+            do {
+                code = generateFriendCode();
+                exists = db.prepare("SELECT id FROM users WHERE friend_code = ?").get(code);
+            } while (exists);
+
+            return code;
+        }
+
+        // ========== USERS ==========
+        console.log("Inserting demo users...");
+        
+        const demoUsers = [
+            // Admins
             {
-                username: "Peter",
-                password: "pass",
-                friend_code: "ABCD-ABCD-EEEE",
-                display_name: "Peter Parker",
-                bio: "Friendly neighborhood explorer.",
-                bannerColor: "#1e90ff",
-                profilePicture: "default.png"
+                username: "admin_john",
+                password: "password123",
+                display_name: "John Travelmaster",
+                bio: "Seasoned traveler with 20+ years of experience. Love organizing group trips!",
+                bannerColor: "#3498db",
+                profilePicture: "john_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             },
             {
-                username: "Jori",
-                password: "bug",
-                friend_code: "ABCD-ABCD-DDDD",
-                display_name: "Jori Smith",
-                bio: "Love traveling and coffee.",
-                bannerColor: "#ff6347",
-                profilePicture: "default.png"
+                username: "sarah_admin",
+                password: "$password456",
+                display_name: "Sarah Explorer",
+                bio: "Adventure photographer and trip planner. Always looking for new destinations!",
+                bannerColor: "#e74c3c",
+                profilePicture: "sarah_profile.jpg",
+                friend_code: generateUniqueFriendCode()
+            },
+            // Members (regular users)
+            {
+                username: "mike_adventurer",
+                password: "password789",
+                display_name: "Mike Mountain",
+                bio: "Hiking enthusiast and nature lover. Join me on mountain trails!",
+                bannerColor: "#2ecc71",
+                profilePicture: "mike_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             },
             {
-                username: "Joris",
-                password: "letmein",
-                friend_code: "ABCD-ABCD-CCCC",
-                display_name: "Joris Van Dam",
-                bio: "Hiking enthusiast.",
-                bannerColor: "#32cd32",
-                profilePicture: "default.png"
+                username: "lisa_beach",
+                password: "password012",
+                display_name: "Lisa Sunseeker",
+                bio: "Beach vacations are my specialty! Tropical destinations expert.",
+                bannerColor: "#f1c40f",
+                profilePicture: "lisa_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             },
             {
-                username: "Mike",
-                password: "yip",
-                friend_code: "ABCD-ABCD-BBBB",
-                display_name: "Mike Johnson",
-                bio: "Adventure seeker.",
-                bannerColor: "#ff1493",
-                profilePicture: "default.png"
+                username: "david_city",
+                password: "password345",
+                display_name: "David Urban",
+                bio: "City explorer and food tour guide. Know all the best spots in major cities.",
+                bannerColor: "#9b59b6",
+                profilePicture: "david_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             },
             {
-                username: "Keti",
-                password: "123",
-                friend_code: "ABCD-ABCD-AAAA",
-                display_name: "Keti V.",
-                bio: "Travel blogger and chocolate lover.",
-                bannerColor: "#ffa500",
-                profilePicture: "default.png"
+                username: "emma_culture",
+                password: "password678",
+                display_name: "Emma Culture",
+                bio: "History buff and museum enthusiast. Love cultural immersion trips.",
+                bannerColor: "#1abc9c",
+                profilePicture: "emma_profile.jpg",
+                friend_code: generateUniqueFriendCode()
+            },
+            // Viewers (more passive users)
+            {
+                username: "tom_viewer",
+                password: "password901",
+                display_name: "Tom Observer",
+                bio: "I enjoy following trip plans and seeing photos from others' adventures.",
+                bannerColor: "#95a5a6",
+                profilePicture: "tom_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             },
             {
-                username: "Pew",
-                password: "000",
-                friend_code: "ABCD-ABCD-ABCD",
-                display_name: "Pew Pew",
-                bio: "Just here for the fun.",
-                bannerColor: "#8a2be2",
-                profilePicture: "default.png"
+                username: "anna_follower",
+                password: "password234",
+                display_name: "Anna Follower",
+                bio: "New to traveling, learning from experienced travelers in the community.",
+                bannerColor: "#34495e",
+                profilePicture: "anna_profile.jpg",
+                friend_code: generateUniqueFriendCode()
+            },
+            {
+                username: "robert_planner",
+                password: "password567",
+                display_name: "Robert Detailer",
+                bio: "Excel at logistics and budgeting. Make every trip cost-effective!",
+                bannerColor: "#d35400",
+                profilePicture: "robert_profile.jpg",
+                friend_code: generateUniqueFriendCode()
+            },
+            {
+                username: "sophia_photo",
+                password: "password890",
+                display_name: "Sophia Lens",
+                bio: "Professional travel photographer. Always capturing the perfect moments.",
+                bannerColor: "#16a085",
+                profilePicture: "sophia_profile.jpg",
+                friend_code: generateUniqueFriendCode()
             }
         ];
 
         const insertUser = db.prepare(`
-            INSERT INTO users (username, password, friend_code, display_name, bio, bannerColor, profilePicture)
+            INSERT INTO users (username, password, display_name, bio, bannerColor, profilePicture, friend_code)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `);
 
-        const transaction = db.transaction((users) => {
+        const usersTx = db.transaction((users) => {
             for (const user of users) {
                 insertUser.run(
-                user.username,
-                user.password,
-                user.friend_code,
-                user.display_name,
-                user.bio,
-                user.bannerColor,
-                user.profilePicture
+                    user.username,
+                    user.password,
+                    user.display_name,
+                    user.bio,
+                    user.bannerColor,
+                    user.profilePicture,
+                    user.friend_code
                 );
             }
         });
-        transaction(exampleUsers);
-    } else {
-        console.log("Users already present: skipping demo inserts.");
-    }
+        usersTx(demoUsers);
 
-    // --- DEMO GROUPS ---
-    const groupCount = db.prepare("SELECT COUNT(*) AS count FROM groups").get().count;
+        const users = db.prepare("SELECT id, username FROM users").all();
+        const userMap = Object.fromEntries(users.map(u => [u.username, u.id]));
 
-    if (groupCount === 0) {
-        console.log("No groups found — inserting demo groups...");
-
-        const exampleGroups = [
+        // ========== GROUPS ==========
+        console.log("Inserting demo groups...");
+        
+        const demoGroups = [
             {
-                name: "UHasselt Adventure Buddies",
-                description: "Exploring Europe one trip at a time!",
-                startDate: "2025-10-10T00:00:00",
-                endDate:   "2025-10-20T00:00:00"
+                name: "European Backpackers 2026",
+                description: "3-week backpacking trip across Europe. Hostels, trains, and lots of walking!",
+                startDate: "2026-07-01T00:00:00",
+                endDate: "2026-07-21T00:00:00",
+                allowMemberInvite: 1,
+                allowMemberPoll: 1,
+                allowViewerChat: 0
             },
             {
-                name: "Summer Road Trip 2025",
-                description: "Friends + car + sun = perfect vacation.",
-                startDate: "2025-10-10T00:00:00",
-                endDate:   "2025-10-20T00:00:00"
+                name: "Ski Trip - Alps 2026",
+                description: "Annual ski trip to the French Alps. All skill levels welcome!",
+                startDate: "2026-12-15T00:00:00",
+                endDate: "2026-12-22T00:00:00",
+                allowMemberInvite: 0,
+                allowMemberPoll: 1,
+                allowViewerChat: 1
             },
             {
-                name: "Mountain Lovers",
-                description: "Hiking, camping, and nature photography group.",
-                startDate: "2025-10-10T00:00:00",
-                endDate:   "2025-10-20T00:00:00"
+                name: "Southeast Asia Adventure",
+                description: "Exploring Thailand, Vietnam, and Cambodia for 4 weeks.",
+                startDate: "2026-11-01T00:00:00",
+                endDate: "2026-11-28T00:00:00",
+                allowMemberInvite: 1,
+                allowMemberPoll: 0,
+                allowViewerChat: 0
+            },
+            {
+                name: "US National Parks Roadtrip",
+                description: "2-month roadtrip visiting 10+ national parks across the USA.",
+                startDate: "2026-06-01T00:00:00",
+                endDate: "2026-07-31T00:00:00",
+                allowMemberInvite: 1,
+                allowMemberPoll: 1,
+                allowViewerChat: 1
+            },
+            {
+                name: "Mediterranean Cruise",
+                description: "Luxury cruise visiting Greece, Italy, and Spain.",
+                startDate: "2026-08-10T00:00:00",
+                endDate: "2026-08-24T00:00:00",
+                allowMemberInvite: 0,
+                allowMemberPoll: 0,
+                allowViewerChat: 1
             }
         ];
 
-        const insertGroup = db.prepare(
-            "INSERT INTO groups (name, description, startDate, endDate) VALUES (?, ?, ?, ?)"
-        );
+        const insertGroup = db.prepare(`
+            INSERT INTO groups (name, description, startDate, endDate, allowMemberInvite, allowMemberPoll, allowViewerChat)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `);
 
-        const insertGroupsTx = db.transaction((groups) => {
+        const groupsTx = db.transaction((groups) => {
             for (const group of groups) {
                 insertGroup.run(
                     group.name,
                     group.description,
                     group.startDate,
-                    group.endDate
+                    group.endDate,
+                    group.allowMemberInvite,
+                    group.allowMemberPoll,
+                    group.allowViewerChat
                 );
             }
         });
+        groupsTx(demoGroups);
 
-        insertGroupsTx(exampleGroups);
-    } else {
-        console.log("Groups already present — skipping demo inserts.");
-    }
-
-    // --- DEMO MEMBERSHIPS ---
-    const memberCount = db.prepare("SELECT COUNT(*) AS count FROM group_members").get().count;
-
-    if (memberCount === 0) {
-        console.log("No group memberships found — inserting demo memberships...");
-
-        const users = db.prepare("SELECT id, username FROM users").all();
         const groups = db.prepare("SELECT id, name FROM groups").all();
+        const groupMap = Object.fromEntries(groups.map(g => [g.name, g.id]));
 
-        const userByName = Object.fromEntries(users.map((u) => [u.username, u.id]));
-        const groupByName = Object.fromEntries(groups.map((g) => [g.name, g.id]));
-
-        const memberships = [
-            { user_id: userByName["Keti"], group_id: groupByName["UHasselt Adventure Buddies"], role: "admin" },
-            { user_id: userByName["Mike"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
-            { user_id: userByName["Jori"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
-            { user_id: userByName["Joris"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
-            { user_id: userByName["Pew"], group_id: groupByName["UHasselt Adventure Buddies"], role: "member" },
-            { user_id: userByName["Peter"], group_id: groupByName["UHasselt Adventure Buddies"], role: "viewer" },
-            { user_id: userByName["Keti"], group_id: groupByName["Summer Road Trip 2025"], role: "admin" },
-            { user_id: userByName["Keti"], group_id: groupByName["Mountain Lovers"], role: "admin" },
+        // ========== GROUP MEMBERSHIP ==========
+        console.log("Inserting demo group memberships...");
+        
+        const demoMemberships = [
+            // European Backpackers 2026
+            { user_id: userMap["admin_john"], group_id: groupMap["European Backpackers 2026"], role: "admin" },
+            { user_id: userMap["mike_adventurer"], group_id: groupMap["European Backpackers 2026"], role: "member" },
+            { user_id: userMap["lisa_beach"], group_id: groupMap["European Backpackers 2026"], role: "member" },
+            { user_id: userMap["david_city"], group_id: groupMap["European Backpackers 2026"], role: "member" },
+            { user_id: userMap["tom_viewer"], group_id: groupMap["European Backpackers 2026"], role: "viewer" },
+            
+            // Ski Trip - Alps 2026
+            { user_id: userMap["sarah_admin"], group_id: groupMap["Ski Trip - Alps 2026"], role: "admin" },
+            { user_id: userMap["admin_john"], group_id: groupMap["Ski Trip - Alps 2026"], role: "member" },
+            { user_id: userMap["emma_culture"], group_id: groupMap["Ski Trip - Alps 2026"], role: "member" },
+            { user_id: userMap["robert_planner"], group_id: groupMap["Ski Trip - Alps 2026"], role: "member" },
+            { user_id: userMap["anna_follower"], group_id: groupMap["Ski Trip - Alps 2026"], role: "viewer" },
+            
+            // Southeast Asia Adventure
+            { user_id: userMap["lisa_beach"], group_id: groupMap["Southeast Asia Adventure"], role: "admin" },
+            { user_id: userMap["sophia_photo"], group_id: groupMap["Southeast Asia Adventure"], role: "member" },
+            { user_id: userMap["tom_viewer"], group_id: groupMap["Southeast Asia Adventure"], role: "member" },
+            { user_id: userMap["anna_follower"], group_id: groupMap["Southeast Asia Adventure"], role: "viewer" },
+            
+            // US National Parks Roadtrip
+            { user_id: userMap["mike_adventurer"], group_id: groupMap["US National Parks Roadtrip"], role: "admin" },
+            { user_id: userMap["sarah_admin"], group_id: groupMap["US National Parks Roadtrip"], role: "member" },
+            { user_id: userMap["david_city"], group_id: groupMap["US National Parks Roadtrip"], role: "member" },
+            { user_id: userMap["emma_culture"], group_id: groupMap["US National Parks Roadtrip"], role: "member" },
+            { user_id: userMap["robert_planner"], group_id: groupMap["US National Parks Roadtrip"], role: "member" },
+            { user_id: userMap["anna_follower"], group_id: groupMap["US National Parks Roadtrip"], role: "viewer" },
+            
+            // Mediterranean Cruise
+            { user_id: userMap["sophia_photo"], group_id: groupMap["Mediterranean Cruise"], role: "admin" },
+            { user_id: userMap["lisa_beach"], group_id: groupMap["Mediterranean Cruise"], role: "member" },
+            { user_id: userMap["tom_viewer"], group_id: groupMap["Mediterranean Cruise"], role: "viewer" }
         ];
 
-        const insertMember = db.prepare(
-        "INSERT INTO group_members (user_id, group_id, role) VALUES (?, ?, ?)"
-        );
-        
-        const insertMembersTx = db.transaction((members) => {
-            for (const m of members)
+        const insertMember = db.prepare(`
+            INSERT INTO group_members (user_id, group_id, role) VALUES (?, ?, ?)
+        `);
+
+        const membershipsTx = db.transaction((memberships) => {
+            for (const m of memberships) {
                 insertMember.run(m.user_id, m.group_id, m.role);
+            }
         });
+        membershipsTx(demoMemberships);
 
-        insertMembersTx(memberships);
-    } else {
-        console.log("Group memberships already present — skipping demo inserts.");
-    }
+        // ========== INVITES ==========
+        console.log("Inserting demo invites...");
+        
+        const demoInvites = [
+            // Pending invites
+            { group_id: groupMap["European Backpackers 2026"], inviter_id: userMap["admin_john"], invited_id: userMap["sophia_photo"], role: "member" },
+            { group_id: groupMap["Ski Trip - Alps 2026"], inviter_id: userMap["sarah_admin"], invited_id: userMap["david_city"], role: "viewer" },
+            { group_id: groupMap["Southeast Asia Adventure"], inviter_id: userMap["lisa_beach"], invited_id: userMap["mike_adventurer"], role: "admin" },
+            { group_id: groupMap["US National Parks Roadtrip"], inviter_id: userMap["mike_adventurer"], invited_id: userMap["sophia_photo"], role: "member" }
+        ];
 
-    // --- DEMO GROUP CHAT MESSAGES ---
-    const messageCount = db.prepare("SELECT COUNT(*) AS count FROM group_messages").get().count;
+        const insertInvite = db.prepare(`
+            INSERT INTO invites (group_id, inviter_id, invited_id, role) VALUES (?, ?, ?, ?)
+        `);
 
-    if (messageCount === 0) {
-        console.log("Database empty: inserting example messages...");
-        const exampleMessages = [
+        const invitesTx = db.transaction((invites) => {
+            for (const invite of invites) {
+                insertInvite.run(invite.group_id, invite.inviter_id, invite.invited_id, invite.role);
+            }
+        });
+        invitesTx(demoInvites);
+
+        // ========== STOPS ==========
+        console.log("Inserting demo stops...");
+        
+        const demoStops = [
+            // European Backpackers stops
             {
-                user_id: 3,
-                timestamp: "2025-10-03 14:05:00.000",
-                group_id: 1,
-                contents: "Hey, is everyone ready to plan this trip?"
+                group_id: groupMap["European Backpackers 2026"],
+                creator_id: userMap["admin_john"],
+                title: "Amsterdam Arrival",
+                description: "Arrive at Schiphol Airport, check into hostel, explore canals",
+                startDate: "2026-07-01T10:00:00",
+                endDate: "2026-07-03T10:00:00",
+                coordinates_lat: 52.3676,
+                coordinates_lng: 4.9041
             },
             {
-                user_id: 4,
-                timestamp: "2025-10-03 14:06:00.000",
-                group_id: 1,
-                contents: "Yep! I was thinking somewhere warm"
+                group_id: groupMap["European Backpackers 2026"],
+                creator_id: userMap["david_city"],
+                title: "Berlin History Tour",
+                description: "Visit Berlin Wall, Brandenburg Gate, Museum Island",
+                startDate: "2026-07-05T09:00:00",
+                endDate: "2026-07-07T18:00:00",
+                coordinates_lat: 52.5200,
+                coordinates_lng: 13.4050
             },
             {
-                user_id: 5,
-                timestamp: "2025-10-03 14:08:00.000",
-                group_id: 1,
-                contents: "Same here, beach + good food would be perfect"
+                group_id: groupMap["European Backpackers 2026"],
+                creator_id: userMap["lisa_beach"],
+                title: "Prague Castle & Old Town",
+                description: "Guided tour of Prague Castle, Charles Bridge walk",
+                startDate: "2026-07-08T11:00:00",
+                endDate: "2026-07-10T16:00:00",
+                coordinates_lat: 50.0755,
+                coordinates_lng: 14.4378
+            },
+            
+            // Ski Trip stops
+            {
+                group_id: groupMap["Ski Trip - Alps 2026"],
+                creator_id: userMap["sarah_admin"],
+                title: "Chamonix Ski Resort",
+                description: "Beginner slopes in the morning, intermediate in afternoon",
+                startDate: "2026-12-15T09:00:00",
+                endDate: "2026-12-19T17:00:00",
+                coordinates_lat: 45.9237,
+                coordinates_lng: 6.8694
             },
             {
-                user_id: 3,
-                timestamp: "2025-10-03 14:10:00.000",
-                group_id: 1,
-                contents: "What about Spain or southern Italy?"
+                group_id: groupMap["Ski Trip - Alps 2026"],
+                creator_id: userMap["robert_planner"],
+                title: "Après-ski Social",
+                description: "Evening gathering at the lodge with hot chocolate",
+                startDate: "2026-12-15T19:00:00",
+                endDate: "2026-12-15T22:00:00",
+                coordinates_lat: 45.9237,
+                coordinates_lng: 6.8694
+            },
+            
+            // Southeast Asia stops
+            {
+                group_id: groupMap["Southeast Asia Adventure"],
+                creator_id: userMap["lisa_beach"],
+                title: "Bangkok Temples",
+                description: "Visit Wat Arun, Wat Phra Kaew, and Grand Palace",
+                startDate: "2026-11-01T08:00:00",
+                endDate: "2026-11-03T18:00:00",
+                coordinates_lat: 13.7563,
+                coordinates_lng: 100.5018
             },
             {
-                user_id: 4,
-                timestamp: "2025-10-03 14:11:00.000",
-                group_id: 1,
-                contents: "Spain sounds amazing"
-            },
-            {
-                user_id: 5,
-                timestamp: "2025-10-03 14:13:00.000",
-                group_id: 1,
-                contents: "When are we thinking? Summer or spring?"
-            },
-            {
-                user_id: 3,
-                timestamp: "2025-10-03 14:15:00.000",
-                group_id: 1,
-                contents: "Late spring might be cheaper and less crowded"
-            },
-            {
-                user_id: 4,
-                timestamp: "2025-10-03 14:16:00.000",
-                group_id: 1,
-                contents: "Agreed — summer prices are crazy"
-            },
-            {
-                user_id: 5,
-                timestamp: "2025-10-03 14:18:00.000",
-                group_id: 1,
-                contents: "Okay, Spain in late spring sounds like a plan"
+                group_id: groupMap["Southeast Asia Adventure"],
+                creator_id: userMap["sophia_photo"],
+                title: "Angkor Wat Sunrise",
+                description: "Early morning photography session at Angkor Wat",
+                startDate: "2026-11-10T05:00:00",
+                endDate: "2026-11-10T09:00:00",
+                coordinates_lat: 13.4125,
+                coordinates_lng: 103.8670
             }
         ];
 
-        const insertGroupMsgs = db.prepare(`
-            INSERT INTO group_messages (user_id, timestamp, group_id, contents)
+        const insertStop = db.prepare(`
+            INSERT INTO stops (group_id, creator_id, title, description, startDate, endDate, coordinates_lat, coordinates_lng)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        const stopsTx = db.transaction((stops) => {
+            for (const stop of stops) {
+                insertStop.run(
+                    stop.group_id,
+                    stop.creator_id,
+                    stop.title,
+                    stop.description,
+                    stop.startDate,
+                    stop.endDate,
+                    stop.coordinates_lat,
+                    stop.coordinates_lng
+                );
+            }
+        });
+        stopsTx(demoStops);
+
+        const stops = db.prepare("SELECT id, group_id FROM stops").all();
+
+        // ========== STOP FILES ==========
+        console.log("Inserting demo stop files...");
+        
+        const demoStopFiles = [
+            {
+                stop_id: stops[0].id,
+                group_id: stops[0].group_id,
+                file_name: "amsterdam_itinerary.pdf",
+                file_path: "/uploads/amsterdam_itinerary.pdf",
+                file_type: "application/pdf",
+                file_size: 2048576
+            },
+            {
+                stop_id: stops[0].id,
+                group_id: stops[0].group_id,
+                file_name: "hostel_confirmation.jpg",
+                file_path: "/uploads/hostel_confirmation.jpg",
+                file_type: "image/jpeg",
+                file_size: 512000
+            },
+            {
+                stop_id: stops[1].id,
+                group_id: stops[1].group_id,
+                file_name: "berlin_map.png",
+                file_path: "/uploads/berlin_map.png",
+                file_type: "image/png",
+                file_size: 1024000
+            },
+            {
+                stop_id: stops[3].id,
+                group_id: stops[3].group_id,
+                file_name: "ski_rental_form.pdf",
+                file_path: "/uploads/ski_rental_form.pdf",
+                file_type: "application/pdf",
+                file_size: 153600
+            },
+            {
+                stop_id: stops[5].id,
+                group_id: stops[5].group_id,
+                file_name: "bangkok_temple_rules.docx",
+                file_path: "/uploads/bangkok_temple_rules.docx",
+                file_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                file_size: 25600
+            }
+        ];
+
+        const insertStopFile = db.prepare(`
+            INSERT INTO stop_files (stop_id, group_id, file_name, file_path, file_type, file_size)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `);
+
+        const stopFilesTx = db.transaction((files) => {
+            for (const file of files) {
+                insertStopFile.run(
+                    file.stop_id,
+                    file.group_id,
+                    file.file_name,
+                    file.file_path,
+                    file.file_type,
+                    file.file_size
+                );
+            }
+        });
+        stopFilesTx(demoStopFiles);
+
+        // ========== GROUP MESSAGES ==========
+        console.log("Inserting demo group messages...");
+        
+        const demoMessages = [
+            // European Backpackers messages
+            {
+                group_id: groupMap["European Backpackers 2026"],
+                user_id: userMap["admin_john"],
+                contents: "Welcome everyone! Let's start planning our European adventure!",
+                timestamp: "2026-05-01 09:15:00"
+            },
+            {
+                group_id: groupMap["European Backpackers 2026"],
+                user_id: userMap["david_city"],
+                contents: "I've uploaded the Berlin itinerary. Please check if the dates work for everyone.",
+                timestamp: "2026-05-01 14:30:00"
+            },
+            {
+                group_id: groupMap["European Backpackers 2026"],
+                user_id: userMap["lisa_beach"],
+                contents: "Found a great deal on hostels in Prague! 20% off if we book this week.",
+                timestamp: "2026-05-02 11:45:00"
+            },
+            {
+                group_id: groupMap["European Backpackers 2026"],
+                user_id: userMap["tom_viewer"],
+                contents: "Excited to follow along with your trip! Take lots of photos please!",
+                timestamp: "2026-05-03 16:20:00"
+            },
+            
+            // Ski Trip messages
+            {
+                group_id: groupMap["Ski Trip - Alps 2026"],
+                user_id: userMap["sarah_admin"],
+                contents: "Ski rentals are booked! Remember to bring your gloves and goggles.",
+                timestamp: "2026-11-10 10:00:00"
+            },
+            {
+                group_id: groupMap["Ski Trip - Alps 2026"],
+                user_id: userMap["robert_planner"],
+                contents: "I've created a budget spreadsheet for shared expenses. Check your email.",
+                timestamp: "2026-11-11 15:45:00"
+            },
+            
+            // Southeast Asia messages
+            {
+                group_id: groupMap["Southeast Asia Adventure"],
+                user_id: userMap["lisa_beach"],
+                contents: "Temple dress code reminder: shoulders and knees must be covered.",
+                timestamp: "2026-09-15 13:20:00"
+            },
+            {
+                group_id: groupMap["Southeast Asia Adventure"],
+                user_id: userMap["sophia_photo"],
+                contents: "Sunrise at Angkor Wat is at 5:42 AM. Let's meet at 4:30 to get good spots!",
+                timestamp: "2026-09-20 18:05:00"
+            }
+        ];
+
+        const insertMessage = db.prepare(`
+            INSERT INTO group_messages (group_id, user_id, contents, timestamp)
             VALUES (?, ?, ?, ?)
         `);
 
-        const transaction = db.transaction((groupMessages) => {
-            for (const message of groupMessages) insertGroupMsgs.run(message.user_id, message.timestamp, message.group_id, message.contents);
+        const messagesTx = db.transaction((messages) => {
+            for (const msg of messages) {
+                insertMessage.run(msg.group_id, msg.user_id, msg.contents, msg.timestamp);
+            }
         });
+        messagesTx(demoMessages);
 
-        transaction(exampleMessages);
-    } else {
-        console.log("Testing messages already present: skipping demo inserts.");
-    }
-
-    // --- DEMO FRIENDSHIPS ---
-    const friendshipCount = db.prepare("SELECT COUNT(*) AS count FROM friend_requests").get().count;
-
-    if (friendshipCount === 0) {
-        console.log("No friend requests found — inserting demo friendships...");
-
-        const users = db.prepare("SELECT id, username FROM users").all();
-        const userByName = Object.fromEntries(users.map((u) => [u.username, u.id]));
-
-        const friendships = [
-            { requester_id: userByName["Keti"], requested_id: userByName["Mike"] },
-            { requester_id: userByName["Mike"], requested_id: userByName["Keti"] },
-
-            { requester_id: userByName["Keti"], requested_id: userByName["Jori"] },
-            { requester_id: userByName["Jori"], requested_id: userByName["Keti"] },
-
-            { requester_id: userByName["Peter"], requested_id: userByName["Joris"] },
-            { requester_id: userByName["Joris"], requested_id: userByName["Peter"] },
-
-            { requester_id: userByName["Pew"], requested_id: userByName["Keti"] },
-            { requester_id: userByName["Keti"], requested_id: userByName["Pew"] },
+        // ========== FRIEND REQUESTS ==========
+        console.log("Inserting demo friend requests...");
+        
+        const demoFriendRequests = [
+            // Mutual friendships (both directions)
+            { requester_id: userMap["admin_john"], requested_id: userMap["sarah_admin"] },
+            { requester_id: userMap["sarah_admin"], requested_id: userMap["admin_john"] },
+            
+            { requester_id: userMap["mike_adventurer"], requested_id: userMap["lisa_beach"] },
+            { requester_id: userMap["lisa_beach"], requested_id: userMap["mike_adventurer"] },
+            
+            { requester_id: userMap["david_city"], requested_id: userMap["emma_culture"] },
+            { requester_id: userMap["emma_culture"], requested_id: userMap["david_city"] },
+            
+            { requester_id: userMap["sophia_photo"], requested_id: userMap["robert_planner"] },
+            { requester_id: userMap["robert_planner"], requested_id: userMap["sophia_photo"] },
+            
+            // One-way pending requests
+            { requester_id: userMap["tom_viewer"], requested_id: userMap["admin_john"] },
+            { requester_id: userMap["anna_follower"], requested_id: userMap["sarah_admin"] },
+            { requester_id: userMap["admin_john"], requested_id: userMap["mike_adventurer"] }
         ];
 
-        const insertFriendship = db.prepare(
-        "INSERT INTO friend_requests (requester_id, requested_id) VALUES (?, ?)"
-        );
+        const insertFriendRequest = db.prepare(`
+            INSERT INTO friend_requests (requester_id, requested_id) VALUES (?, ?)
+        `);
 
-        const insertFriendshipsTx = db.transaction((requests) => {
-            for (const fr of requests) insertFriendship.run(fr.requester_id, fr.requested_id);
+        const friendsTx = db.transaction((requests) => {
+            for (const req of requests) {
+                insertFriendRequest.run(req.requester_id, req.requested_id);
+            }
         });
+        friendsTx(demoFriendRequests);
 
-        insertFriendshipsTx(friendships);
-    } else {
-        console.log("Friendships already present — skipping demo inserts.");
-    }
-
-    // --- DEMO POLLS ---
-    const pollCount = db.prepare("SELECT COUNT(*) AS count FROM group_polls").get().count;
-
-    if (pollCount === 0) {
-        console.log("No polls found — inserting demo polls...");
-
-        const groups = db.prepare("SELECT id, name FROM groups").all();
-        const users = db.prepare("SELECT id, username FROM users").all();
-
-        const groupByName = Object.fromEntries(groups.map(g => [g.name, g.id]));
-        const userByName = Object.fromEntries(users.map(u => [u.username, u.id]));
-
+        // ========== POLLS ==========
+        console.log("Inserting demo polls...");
+        
         const now = new Date();
-
-        const examplePolls = [
+        
+        const demoPolls = [
             {
-                poll_id: 1,
-                group_id: groupByName["UHasselt Adventure Buddies"],
-                title: "Where should our next trip be?",
-                creator_id: userByName["Keti"],
-                allow_multiple: 1,
-                end_time: new Date(now.getTime() + 7*24*60*60*1000).toISOString(), // 7 days from now
-                options: ["Paris", "Rome", "Barcelona", "Berlin"]
-            },
-            {
-                poll_id: 2,
-                group_id: groupByName["UHasselt Adventure Buddies"],
-                title: "Preferred hiking difficulty?",
-                creator_id: userByName["Jori"],
+                group_id: groupMap["European Backpackers 2026"],
+                title: "Which additional city should we visit?",
+                creator_id: userMap["admin_john"],
                 allow_multiple: 0,
-                end_time: new Date(now.getTime() - 24*60*60*1000).toISOString(), // ended yesterday
-                options: ["Beginner", "Intermediate", "Advanced", "Extreme"]
+                end_time: new Date(now.getTime() + 7*24*60*60*1000).toISOString(),
+                options: ["Vienna", "Budapest", "Krakow", "Ljubljana"]
             },
             {
-                poll_id: 3,
-                group_id: groupByName["Summer Road Trip 2025"],
-                title: "Which snacks should we bring?",
-                creator_id: userByName["Mike"],
+                group_id: groupMap["European Backpackers 2026"],
+                title: "What type of transportation between cities?",
+                creator_id: userMap["david_city"],
                 allow_multiple: 1,
-                end_time: new Date(now.getTime() + 3*24*60*60*1000).toISOString(), // 3 days from now
-                options: ["Chips", "Chocolate", "Fruit", "Nuts", "Energy Bars"]
+                end_time: new Date(now.getTime() + 3*24*60*60*1000).toISOString(),
+                options: ["Night trains", "Budget flights", "Buses", "Car rental"]
             },
             {
-                poll_id: 4,
-                group_id: groupByName["Mountain Lovers"],
-                title: "Best time to start hiking?",
-                creator_id: userByName["Joris"],
+                group_id: groupMap["Ski Trip - Alps 2026"],
+                title: "Evening activity preference",
+                creator_id: userMap["sarah_admin"],
                 allow_multiple: 1,
-                end_time: new Date(now.getTime() + 1*24*60*60*1000).toISOString(), // 1 day from now
-                options: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM"]
+                end_time: new Date(now.getTime() + 2*24*60*60*1000).toISOString(),
+                options: ["Hot tub sessions", "Board games", "Movie nights", "Local restaurants"]
+            },
+            {
+                group_id: groupMap["Southeast Asia Adventure"],
+                title: "Should we add a beach day?",
+                creator_id: userMap["lisa_beach"],
+                allow_multiple: 0,
+                end_time: new Date(now.getTime() - 1*24*60*60*1000).toISOString(), // Ended yesterday
+                options: ["Yes, Phuket", "Yes, Koh Samui", "No, stick to culture", "Maybe day trip"]
+            },
+            {
+                group_id: groupMap["US National Parks Roadtrip"],
+                title: "Camping or cabins?",
+                creator_id: userMap["mike_adventurer"],
+                allow_multiple: 0,
+                end_time: new Date(now.getTime() + 5*24*60*60*1000).toISOString(),
+                options: ["Camping all the way!", "Cabins for comfort", "Mix of both", "Hotels"]
             }
         ];
 
         const insertPoll = db.prepare(`
-            INSERT INTO group_polls (poll_id, group_id, title, creator_id, allow_multiple, end_time)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO group_polls (group_id, title, creator_id, allow_multiple, end_time)
+            VALUES (?, ?, ?, ?, ?)
         `);
 
         const insertOption = db.prepare(`
-            INSERT INTO poll_options (poll_id, contents)
-            VALUES (?, ?)
+            INSERT INTO poll_options (poll_id, contents) VALUES (?, ?)
         `);
 
-        const pollTx = db.transaction((polls) => {
-            for (const poll of polls) {
-                insertPoll.run(
-                poll.poll_id,
-                poll.group_id,
-                poll.title,
-                poll.creator_id,
-                poll.allow_multiple,
-                poll.end_time
-                );
+        const insertVote = db.prepare(`
+            INSERT INTO poll_votes (poll_id, option_id, voter_id) VALUES (?, ?, ?)
+        `);
 
-                for (const opt of poll.options) {
-                    insertOption.run(poll.poll_id, opt);
+        const pollsTx = db.transaction((polls) => {
+            for (const poll of polls) {
+                const result = insertPoll.run(
+                    poll.group_id,
+                    poll.title,
+                    poll.creator_id,
+                    poll.allow_multiple,
+                    poll.end_time
+                );
+                const pollId = result.lastInsertRowid;
+
+                // Insert options
+                const optionIds = [];
+                for (const optionText of poll.options) {
+                    const optionResult = insertOption.run(pollId, optionText);
+                    optionIds.push(optionResult.lastInsertRowid);
+                }
+
+                // Simulate some votes
+                const groupMembers = db.prepare(`
+                    SELECT user_id FROM group_members WHERE group_id = ?
+                `).all(poll.group_id);
+                
+                // Distribute votes randomly
+                for (const member of groupMembers) {
+                    if (Math.random() > 0.3) { // 70% of members vote
+                        if (poll.allow_multiple) {
+                            // Vote for 1-2 options
+                            const votesCount = Math.floor(Math.random() * 2) + 1;
+                            const shuffled = [...optionIds].sort(() => Math.random() - 0.5);
+                            for (let i = 0; i < Math.min(votesCount, shuffled.length); i++) {
+                                insertVote.run(pollId, shuffled[i], member.user_id);
+                                // Update vote count
+                                db.prepare(`
+                                    UPDATE poll_options SET vote_count = vote_count + 1 WHERE option_id = ?
+                                `).run(shuffled[i]);
+                            }
+                        } else {
+                            // Vote for one option
+                            const optionId = optionIds[Math.floor(Math.random() * optionIds.length)];
+                            insertVote.run(pollId, optionId, member.user_id);
+                            // Update vote count
+                            db.prepare(`
+                                UPDATE poll_options SET vote_count = vote_count + 1 WHERE option_id = ?
+                            `).run(optionId);
+                        }
+                    }
                 }
             }
         });
+        pollsTx(demoPolls);
 
-        pollTx(examplePolls);
-
-        console.log("Demo polls inserted.");
+        console.log("   Comprehensive demo data inserted successfully!");
+        console.log("   Summary:");
+        console.log(`   Users: ${users.length} (admins, members, viewers)`);
+        console.log(`   Groups: ${groups.length}`);
+        console.log(`   Group Memberships: ${demoMemberships.length}`);
+        console.log(`   Stops: ${stops.length}`);
+        console.log(`   Stop Files: ${demoStopFiles.length}`);
+        console.log(`   Messages: ${demoMessages.length}`);
+        console.log(`   Friend Requests: ${demoFriendRequests.length}`);
+        console.log(`   Polls: ${demoPolls.length}`);
+        console.log(`   Invites: ${demoInvites.length}`);
     } else {
-        console.log("Polls already present — skipping demo inserts.");
+        console.log("Database already contains data: skipping demo inserts.");
     }
 
     console.log("Database initialized successfully.");
-
-    // --- DEMO POLLS OPTIONS --- 
-    // TODO create demo polls options
-
-    // --- DEMO VOTES --- 
-    // TODO create demo votes
-    }
-
+}
