@@ -62,6 +62,21 @@
     #groupList .text-muted {
         font-size: 15px;
     }
+    .groupBtns {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .groupBtns > button {
+        margin: 5px;
+    }
+    #openGrp {
+        margin-top: 5px;
+    }
+    #deleteGrp {
+        border: none;
+        width: 50%;
+    }
 
 
 /*-----------Sidebar-----------*/

@@ -87,16 +87,20 @@ async function loadGroups() {
       div.className = "col-md-4";
       div.innerHTML = `
         <div class="card h-100 border-0 position-relative">
-          <button 
-            class="btn-close position-absolute top-0 end-0 m-2"
-            onclick="handleGroupDelete(${group.id}, '${userRole}')">
-          </button>
 
           <div class="card-body text-center">
             <h5 class="card-title">${group.name}</h5>
             <p class="text-muted">${group.description || "No description."}</p>
-            <button class="btn btn-outline-primary w-100" onclick="openGroup(${group.id})">Open</button>
-          </div>
+            <div class="groupBtns">
+                <button class="btn btn-outline-primary w-50" id="openGrp" onclick="openGroup(${group.id})">Open</button>
+                <button 
+                    id="deleteGrp"
+                    class="btn btn-outline-cancel"
+                    onclick="handleGroupDelete(${group.id}, '${userRole}')"> Delete
+                </button>
+            </div>
+            
+            </div>
         </div>`;
       container.appendChild(div);
     }
