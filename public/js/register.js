@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 deleteCookie("rememberedUser");
                 }
 
-                window.location.href = "/fyp";
+                window.location.href = "/login";
                 
             } else {
                 alert(data.message);
