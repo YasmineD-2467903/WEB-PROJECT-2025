@@ -496,7 +496,7 @@ app.post("/register", (req, res) => {
         const friendCode = createUniqueFriendCode();
         const insertUser = db.prepare("INSERT INTO users (username, password, friend_code) VALUES (?, ?, ?)");
         insertUser.run(username, password, friendCode)
-        res.json({ success: true, message: `Registration successful. Welcome, ${username}!` });
+        res.json({ success: true, message: `Registration successful. Redirecting to login.` });
         }
     } catch (err) {
         console.error("Database error:", err);
