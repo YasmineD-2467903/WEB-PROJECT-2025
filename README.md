@@ -1,8 +1,15 @@
 # Web programming project
 ## Login credentials
-1. Keti, "123"
-2. Pew, "000"
-3. ...
+1. admin_john, password123
+2. sarah_admin, password456
+3. mike_adventurer, password789
+4. lisa_beach, password012
+5. david_city, password345
+6. emma_culture, password678
+7. tom_viewer, password901
+8. anna_follower, password234
+9. robert_planner, password567
+10. sophia_photo, password890
 
 ## (Un)Realized requirements and expansions
 ### Expansions
@@ -31,6 +38,7 @@
 - Clickable interactive maps (not static images).
 - Groups have access tiers: admin, members, viewer.
   - Admin rights
+    - Deleting the entire group
     - Inviting friends to group with specific rights (admin/member/viewer)
     - Viewing member list
     - Removing users from the group
@@ -41,6 +49,7 @@
     - Generating a route
     - Utilising the group chat
   - Member rights
+    - Leaving the group
     - Adding members \[if group settings allow it\] with specific rights (member/viewer)
     - Viewing member list
     - Creating/Deleting (THEIR OWN) polls
@@ -50,6 +59,7 @@
     - Viewing the group chat
     - Utilising the group chat
   - Viewer rights
+    - Leaving the group
     - Viewing member list
     - Viewing the daily planning
     - Generating a route
