@@ -228,6 +228,7 @@ addOptionBtn.addEventListener("click", () => {
 
     if (currentOptions + 1 >= maxOptions) {
         addOptionBtn.disabled = true;
+        addOptionBtn.style.opacity = "0.7";
     }
 });
 
@@ -301,18 +302,18 @@ function resetPollCreateForm() {
     endTimeInput.value = "";
     endTimeInput.disabled = false;
     noEndTimeCheck.checked = false;
-
-    optionContainer.innerHTML = `
-        <label class="form-label">Options</label>
-
-        <div class="input-group mb-2 poll-option">
-            <input type="text" class="form-control" placeholder="Option 1">
-        </div>
-
-        <div class="input-group mb-2 poll-option">
-            <input type="text" class="form-control" placeholder="Option 2">
-        </div>
-    `;
+    
+    const optionInputs = optionContainer.querySelectorAll(".poll-option");
+    optionInputs.forEach(option => option.remove());
+    
+    for (let i = 1; i <= 2; i++) {
+        const div = document.createElement("div");
+        div.classList.add("input-group", "mb-2", "poll-option");
+        div.innerHTML = `
+            <input type="text" class="form-control" placeholder="Option ${i}">
+        `;
+        optionContainer.appendChild(div);
+    }
 
     addOptionBtn.disabled = false;
 }
