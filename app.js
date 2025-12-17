@@ -494,8 +494,8 @@ app.post("/register", (req, res) => {
         res.status(409).json({ success: false, message: `User already exists.`});
         } else {
         const friendCode = createUniqueFriendCode();
-        const insertUser = db.prepare("INSERT INTO users (username, password, friend_code) VALUES (?, ?, ?)");
-        insertUser.run(username, password, friendCode)
+        const insertUser = db.prepare("INSERT INTO users (username, password, display_name, friend_code) VALUES (?, ?, ?, ?)");
+        insertUser.run(username, password, username, friendCode)
         res.json({ success: true, message: `Registration successful. Redirecting to login.` });
         }
     } catch (err) {
@@ -1068,11 +1068,11 @@ app.post("/group/:groupId/stops", uploadStopFiles.array("files"), (req, res) => 
         if (req.files && req.files.length > 0) {
             const insertFile = db.prepare(`
                 INSERT INTO stop_files
-                (stop_id, group_id, file_name, file_path, file_type, file_size)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (stop_id, group_id, file_name, file_path, file_type)
+                VALUES (?, ?, ?, ?, ?)
             `);
             for (const file of req.files) {
-                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype, file.size);
+                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype);
             }
         }
 
@@ -1108,11 +1108,11 @@ app.post("/group/:groupId/stops/:stopId/update", uploadStopFiles.array("files"),
         if (req.files && req.files.length > 0) {
             const insertFile = db.prepare(`
                 INSERT INTO stop_files
-                (stop_id, group_id, file_name, file_path, file_type, file_size)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (stop_id, group_id, file_name, file_path, file_type)
+                VALUES (?, ?, ?, ?, ?)
             `);
             for (const file of req.files) {
-                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype, file.size);
+                insertFile.run(stopId, groupId, file.originalname, file.filename, file.mimetype);
             }
         }
 

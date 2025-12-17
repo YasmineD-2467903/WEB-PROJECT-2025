@@ -596,6 +596,18 @@ async function openEditStopModal(stopId) {
     }
 }
 
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', function() {
+        const form = this.querySelector('form');
+        if (form) {
+            form.reset();
+            // Also explicitly clear file inputs
+            const fileInputs = form.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => input.value = "");
+        }
+    });
+});
+
 // ==================== INIT ====================
 
 export async function init() {
