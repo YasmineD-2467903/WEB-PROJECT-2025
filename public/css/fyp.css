@@ -160,6 +160,15 @@
         }
 
 
+/*----------- Popups -----------*/
+    .modal-title {
+        font-weight: 550;
+    }
+    #createGrp > input{
+        margin: 5px;
+    }
+        
+
 /*-----------Buttons-----------*/
     .btn.btn-success,
     .btn.btn-outline-primary,

@@ -197,7 +197,7 @@ export function InitializeDatabase() {
             },
             {
                 username: "sarah_admin",
-                password: "$password456",
+                password: "password456",
                 display_name: "Sarah Explorer",
                 bio: "Adventure photographer and trip planner. Always looking for new destinations!",
                 bannerColor: "#e74c3c",
