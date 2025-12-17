@@ -101,7 +101,6 @@ export function InitializeDatabase() {
             file_name TEXT NOT NULL,
             file_path TEXT NOT NULL,
             file_type TEXT,
-            file_size INTEGER,
             uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (stop_id) REFERENCES stops(id) ON DELETE CASCADE,
             FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
@@ -561,47 +560,42 @@ export function InitializeDatabase() {
                 stop_id: stops[0].id,
                 group_id: stops[0].group_id,
                 file_name: "amsterdam_itinerary.pdf",
-                file_path: "/uploads/amsterdam_itinerary.pdf",
+                file_path: "amsterdam_itinerary.pdf",
                 file_type: "application/pdf",
-                file_size: 2048576
             },
             {
                 stop_id: stops[0].id,
                 group_id: stops[0].group_id,
                 file_name: "hostel_confirmation.jpg",
-                file_path: "/uploads/hostel_confirmation.jpg",
+                file_path: "hostel_confirmation.jpg",
                 file_type: "image/jpeg",
-                file_size: 512000
             },
             {
                 stop_id: stops[1].id,
                 group_id: stops[1].group_id,
                 file_name: "berlin_map.png",
-                file_path: "/uploads/berlin_map.png",
+                file_path: "berlin_map.png",
                 file_type: "image/png",
-                file_size: 1024000
             },
             {
                 stop_id: stops[3].id,
                 group_id: stops[3].group_id,
                 file_name: "ski_rental_form.pdf",
-                file_path: "/uploads/ski_rental_form.pdf",
+                file_path: "ski_rental_form.pdf",
                 file_type: "application/pdf",
-                file_size: 153600
             },
             {
                 stop_id: stops[5].id,
                 group_id: stops[5].group_id,
-                file_name: "bangkok_temple_rules.docx",
-                file_path: "/uploads/bangkok_temple_rules.docx",
-                file_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                file_size: 25600
+                file_name: "bangkok_temple_rules.pdf",
+                file_path: "bangkok_temple_rules.pdf",
+                file_type: "application/pdf",
             }
         ];
 
         const insertStopFile = db.prepare(`
-            INSERT INTO stop_files (stop_id, group_id, file_name, file_path, file_type, file_size)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO stop_files (stop_id, group_id, file_name, file_path, file_type)
+            VALUES (?, ?, ?, ?, ?)
         `);
 
         const stopFilesTx = db.transaction((files) => {
@@ -612,7 +606,6 @@ export function InitializeDatabase() {
                     file.file_name,
                     file.file_path,
                     file.file_type,
-                    file.file_size
                 );
             }
         });

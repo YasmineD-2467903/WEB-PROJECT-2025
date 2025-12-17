@@ -107,17 +107,17 @@ app.get("/", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => { 
-    res.render("pages/login/login");
+    res.render("pages/login");
 });
 
 // register page
 app.get("/register", (req, res) => {
-    res.render("pages/register/register");
+    res.render("pages/register");
 });
 
 // fyp
 app.get("/fyp", (req, res) => {
-    res.render("pages/fyp/fyp");
+    res.render("pages/fyp");
 });
 
 // finds your own friend code to display on friends page (part of fyp)
@@ -238,7 +238,7 @@ app.get("/groups", (req, res) => {
 app.get("/group", (req, res) => {
     const groupId = req.query.id;
     if (!groupId) return res.status(400).send("Group ID missing");
-    res.render("pages/group/group", { groupId });
+    res.render("pages/group", { groupId });
 });
 
 // group page with data
